@@ -48,8 +48,7 @@
 
 The Abstract Meaning Representation (AMR) is a promising representation for open-domain rich semantics.
 Generating semantic sub-graphs from contiguous tokens is a crucial part of AMR parsing.
-The state-of-the-art AMR parsing approach memorizes a dictionary of legal AMR sub-graphs which can be generated from training data.
-We instead propose a small set of actions to \textit{construct} a sub-graph at test time from a span of tokens, which allow us to greatly expand our generalization from training data.
+We propose a small set of actions to \textit{construct} a sub-graph at test time from a span of tokens, which allow us to greatly expand our generalization from training data.
 We show that our mapping is a good approximation which we can learn with a simple classifier.
 This reduces the need for sparse dictionary lookups, which improves generalization on unknown words and allows us to exploit statistical efficiency on a small training set.
 We demonstrate that our approach improves on published state-of-the-art AMR parsing, from 0.58 smatch to 0.64 smatch on the LDC2013E117 dataset.
@@ -58,12 +57,13 @@ We demonstrate that our approach improves on published state-of-the-art AMR pars
 
 \section{Introduction}
 
-The Abstract Meaning Representation (AMR) is a semantic formalism that represents meaning as a directed graph, where nodes repesent concepts and arcs are relationships between concepts. It makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in the source sentence. In fact, AMR will often either expand single tokens into large sub-graph elements, or ignore tokens completely. The AMR graph corresponding to a sentence need not be projective when AMR nodes are aligned back to their source tokens. The graph doesn't even need to be a DAG, as cycles are possible. However, as a result of these nasty computational properties, a tremendous amount of expressive power is available in AMR.
+The Abstract Meaning Representation (AMR) is a semantic formalism that represents meaning as a directed graph, where nodes repesent concepts and arcs are relationships between concepts. AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in a source sentence, and so is not a ``semantic dependency'' representation. In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely. AMR was designed with MT as a possible application, but with an acknowledged bias towards English. It's often convenient to think of AMR as an unambiguous, computational dialect of English we're translating to, rather than a sophisticated form of dependency parsing.
 
-To introduce AMR and its notation, we'll unpack the parse of "He ran to his house".
+To introduce AMR and its notation, we'll unpack the parse of "He ran to his house in desperation".
 
 (r / run-01
 	:ARG0 (h / he)
+	:mod (d / desperate)
 	:destination (h2 / house
 		:poss-of h))
 
@@ -75,41 +75,19 @@ AMR parses in text form can be read as the result of a breadth first traversal o
 
 Now we find ourselves with a problem, because we would like to write (h / he :poss (h2 / house)). However, that would no longer be a tree, and it's not clear how to render that directly in text. Instead, AMR allows a writer to invert the direction of an arc by appending "-of". So we can write (h2 / house :poss-of (h / he)). Writing (h / he) is a bit redundant though, since we've already introduced the concept (h / he) higher up in the tree. Instead, we'll just use the coreference tag we associated with (h / he), and we'll write (h2 / house :poss-of h). The "h" all by itself represents a link back to the original node represented by (h / he) in the written representation.
 
-There are three different sources that AMR gets its arc-labels from. The first is PropBank, where it also gets the frames for its action nodes, from which AMR pulls ARG\\[0-N\\], and time, location, manner, and a few others. The second is Vivek Srikumar's thesis, where AMR gets its special purpose arc labels, which are lifted directly from his "Preposition Sense Tagging" experiments, like destination, purpose, beneficiary, medium, and several others. The third is from dependency parsing.
+\section{Methods}
 
-To take a more complex example that highlights more challenges with parsing AMR, we'll parse "Jason talked to the U.S. Olympic Sailing Team coach on June 2nd."
+AMR training data is in the form of bi-text, where we are given a <sentence,graph> pair, with no explicit alignments between them.
 
-(talk-01
-	:ARG0 (p / person
-		:name (n / name
-			:op1 "Jason"))
-	:ARG1 (p / person
-		:ARG1-of (c / coach-01
-			:ARG2 (t / team
-				:mod (c2 / country
-					:name (n2 / name
-						:op1 "United"
-						:op2 "States"))
-				:mod (g / games
-					:mod (o / olympic))
-				:ARG1-of (s / sail-01))))
-	:time (temporal-entity
-		:month 2
-		:day 2))
+We'll use a running example of a sentence and its corresponding AMR parse throughout this paper, to motivate our method.
 
-\section{Overview}
+DICT
+VERB
+IDENTITY
+LEMMA
+NONE
 
-Manuscripts must be in two-column format.  Exceptions to the
-two-column format include the title, authors' names and complete
-addresses, which must be centered at the top of the first page, and
-any full-width figures or tables (see the guidelines in
-Subsection~\ref{ssec:first}). {\bf Type single-spaced.}  Start all
-pages directly under the top margin. See the guidelines later
-regarding formatting the first page.  The manuscript should be
-printed single-sided and its length
-should not exceed the maximum page limit described in Section~\ref{sec:length}.
-Do not number the pages.
-
+The sailor walked quickly over to admiral Nelson with his dog.
 
 \subsection{Electronically-available resources}
 
