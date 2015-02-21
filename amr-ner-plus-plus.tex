@@ -63,7 +63,7 @@ We demonstrate that our approach improves on published state-of-the-art AMR pars
 
 \section{Introduction}
 
-The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich semantic formalism that attempts to capture many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, semantic role labeling, word sense disambiguation, and coreference. The AMR sembanking effort promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness. As of this writing AMR has one published parser, JAMR \cite{Flanigan:14}, which reported very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development, and present an improvement to the JAMR parser's concept identification stage.
+The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich semantic formalism that captures many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, semantic role labeling, word sense disambiguation, and coreference. The AMR sembanking effort promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness. As of this writing AMR has one published parser, JAMR \cite{Flanigan:14}, which reported very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development, and present an improvement to the JAMR parser's concept identification stage.
 
 \section{A Crash-Course in AMR}
 
@@ -91,13 +91,24 @@ The entire sentence parse for ``he gleefully ran to his dog Rover'' can be writt
             :op1 "Rover"))
 \end{verbatim}
 
-Note the coreference back to the (h / he) from the arc :poss-of out of (d / dog).
+Note the coreference back to the (h / he) from the arc :poss-of out of (d / dog). 
+
+\todo{Explain *-of arc flipping}
+\todo{Discuss nasty nominalizations and NER}
+
+\section{Previous Work}
+
+At the time of this writing, the JAMR parser \cite{Flanigan:14} is the only published AMR parser. It uses a two-stage approach to parsing AMR. In the first stage, a sequence model is used to generate small AMR sub-chunks. Then in the second stage these chunks are stitched together by a variation of a maximum spanning tree algorithm with dual decomposition to impose linguistically motivated constraints.
+
+\todo{elaborate}
 
 \section{Methods}
 
-AMR training data is in the form of bi-text, where we are given a <sentence,graph> pair, with no explicit alignments between them.
+AMR training data is in the form of bi-text, where we are given a set of (sentence,graph) pairs, with no explicit alignments between them.
 
 We'll use a running example of a sentence and its corresponding AMR parse throughout this paper, to motivate our method.
+
+The sailor walked quickly over to admiral Nelson with his dog.
 
 DICT
 VERB
@@ -105,7 +116,12 @@ IDENTITY
 LEMMA
 NONE
 
-The sailor walked quickly over to admiral Nelson with his dog.
+\section{Preprocessing}
+
+AMR training data is in the form of bi-text, where we are given a set of (sentence,graph) pairs, with no explicit alignments between them.
+\todo{alignments}
+\todo{sequence data gen}
+\todo{dictionary data gen}
 
 \subsection{Electronically-available resources}
 
