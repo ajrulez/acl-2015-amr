@@ -20,6 +20,9 @@
 \usepackage{times}
 \usepackage{url}
 \usepackage{latexsym}
+\usepackage{graphicx}
+
+\input std-macros.tex
 
 %\setlength\titlebox{5cm}
 
@@ -35,7 +38,10 @@
   {\tt keenon@stanford.edu} \\\And
   Gabor Angeli \\
   Stanford University\\
-  {\tt gabor@stanford.edu} \\}
+  {\tt gabor@stanford.edu} \\\And
+  Chris Manning \\
+  Stanford University\\
+  {\tt manning@stanford.edu} \\}
 
 \date{}
 
@@ -46,34 +52,46 @@
 % The existing AMR corpus is heavily biased to the international newswire domain, making domain transfer of AMR parsing an important challenge. 
 % The Abstract Meaning Representation (AMR) is a semantic formalism for which a large and growing set of annotated examples is available.
 
-The Abstract Meaning Representation (AMR) is a promising representation for open-domain rich semantics.
+The Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics
 Generating semantic sub-graphs from contiguous tokens is a crucial part of AMR parsing.
 We propose a small set of actions to \textit{construct} a sub-graph at test time from a span of tokens, which allow us to greatly expand our generalization from training data.
-We show that our mapping is a good approximation which we can learn with a simple classifier.
+We show that our set of construction actions is a good approximation which we can learn with a simple classifier.
 This reduces the need for sparse dictionary lookups, which improves generalization on unknown words and allows us to exploit statistical efficiency on a small training set.
-We demonstrate that our approach improves on published state-of-the-art AMR parsing, from 0.58 smatch to 0.64 smatch on the LDC2013E117 dataset.
+We demonstrate that our approach improves on published state-of-the-art AMR parsing, from \textit{0.58} smatch to \textit{0.64} smatch on the LDC2013E117 dataset.
 
 \end{abstract}
 
 \section{Introduction}
 
-The Abstract Meaning Representation (AMR) is a semantic formalism that represents meaning as a directed graph, where nodes repesent concepts and arcs are relationships between concepts. AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in a source sentence, and so is not a ``semantic dependency'' representation. In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely. AMR was designed with MT as a possible application, but with an acknowledged bias towards English. It's often convenient to think of AMR as an unambiguous, computational dialect of English we're translating to, rather than a sophisticated form of dependency parsing.
+The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich semantic formalism that attempts to capture many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, semantic role labeling, word sense disambiguation, and coreference. The AMR sembanking effort promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness. As of this writing AMR has one published parser, JAMR \cite{Flanigan:14}, which reported very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development, and present an improvement to the JAMR parser's concept identification stage.
 
-To introduce AMR and its notation, we'll unpack the parse of "He ran to his house in desperation".
+\section{A Crash-Course in AMR}
 
+AMR is a semantic formalism that represents meaning as a directed graph, where nodes represent concepts and arcs are relationships between concepts. AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in a source sentence, and so is not a ``semantic dependency'' representation. In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
+
+\Fig{glee.png}{0.25}{glee}{``He gleefully ran to his dog Rover''}
+
+To introduce AMR and its notation, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. We show in \reffig{glee} the interpretation of this sentence as an AMR graph. Note that the root node of the graph is labeled ``run-01'', which is the name of a frame drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence. ``run-01'' has an outgoing ``ARG0'' arc to a node ``he'', with semantics drawn from the PropBank frame for ``run-01'' having its ARG0 \textit{be the object} ``he''. The ``run-01'' has an outgoing ``mod'' to ``glee,'' which has the catch-all semantics that ``run-01'' is somehow modified by the concept ``glee.'' ``run-01'' also has a ``destination'' arc to ``dog,'' which draws its semantics from Vivek Srikumar's thesis chapter on preposition sense tagging \needcite. Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
+
+AMR has a specification for writing these potentially cyclic, decidedly non-tree graphs cleanly in text. It works as follows: follow a breadth first traversal of the graph from the root. When you encounter nodes you haven't seen before, write them with a coreference tag and a slash, as in
+\begin{verbatim}(h / he)\end{verbatim}
+When you encounter nodes you've already written down somewhere else in the written representation, simply write down its coreference tag 
+\begin{verbatim}(h)\end{verbatim}
+to refer back to the original node unambiguously.
+
+The entire sentence parse for ``he gleefully ran to his dog Rover'' can be written in text form as follows:
+
+\begin{verbatim}
 (r / run-01
-	:ARG0 (h / he)
-	:mod (d / desperate)
-	:destination (h2 / house
-		:poss-of h))
+   :ARG0 (h / he)
+   :mod (g / gleeful)
+      :destination (d / dog
+         :poss-of h)
+         :name (n / name
+            :op1 "Rover"))
+\end{verbatim}
 
-AMR parses in text form can be read as the result of a breadth first traversal of the underlying directed graph. First, we introduce a node "run-01", and give it a coreference tag "r", which is written as "r / run-01". Then we observe an arc from "r / run-01" to a new node, "he", with coreference tag "h", and arc name "ARG0". This is written as "(r / run-01 :ARG0 (h / he))". We observe another arc, "destination", to "h2 / house". So far our tree is
-
-(r / run-01
-	:ARG0 (h / he)
-	:destination (h2 / house))
-
-Now we find ourselves with a problem, because we would like to write (h / he :poss (h2 / house)). However, that would no longer be a tree, and it's not clear how to render that directly in text. Instead, AMR allows a writer to invert the direction of an arc by appending "-of". So we can write (h2 / house :poss-of (h / he)). Writing (h / he) is a bit redundant though, since we've already introduced the concept (h / he) higher up in the tree. Instead, we'll just use the coreference tag we associated with (h / he), and we'll write (h2 / house :poss-of h). The "h" all by itself represents a link back to the original node represented by (h / he) in the written representation.
+Note the coreference back to the (h / he) from the arc :poss-of out of (d / dog).
 
 \section{Methods}
 
@@ -391,6 +409,16 @@ when submitting your paper for review.
 %\bibliography{acl2015}
 
 \begin{thebibliography}{}
+
+\bibitem[\protect\citename{Flanigan \bgroup et al.\egroup}2014]{Flanigan:14}
+Jeffrey Flanigan, Sam Thomson, Jaime Carbonell, Chris Dyer, Noah~A. Smith
+\newblock 2014.
+\newblock {\em ACL 14}, volume~1.
+
+\bibitem[\protect\citename{Banarescu \bgroup et al.\egroup}2013]{Banarescu:13}
+Laura Banarescu, Claire Bonial, Shu Cai, Madalina Georgescu, Kira Griffitt, Ulf Hermjakob, Kevin Knight, Philipp Koehn, Martha Palmer, and Nathan Schneider.
+\newblock 2013.
+\newblock {\em Proc. of the Linguistic Annotation Workshop and Iteroperability with Discourse}, volume~1.
 
 \bibitem[\protect\citename{Aho and Ullman}1972]{Aho:72}
 Alfred~V. Aho and Jeffrey~D. Ullman.
