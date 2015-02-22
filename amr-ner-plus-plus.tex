@@ -63,58 +63,78 @@ We demonstrate that our approach improves on published state-of-the-art AMR pars
 
 \section{Introduction}
 
-The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich semantic formalism that captures many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, semantic role labeling, word sense disambiguation, and coreference. The AMR sembanking effort promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness. As of this writing AMR has one published parser, JAMR \cite{Flanigan:14}, which reported very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development, and present an improvement to the JAMR parser's concept identification stage.
+% Semantics is the field of study concerned with meaning. The label ``semantic parsing'' has been used to describe various automatic meaning extraction tasks within NLP for the last decade, including automatic time expression detection \needcite, verb argument annotation \needcite, and question answering over structured databases \needcite. The reason the monicker has seen such varied use stems from the lack of a centrally agreed upon definition of what constitutes complete semantic understanding of a sentence. Until very recently, the only tasks for which there was sufficient training data to be tractable interpreted ``semantic parsing'' in either a narrow domain or as a shallow level of understanding.
+
+The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich language for expressing semantic understanding on both a broad domain and at a relatively deep level. AMR captures many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, verb argument labeling, word sense disambiguation, time expression parsing, and coreference. There is an ongoing AMR data labeling effort that promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness.
+
+As of this writing there is one published parser that targets the AMR formalism, JAMR \cite{Flanigan:14}, which reports very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development. JAMR follows a two-stage approach to parse AMR, first generating a set of AMR sub-graphs from spans of the sentence, and then stitching those sub-graphs together with a constrained MST (using dual decomposition).
+
+However, JAMR's architecture, while it has special case machinery for creating sensible chunks for named entities and time expressions, cannot generate AMR sub-graphs from unseen words in the general case. 
+
+% Valid examples to use:
+% excessively -> excessive
+% mother -> mother
+% exhaustive -> exhaust-01
+
+For instance, the adjective \textit{exhaustive} in ``the \textit{exhaustive} search'' should be parsed as an AMR verb, \textit{exhaust-01}, but JAMR is unable to recognize this because it has no instance of the adjective \textit{exhaustive} used in the training data. Our system can generalize from training data to learn that \textit{exhaustive} is 
+
+Instead of memorizing a bank of AMR sub-graphs to generate from spans of tokens, we propose a small set of `generative actions' that our system can take to derive an AMR sub-graph from a span of tokens (see \reffig{method}). For example, we have an action \textit{IDENT} that will generate a node with the same title as the token in the source sentence that receives the label, which allows us to capture unseen nouns like `mother'. We show that having a set of actions as an intermediate to generating AMR sub-graphs greatly improves statistical efficiency when training a sub-graph generation system on the relatively small amount of available training data, and that end to end performance in-domain is improved from \textbf{0.58} smatch to \textbf{0.64} smatch when using JAMR's constrained MST to stitch together the resulting sub-graphs. This approach also enables us to use dense features to improve brittle out-of-domain performance significantly.
 
 \section{A Crash-Course in AMR}
 
-AMR is a semantic formalism that represents meaning as a directed graph, where nodes represent concepts and arcs are relationships between concepts. AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in a source sentence, and so is not a ``semantic dependency'' representation. In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
+AMR is a language for expressing semantic understanding that represents meaning as a directed graph, where nodes represent concepts and arcs are relationships between concepts. AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in the sentence whose semantics is being represented. Thus AMR is not a ``semantic dependency'' representation. AMR represents the relationships between objects referred to by the surface text, not merely the relationships between the words themselves. In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
 
-\Fig{glee.png}{0.25}{glee}{``He gleefully ran to his dog Rover''}
+\Fig{glee.png}{0.25}{glee}{AMR graph for ``He gleefully ran to his dog Rover''. Nodes represent concepts, and arcs are relationships between concepts.}
 
-To introduce AMR and its notation, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. We show in \reffig{glee} the interpretation of this sentence as an AMR graph. Note that the root node of the graph is labeled ``run-01'', which is the name of a frame drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence. ``run-01'' has an outgoing ``ARG0'' arc to a node ``he'', with semantics drawn from the PropBank frame for ``run-01'' having its ARG0 \textit{be the object} ``he''. The ``run-01'' has an outgoing ``mod'' to ``glee,'' which has the catch-all semantics that ``run-01'' is somehow modified by the concept ``glee.'' ``run-01'' also has a ``destination'' arc to ``dog,'' which draws its semantics from Vivek Srikumar's thesis chapter on preposition sense tagging \needcite. Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
+To introduce AMR and its notation, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
 
-AMR has a specification for writing these potentially cyclic, decidedly non-tree graphs cleanly in text. It works as follows: follow a breadth first traversal of the graph from the root. When you encounter nodes you haven't seen before, write them with a coreference tag and a slash, as in
-\begin{verbatim}(h / he)\end{verbatim}
-When you encounter nodes you've already written down somewhere else in the written representation, simply write down its coreference tag 
-\begin{verbatim}(h)\end{verbatim}
-to refer back to the original node unambiguously.
+Note that the root node of the graph is labeled ``run-01''. This is the name of a verb sense definition drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence. This distinguishes this use of the verb ``run'' from senses like those expressed in ``he \textit{ran} the business'' or ``he gave him a \textit{run} for his money''.
 
-The entire sentence parse for ``he gleefully ran to his dog Rover'' can be written in text form as follows:
+``run-01'' has an outgoing ``ARG0'' arc to a node ``he'', with semantics (drawn from the PropBank frame) that roughly correspond to ``he'' being the doer of the ``run-01'' action. The ``run-01'' has an outgoing ``mod'' to ``glee,'' which has the catch-all semantics that ``run-01'' is somehow modified by the concept ``glee.'' ``run-01'' also has a ``destination'' arc to ``dog,'' which draws its semantics from Vivek Srikumar's thesis chapter on preposition sense tagging \needcite, and means that the destination of the ``run-01'' action is ``dog''. Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
-\begin{verbatim}
-(r / run-01
-   :ARG0 (h / he)
-   :mod (g / gleeful)
-      :destination (d / dog
-         :poss-of h)
-         :name (n / name
-            :op1 "Rover"))
-\end{verbatim}
-
-Note the coreference back to the (h / he) from the arc :poss-of out of (d / dog). 
-
-\todo{Explain *-of arc flipping}
 \todo{Discuss nasty nominalizations and NER}
 
 \section{Previous Work}
 
 At the time of this writing, the JAMR parser \cite{Flanigan:14} is the only published AMR parser. It uses a two-stage approach to parsing AMR. In the first stage, a sequence model is used to generate small AMR sub-chunks. Then in the second stage these chunks are stitched together by a variation of a maximum spanning tree algorithm with dual decomposition to impose linguistically motivated constraints.
 
-\todo{elaborate}
+To more carefully define what is meant by AMR sub-chunks, 
 
 \section{Methods}
 
-AMR training data is in the form of bi-text, where we are given a set of (sentence,graph) pairs, with no explicit alignments between them.
+\FigStar{method.png}{0.23}{method}{Derivation process for ``He gleefully ran to his dog Rover''. First the tokens in the sentence are labeled with derivation actions, then those actions are used to generate AMR sub-graphs, and then those sub-graphs are stitched together to form a coherent whole.}
 
-We'll use a running example of a sentence and its corresponding AMR parse throughout this paper, to motivate our method.
+Our method relies on a very simple insight about AMR: a vast majority of the AMR nodes can be explained by a very small set of derivation types. We do a sequence labeling of each token in the sentence with one of the following labels:
 
-The sailor walked quickly over to admiral Nelson with his dog.
+\begin{itemize}
+\item \textbf{VERB}: Look for the most similar PropBank frame, make that the title of the corresponding node.
+\item \textbf{IDENTITY}: Take the lowercased version of the token to be the title of the corresponding node.
+\item \textbf{VALUE}: Parse the token to an integer value, and use that as the node.
+\item \textbf{LEMMA}: Take the lemma of the token to be the title of the corresponding node.
+\item \textbf{NONE}: Ignore this token in the final output.
+\item \textbf{DICT}: Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
+\end{itemize}
 
-DICT
-VERB
-IDENTITY
-LEMMA
-NONE
+This has two primary benefits: We're able to more effectively generalize from training data to unseen examples, and we're able to exploit much greater statistical efficiency over our training data. 
+
+The only class that doesn't give us an immediate win if we correctly classify it is \textbf{DICT}, for which we still have to resort to the JAMR expedient of looking up a span in a dictionary. This class functions as a catch-all. To see how rarely we need to resort to \textbf{DICT}, we turn to the distribution of different tag types on the training data, by token.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|rl|}
+\hline \bf TAG & \bf \# Tokens & \bf \% Total \\ \hline
+NONE & 28405 & 0.405\\
+DICT & 15861 & 0.226 \\
+VERB & 11017 & 0.157 \\
+IDENTITY & 10890 & 0.155 \\
+LEMMA & 2581 & 0.036 \\
+VALUE & 710  & 0.01\\
+COREF & 552 & 0.0078 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} Distribution of tag types in the training data for LDC2013E117 dataset, generated from automatically aligned data. }
+\end{table}
 
 \section{Preprocessing}
 
@@ -123,296 +143,14 @@ AMR training data is in the form of bi-text, where we are given a set of (senten
 \todo{sequence data gen}
 \todo{dictionary data gen}
 
-\subsection{Electronically-available resources}
+\section{Results}
+Our end to end results are reported by plugging the output of our subgraph generation system into the constrained-MST component of JAMR, which is able to produce final AMR graphs. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. We trained and tested on the \textbf{LDC2013E117} dataset, for which the last published result was a smatch score of 0.58 on the test set by JAMR \cite{Flanigan:14}. We report 0.64 on the same dataset, by substituting our subgraph generation system.
 
-We strongly prefer that you prepare your PDF files using \LaTeX\ with
-the official ACL 2015 style file (acl2015.sty) and bibliography style
-(acl.bst). These files are available at
-\url{http://acl2015.org}. You will also find the document
-you are currently reading (acl2015.pdf) and its \LaTeX\ source code
-(acl2015.tex) on this website.
+\todo{Report on generalization}
 
-You can alternatively use Microsoft Word to produce your PDF file. In
-this case, we strongly recommend the use of the Word template file
-(acl2015.dot) on the ACL 2015 website (\url{http://acl2015.org}). 
-If you have an option, we recommend that you use the \LaTeX2e version. 
-If you will be using the Microsoft Word template, we suggest that you 
-anonymize your source file so that the pdf produced does not retain your
-identity.  This can be done by removing any personal information
-from your source document properties.
-
-
-
-\subsection{Format of Electronic Manuscript}
-\label{sect:pdf}
-
-For the production of the electronic manuscript you must use Adobe's
-Portable Document Format (PDF). PDF files are usually produced from
-\LaTeX\ using the \textit{pdflatex} command. If your version of
-\LaTeX\ produces Postscript files, you can convert these into PDF
-using \textit{ps2pdf} or \textit{dvipdf}. On Windows, you can also use
-Adobe Distiller to generate PDF.
-
-Please make sure that your PDF file includes all the necessary fonts
-(especially tree diagrams, symbols, and fonts with Asian
-characters). When you print or create the PDF file, there is usually
-an option in your printer setup to include none, all or just
-non-standard fonts.  Please make sure that you select the option of
-including ALL the fonts. \textbf{Before sending it, test your PDF by
-  printing it from a computer different from the one where it was
-  created.} Moreover, some word processors may generate very large PDF
-files, where each page is rendered as an image. Such images may
-reproduce poorly. In this case, try alternative ways to obtain the
-PDF. One way on some systems is to install a driver for a postscript
-printer, send your document to the printer specifying ``Output to a
-file'', then convert the file to PDF.
-
-It is of utmost importance to specify the \textbf{A4 format} (21 cm
-x 29.7 cm) when formatting the paper. When working with
-{\tt dvips}, for instance, one should specify {\tt -t a4}.
-Or using the command \verb|\special{papersize=210mm,297mm}| in the latex
-preamble (directly below the \verb|\usepackage| commands). Then using 
-{\tt dvipdf} and/or {\tt pdflatex} which would make it easier for some.
-
-
-Print-outs of the PDF file on A4 paper should be identical to the
-hardcopy version. If you cannot meet the above requirements about the
-production of your electronic submission, please contact the
-publication chairs as soon as possible.
-
-
-\subsection{Layout}
-\label{ssec:layout}
-
-Format manuscripts two columns to a page, in the manner these
-instructions are formatted. The exact dimensions for a page on A4
-paper are:
-
-\begin{itemize}
-\item Left and right margins: 2.5 cm
-\item Top margin: 2.5 cm
-\item Bottom margin: 2.5 cm
-\item Column width: 7.7 cm
-\item Column height: 24.7 cm
-\item Gap between columns: 0.6 cm
-\end{itemize}
-
-\noindent Papers should not be submitted on any other paper size.
- If you cannot meet the above requirements about the production of 
- your electronic submission, please contact the publication chairs 
- above as soon as possible.
-
-
-\subsection{Fonts}
-
-For reasons of uniformity, Adobe's {\bf Times Roman} font should be
-used. In \LaTeX2e{} this is accomplished by putting
-
-\begin{quote}
-\begin{verbatim}
-\usepackage{times}
-\usepackage{latexsym}
-\end{verbatim}
-\end{quote}
-in the preamble. If Times Roman is unavailable, use {\bf Computer
-  Modern Roman} (\LaTeX2e{}'s default).  Note that the latter is about
-  10\% less dense than Adobe's Times Roman font.
-
-
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{|l|rl|}
-\hline \bf Type of Text & \bf Font Size & \bf Style \\ \hline
-paper title & 15 pt & bold \\
-author names & 12 pt & bold \\
-author affiliation & 12 pt & \\
-the word ``Abstract'' & 12 pt & bold \\
-section titles & 12 pt & bold \\
-document text & 11 pt  &\\
-captions & 11 pt & \\
-abstract text & 10 pt & \\
-bibliography & 10 pt & \\
-footnotes & 9 pt & \\
-\hline
-\end{tabular}
-\end{center}
-\caption{\label{font-table} Font guide. }
-\end{table}
-
-\subsection{The First Page}
-\label{ssec:first}
-
-Center the title, author's name(s) and affiliation(s) across both
-columns. Do not use footnotes for affiliations. Do not include the
-paper ID number assigned during the submission process. Use the
-two-column format only when you begin the abstract.
-
-{\bf Title}: Place the title centered at the top of the first page, in
-a 15-point bold font. (For a complete guide to font sizes and styles,
-see Table~\ref{font-table}) Long titles should be typed on two lines
-without a blank line intervening. Approximately, put the title at 2.5
-cm from the top of the page, followed by a blank line, then the
-author's names(s), and the affiliation on the following line. Do not
-use only initials for given names (middle initials are allowed). Do
-not format surnames in all capitals (e.g., use ``Schlangen'' not
-``SCHLANGEN'').  Do not format title and section headings in all
-capitals as well except for proper names (such as ``BLEU'') that are
-conventionally in all capitals.  The affiliation should contain the
-author's complete address, and if possible, an electronic mail
-address. Start the body of the first page 7.5 cm from the top of the
-page.
-
-The title, author names and addresses should be completely identical
-to those entered to the electronical paper submission website in order
-to maintain the consistency of author information among all
-publications of the conference. If they are different, the publication
-chairs may resolve the difference without consulting with you; so it
-is in your own interest to double-check that the information is
-consistent.
-
-{\bf Abstract}: Type the abstract at the beginning of the first
-column. The width of the abstract text should be smaller than the
-width of the columns for the text in the body of the paper by about
-0.6 cm on each side. Center the word {\bf Abstract} in a 12 point bold
-font above the body of the abstract. The abstract should be a concise
-summary of the general thesis and conclusions of the paper. It should
-be no longer than 200 words. The abstract text should be in 10 point font.
-
-{\bf Text}: Begin typing the main body of the text immediately after
-the abstract, observing the two-column format as shown in 
-the present document. Do not include page numbers.
-
-{\bf Indent} when starting a new paragraph. Use 11 points for text and 
-subsection headings, 12 points for section headings and 15 points for
-the title. 
-
-\subsection{Sections}
-
-{\bf Headings}: Type and label section and subsection headings in the
-style shown on the present document.  Use numbered sections (Arabic
-numerals) in order to facilitate cross references. Number subsections
-with the section number and the subsection number separated by a dot,
-in Arabic numerals. Do not number subsubsections.
-
-{\bf Citations}: Citations within the text appear in parentheses
-as~\cite{Gusfield:97} or, if the author's name appears in the text
-itself, as Gusfield~\shortcite{Gusfield:97}.  Append lowercase letters
-to the year in cases of ambiguity.  Treat double authors as
-in~\cite{Aho:72}, but write as in~\cite{Chandra:81} when more than two
-authors are involved. Collapse multiple citations as
-in~\cite{Gusfield:97,Aho:72}. Also refrain from using full citations
-as sentence constituents. We suggest that instead of
-\begin{quote}
-  ``\cite{Gusfield:97} showed that ...''
-\end{quote}
-you use
-\begin{quote}
-``Gusfield \shortcite{Gusfield:97}   showed that ...''
-\end{quote}
-
-If you are using the provided \LaTeX{} and Bib\TeX{} style files, you
-can use the command \verb|\newcite| to get ``author (year)'' citations.
-
-As reviewing will be double-blind, the submitted version of the papers
-should not include the authors' names and affiliations. Furthermore,
-self-references that reveal the author's identity, e.g.,
-\begin{quote}
-``We previously showed \cite{Gusfield:97} ...''  
-\end{quote}
-should be avoided. Instead, use citations such as 
-\begin{quote}
-``Gusfield \shortcite{Gusfield:97}
-previously showed ... ''
-\end{quote}
-
-\textbf{Please do not use anonymous citations} and do not include
-acknowledgements when submitting your papers. Papers that do not
-conform to these requirements may be rejected without review.
-
-\textbf{References}: Gather the full set of references together under
-the heading {\bf References}; place the section before any Appendices,
-unless they contain references. Arrange the references alphabetically
-by first author, rather than by order of occurrence in the text.
-Provide as complete a citation as possible, using a consistent format,
-such as the one for {\em Computational Linguistics\/} or the one in the 
-{\em Publication Manual of the American 
-Psychological Association\/}~\cite{APA:83}.  Use of full names for
-authors rather than initials is preferred.  A list of abbreviations
-for common computer science journals can be found in the ACM 
-{\em Computing Reviews\/}~\cite{ACM:83}.
-
-The \LaTeX{} and Bib\TeX{} style files provided roughly fit the
-American Psychological Association format, allowing regular citations, 
-short citations and multiple citations as described above.
-
-{\bf Appendices}: Appendices, if any, directly follow the text and the
-references (but see above).  Letter them in sequence and provide an
-informative title: {\bf Appendix A. Title of Appendix}.
-
-\subsection{Footnotes}
-
-{\bf Footnotes}: Put footnotes at the bottom of the page and use 9
-points text. They may be numbered or referred to by asterisks or other
-symbols.\footnote{This is how a footnote should appear.} Footnotes
-should be separated from the text by a line.\footnote{Note the line
-separating the footnotes from the text.}
-
-\subsection{Graphics}
-
-{\bf Illustrations}: Place figures, tables, and photographs in the
-paper near where they are first discussed, rather than at the end, if
-possible.  Wide illustrations may run across both columns.  Color
-illustrations are discouraged, unless you have verified that  
-they will be understandable when printed in black ink.
-
-{\bf Captions}: Provide a caption for every illustration; number each one
-sequentially in the form:  ``Figure 1. Caption of the Figure.'' ``Table 1.
-Caption of the Table.''  Type the captions of the figures and 
-tables below the body, using 11 point text.
-
-
-\section{XML conversion and supported \LaTeX\ packages}
-
-Following ACL 2014 we will also we will attempt to automatically convert 
-your \LaTeX\ source files to publish papers in machine-readable 
-XML with semantic markup in the ACL Anthology, in addition to the 
-traditional PDF format.  This will allow us to create, over the next 
-few years, a growing corpus of scientific text for our own future research, 
-and picks up on recent initiatives on converting ACL papers from earlier 
-years to XML. 
-
-We encourage you to submit a ZIP file of your \LaTeX\ sources along
-with the camera-ready version of your paper. We will then convert them
-to XML automatically, using the LaTeXML tool
-(\url{http://dlmf.nist.gov/LaTeXML}). LaTeXML has \emph{bindings} for
-a number of \LaTeX\ packages, including the ACL 2015 stylefile. These
-bindings allow LaTeXML to render the commands from these packages
-correctly in XML. For best results, we encourage you to use the
-packages that are officially supported by LaTeXML, listed at
-\url{http://dlmf.nist.gov/LaTeXML/manual/included.bindings}
-
-
-
-
-
-\section{Translation of non-English Terms}
-
-It is also advised to supplement non-English characters and terms
-with appropriate transliterations and/or translations
-since not all readers understand all such characters and terms.
-Inline transliteration or translation can be represented in
-the order of: original-form transliteration ``translation''.
-
-\section{Length of Submission}
-\label{sec:length}
-
-Long papers may consist of up to 8 pages of content, plus two extra
-pages for references. Short papers may consist of up to 4 pages of
-content, plus two extra pages for references.  Papers that do not
-conform to the specified length and formatting requirements may be
-rejected without review.
-
-
+\section{Future Work}
+\todo{Better alignments}
+\todo{Etymological approach to generation}
 
 \section*{Acknowledgments}
 

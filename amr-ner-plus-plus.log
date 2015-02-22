@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  21 FEB 2015 10:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  21 FEB 2015 22:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -203,131 +203,105 @@ Underfull \hbox (badness 2503) in paragraph at lines 55--61
  []
 
 
-Underfull \hbox (badness 1776) in paragraph at lines 66--67
+Underfull \hbox (badness 1776) in paragraph at lines 68--69
 \OT1/ptm/m/n/10.95 The Ab-stract Mean-ing Rep-re-sen-ta-tion (AMR)
  []
 
-<glee.png, id=1, 647.41875pt x 1035.87pt>
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 81.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+
+
+
+]
+<glee.png, id=10, 647.41875pt x 1035.87pt>
 File: glee.png Graphic file (type png)
  <use glee.png>
-Package pdftex.def Info: glee.png used on input line 72.
+Package pdftex.def Info: glee.png used on input line 87.
 (pdftex.def)             Requested size: 161.85428pt x 258.96686pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 74.
+(Font)              <10.95> on input line 91.
 
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 74.
+LaTeX Font Warning: Command \small invalid in math mode on input line 91.
 
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 74.
-
-[1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+LaTeX Font Warning: Command \small invalid in math mode on input line 93.
 
 
-
- <./glee.png>]
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 96.
-
-Underfull \hbox (badness 10000) in paragraph at lines 96--98
-[][][][][][][]
+Overfull \hbox (12.098pt too wide) in paragraph at lines 95--96
+[][][][][][][] 
  []
 
+<method.png, id=12, 1972.36874pt x 1195.46625pt>
+File: method.png Graphic file (type png)
+ <use method.png>
+Package pdftex.def Info: method.png used on input line 105.
+(pdftex.def)             Requested size: 453.63527pt x 274.95145pt.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 110.
 
-Overfull \hbox (1.14798pt too wide) in paragraph at lines 96--98
-[][][][][][] 
- []
-
-
-Underfull \hbox (badness 1092) in paragraph at lines 121--125
-\OT1/ptm/m/n/10.95 AMR train-ing data is in the form of bi-text,
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 170--176
-[]\OT1/pcr/m/n/10.95 \special{papersize=210mm,297mm}
- []
-
-
-Underfull \hbox (badness 7685) in paragraph at lines 170--176
-\OT1/ptm/m/n/10.95 in the la-tex pream-ble (di-rectly be-low the
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 170--176
-[]\OT1/pcr/m/n/10.95 \usepackage \OT1/ptm/m/n/10.95 com-mands). Then us-ing
- []
-
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 192.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 192.
- [3]
-Underfull \hbox (badness 10000) in paragraph at lines 320--321
-[]\OT1/ptm/m/n/10.95 ``We pre-vi-ously showed (Gus-field,
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 110.
+ [2 <./glee.png>]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 1092) in paragraph at lines 141--145
+\OT1/ptm/m/n/10.95 AMR train-ing data is in the form of bi-text,
  []
 
 
-Underfull \hbox (badness 1152) in paragraph at lines 344--347
-[]\OT1/ptm/m/n/10.95 The L[]T[]X and BibT[]X style files pro-vided
- []
+LaTeX Font Warning: Command \small invalid in math mode on input line 147.
 
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <9> on input line 356.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 356.
 
-Underfull \hbox (badness 1142) in paragraph at lines 362--367
-\OT1/ptm/b/n/10.95 Illustrations\OT1/ptm/m/n/10.95 : Place fig-ures, ta-bles, a
-nd pho-
- []
-
-[4]
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 374.
-
-Underfull \hbox (badness 1087) in paragraph at lines 384--393
-\OT1/ptm/m/n/10.95 bind-ings al-low La-TeXML to ren-der the com-
+Underfull \hbox (badness 1365) in paragraph at lines 147--148
+\OT1/ptm/m/n/10.95 which is able to pro-duce fi-nal AMR graphs.
  []
 
 
-Underfull \hbox (badness 1466) in paragraph at lines 384--393
-\OT1/ptm/m/n/10.95 pack-ages that are of-fi-cially sup-ported by La-
+Underfull \vbox (badness 3029) has occurred while \output is active []
+
+ [3 <./method.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 152--154
+[][][][][][]
  []
 
 
-Underfull \hbox (badness 1117) in paragraph at lines 430--433
+Underfull \hbox (badness 1117) in paragraph at lines 168--171
 []\OT1/ptm/m/n/10 Jeffrey Flani-gan, Sam Thom-son, Jaime Car-bonell,
  []
 
-[5] (./amr-ner-plus-plus.aux)
+[4
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+] (./amr-ner-plus-plus.aux) ) 
 Here is how much of TeX's memory you used:
- 2085 strings out of 493117
- 27323 string characters out of 6135433
- 93497 words of memory out of 5000000
- 5497 multiletter control sequences out of 15000+600000
- 30767 words of font info for 70 fonts, out of 8000000 for 9000
+ 2060 strings out of 493117
+ 27086 string characters out of 6135433
+ 91467 words of memory out of 5000000
+ 5483 multiletter control sequences out of 15000+600000
+ 22750 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,10n,23p,1042b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
-exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texl
-ive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
-ve/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive
-/2014/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2014/te
-xmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/f
-onts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
-/urw/times/utmri8a.pfb>
-Output written on amr-ner-plus-plus.pdf (5 pages, 145156 bytes).
+ 38i,10n,23p,998b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvip
+s/base/8r.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/c
+msy10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+tt8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
+</usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/loca
+l/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/
+2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on amr-ner-plus-plus.pdf (4 pages, 241743 bytes).
 PDF statistics:
- 52 PDF objects out of 1000 (max. 8388607)
- 35 compressed objects within 1 object stream
+ 51 PDF objects out of 1000 (max. 8388607)
+ 33 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
