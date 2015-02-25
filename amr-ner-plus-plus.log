@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  21 FEB 2015 22:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  24 FEB 2015 21:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -71,6 +71,17 @@ Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 \Gin@req@height=\dimen103
 \Gin@req@width=\dimen104
 )
+(/usr/local/texlive/2014/texmf-dist/tex/latex/bbm-macros/bbm.sty
+Package: bbm 1999/03/15 V 1.2 provides fonts for set symbols - TH
+LaTeX Font Info:    Overwriting math alphabet `\mathbbm' in version `bold'
+(Font)                  U/bbm/m/n --> U/bbm/bx/n on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathbbmss' in version `bold'
+(Font)                  U/bbmss/m/n --> U/bbmss/bx/n on input line 35.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/jknapltx/mathrsfs.sty
+Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
+\symrsfs=\mathgroup5
+)
 (./std-macros.tex
 \c@definition=\count88
 \c@assumption=\count89
@@ -87,24 +98,30 @@ File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: pdftex.def on input line 137.
 ))
-(./amr-ner-plus-plus.aux)
+(./amr-ner-plus-plus.aux
+
+LaTeX Warning: Label `sec:tags' multiply defined.
+
+
+LaTeX Warning: Label `font-table' multiply defined.
+
+)
 \openout1 = `amr-ner-plus-plus.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 48.
-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 50.
+ (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 (/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii
@@ -169,139 +186,206 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 49.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 51.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 49.
+(Font)              <12> on input line 51.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 49.
+(Font)              <8> on input line 51.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 49.
-LaTeX Font Info:    Try loading font information for U+lasy on input line 49.
+(Font)              <6> on input line 51.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 51.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
+LaTeX Font Info:    Try loading font information for U+rsfs on input line 51.
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/jknapltx/ursfs.fd
+File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
+)
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 49.
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 49.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 51.
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 51.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Underfull \hbox (badness 4859) in paragraph at lines 55--61
+Underfull \hbox (badness 4859) in paragraph at lines 57--64
 []\OT1/ptm/m/n/10.95 The Ab-stract Mean-ing Rep-re-sen-ta-tion
  []
 
 
-Underfull \hbox (badness 3601) in paragraph at lines 55--61
+Underfull \hbox (badness 3601) in paragraph at lines 57--64
 \OT1/ptm/m/n/10.95 (AMR) is a rep-re-sen-ta-tion for open-
  []
 
+<glee.png, id=1, 647.41875pt x 1035.87pt>
+File: glee.png Graphic file (type png)
+ <use glee.png>
+Package pdftex.def Info: glee.png used on input line 71.
+(pdftex.def)             Requested size: 161.85428pt x 258.96686pt.
 
-Underfull \hbox (badness 2503) in paragraph at lines 55--61
-\OT1/ptm/m/n/10.95 which im-proves gen-er-al-iza-tion on un-
- []
-
-
-Underfull \hbox (badness 1776) in paragraph at lines 68--69
-\OT1/ptm/m/n/10.95 The Ab-stract Mean-ing Rep-re-sen-ta-tion (AMR)
+Underfull \hbox (badness 1502) in paragraph at lines 73--74
+\OT1/ptm/m/n/10.95 mally in-tro-duces the AMR pars-ing task, and
  []
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 81.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 75.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \hbox (badness 1776) in paragraph at lines 77--78
+\OT1/ptm/m/n/10.95 The Ab-stract Mean-ing Rep-re-sen-ta-tion (AMR)
+ []
 
+<method.png, id=3, 1972.36874pt x 1195.46625pt>
+File: method.png Graphic file (type png)
+ <use method.png>
+Package pdftex.def Info: method.png used on input line 83.
+(pdftex.def)             Requested size: 453.63527pt x 274.95145pt.
  [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
 
-]
-<glee.png, id=10, 647.41875pt x 1035.87pt>
-File: glee.png Graphic file (type png)
- <use glee.png>
-Package pdftex.def Info: glee.png used on input line 87.
-(pdftex.def)             Requested size: 161.85428pt x 258.96686pt.
+ <./glee.png>]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 91.
+(Font)              <10.95> on input line 89.
 
-
-LaTeX Font Warning: Command \small invalid in math mode on input line 91.
-
-
-LaTeX Font Warning: Command \small invalid in math mode on input line 93.
-
-
-Overfull \hbox (12.098pt too wide) in paragraph at lines 95--96
-[][][][][][][] 
+Underfull \hbox (badness 2050) in paragraph at lines 89--90
+[]\OT1/ptm/m/n/10.95 Formally, given an ar-ray of to-kens $\OML/cmm/m/it/10.95 
+S \OT1/cmr/m/n/10.95 =
  []
 
-<method.png, id=12, 1972.36874pt x 1195.46625pt>
-File: method.png Graphic file (type png)
- <use method.png>
-Package pdftex.def Info: method.png used on input line 105.
-(pdftex.def)             Requested size: 453.63527pt x 274.95145pt.
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 110.
 
+Underfull \hbox (badness 1102) in paragraph at lines 99--100
+\OT1/ptm/m/n/10.95 Given a per-fect NER++ sys-tem for an AMR
+ []
+
+[2 <./method.png>]
+Underfull \hbox (badness 1400) in paragraph at lines 118--119
+[]\OT1/ptm/m/n/10.95 We show that end to end per-for-mance in-
+ []
+
+
+LaTeX Font Warning: Command \small invalid in math mode on input line 128.
+
+
+LaTeX Font Warning: Command \small invalid in math mode on input line 130.
+
+<sailor.png, id=24, 213.79875pt x 412.54124pt>
+File: sailor.png Graphic file (type png)
+ <use sailor.png>
+Package pdftex.def Info: sailor.png used on input line 136.
+(pdftex.def)             Requested size: 53.44955pt x 103.13506pt.
+
+Underfull \hbox (badness 2368) in paragraph at lines 136--136
+[]\OT1/ptm/m/n/10.95 Figure 3: []AMR rep-re-sen-ta-tion of the word
+ []
+
+<date.png, id=25, 526.96875pt x 379.4175pt>
+File: date.png Graphic file (type png)
+ <use date.png>
+Package pdftex.def Info: date.png used on input line 138.
+(pdftex.def)             Requested size: 131.74185pt x 94.85414pt.
+ [3 <./sailor.png>]
+Underfull \hbox (badness 1990) in paragraph at lines 152--153
+[]\OT1/ptm/m/n/10.95 For NER++, JAMR uses a sim-ple Viterbi
+ []
+
+
+Underfull \hbox (badness 4981) in paragraph at lines 152--153
+\OT1/ptm/m/n/10.95 se-quence model to di-rectly gen-er-ate AMR-
+ []
+
+
+Underfull \hbox (badness 2050) in paragraph at lines 152--153
+\OT1/ptm/m/n/10.95 subgraphs from mem-o-rized map-pings of text
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 163.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 110.
- [2 <./glee.png>]
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 163.
+ [4 <./date.png>]
+Underfull \hbox (badness 2050) in paragraph at lines 202--203
+\OT1/ptm/m/n/10.95 all $\OML/cmm/m/it/10.95 S[]$ \OT1/ptm/m/n/10.95 to which no
+ $\OML/cmm/m/it/10.95 N[]$ \OT1/ptm/m/n/10.95 ex-ists such that $\OML/cmm/m/it/
+10.95 N[]$
+ []
+
+
+Overfull \hbox (21.82155pt too wide) in paragraph at lines 202--203
+[][][][][][] 
+ []
+
+[5]
+LaTeX Font Info:    Try loading font information for U+bbm on input line 238.
+ (/usr/local/texlive/2014/texmf-dist/tex/latex/bbm-macros/ubbm.fd
+File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
+) [6]
+
+LaTeX Font Warning: Command \small invalid in math mode on input line 254.
+
+
+LaTeX Font Warning: Command \small invalid in math mode on input line 262.
+
+
+Underfull \hbox (badness 4193) in paragraph at lines 284--285
+\OT1/ptm/m/n/10.95 There is an op-por-tu-nity to cre-ate and test
+ []
+
+
+Underfull \hbox (badness 7851) in paragraph at lines 284--285
+\OT1/ptm/m/n/10.95 etymological-semantic ap-proaches to pars-ing
+ []
+
+
+Overfull \hbox (28.10666pt too wide) in paragraph at lines 290--323
+ [] 
+ []
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \hbox (badness 1092) in paragraph at lines 141--145
-\OT1/ptm/m/n/10.95 AMR train-ing data is in the form of bi-text,
- []
-
-
-LaTeX Font Warning: Command \small invalid in math mode on input line 147.
-
-
-Underfull \hbox (badness 1365) in paragraph at lines 147--148
-\OT1/ptm/m/n/10.95 which is able to pro-duce fi-nal AMR graphs.
- []
-
-
-Underfull \vbox (badness 3029) has occurred while \output is active []
-
- [3 <./method.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 152--154
-[][][][][][]
- []
-
-
-Underfull \hbox (badness 1117) in paragraph at lines 168--171
+Underfull \hbox (badness 1117) in paragraph at lines 340--343
 []\OT1/ptm/m/n/10 Jeffrey Flani-gan, Sam Thom-son, Jaime Car-bonell,
  []
 
-[4
+[7] [8
 
-] (./amr-ner-plus-plus.aux) ) 
+] (./amr-ner-plus-plus.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2060 strings out of 493117
- 27086 string characters out of 6135433
- 91467 words of memory out of 5000000
- 5483 multiletter control sequences out of 15000+600000
- 22750 words of font info for 53 fonts, out of 8000000 for 9000
+ 2142 strings out of 493117
+ 28855 string characters out of 6135433
+ 95846 words of memory out of 5000000
+ 5545 multiletter control sequences out of 15000+600000
+ 23805 words of font info for 60 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,10n,23p,998b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvip
-s/base/8r.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/c
-msy10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-tt8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
-</usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/loca
-l/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/
-2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on amr-ner-plus-plus.pdf (4 pages, 241743 bytes).
+ 38i,10n,23p,863b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
+ </Users/keenon/Library/texlive/2014/texmf-var/fonts/pk/ljfour/public/bbm/bbm
+10.657pk>{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/
+local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/l
+ocal/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/lo
+cal/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loca
+l/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/
+texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/tex
+live/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
+ive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texliv
+e/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/
+2014/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2014/tex
+mf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fo
+nts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/
+urw/times/utmri8a.pfb>
+Output written on amr-ner-plus-plus.pdf (8 pages, 339645 bytes).
 PDF statistics:
- 51 PDF objects out of 1000 (max. 8388607)
- 33 compressed objects within 1 object stream
+ 94 PDF objects out of 1000 (max. 8388607)
+ 62 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

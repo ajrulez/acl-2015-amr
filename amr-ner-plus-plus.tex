@@ -21,6 +21,8 @@
 \usepackage{url}
 \usepackage{latexsym}
 \usepackage{graphicx}
+\usepackage{bbm}
+\usepackage{mathrsfs}
 
 \input std-macros.tex
 
@@ -32,7 +34,7 @@
 % in the camera-ready version and ask you to change it back.
 
 
-\title{Robust Sub-Graph Generation for Abstract Meaning Representation Parsing}
+\title{Robust Subgraph Generation for Abstract Meaning Representation Parsing}
 \author{Keenon Werling \\
   Stanford University\\
   {\tt keenon@stanford.edu} \\\And
@@ -52,11 +54,12 @@
 % The existing AMR corpus is heavily biased to the international newswire domain, making domain transfer of AMR parsing an important challenge. 
 % The Abstract Meaning Representation (AMR) is a semantic formalism for which a large and growing set of annotated examples is available.
 
-The Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics
-Generating semantic sub-graphs from contiguous tokens is a crucial part of AMR parsing.
-We propose a small set of actions to \textit{construct} a sub-graph at test time from a span of tokens, which allow us to greatly expand our generalization from training data.
+The Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics.
+AMR parsing is commonly divided into three challenges: alignment of training graphs to source text at training time, generation of small semantic sub-graphs from token spans at test time (NER++), and joining those small semantic sub-graphs to form unified representations at test time (SRL++).
+This paper makes contributions to the alignment and NER++ tasks.
+We propose a small set of actions to construct a sub-graph at test time from a span of tokens, which reduces sparsity and enables parsing unseen words in the NER++ subtask.
 We show that our set of construction actions is a good approximation which we can learn with a simple classifier.
-This reduces the need for sparse dictionary lookups, which improves generalization on unknown words and allows us to exploit statistical efficiency on a small training set.
+These actions also provide an insight that allows us to propose an alignment system that solves for the alignment that yields a ``maximally informative'' set of action labels, which we show yields good results.
 We demonstrate that our approach improves on published state-of-the-art AMR parsing, from \textit{0.58} smatch to \textit{0.64} smatch on the LDC2013E117 dataset.
 
 \end{abstract}
@@ -65,26 +68,60 @@ We demonstrate that our approach improves on published state-of-the-art AMR pars
 
 % Semantics is the field of study concerned with meaning. The label ``semantic parsing'' has been used to describe various automatic meaning extraction tasks within NLP for the last decade, including automatic time expression detection \needcite, verb argument annotation \needcite, and question answering over structured databases \needcite. The reason the monicker has seen such varied use stems from the lack of a centrally agreed upon definition of what constitutes complete semantic understanding of a sentence. Until very recently, the only tasks for which there was sufficient training data to be tractable interpreted ``semantic parsing'' in either a narrow domain or as a shallow level of understanding.
 
-The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich language for expressing semantic understanding on both a broad domain and at a relatively deep level. AMR captures many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, verb argument labeling, word sense disambiguation, time expression parsing, and coreference. There is an ongoing AMR data labeling effort that promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness.
+\Fig{glee.png}{0.25}{glee}{AMR graph for ``He gleefully ran to his dog Rover''. Nodes represent concepts, and arcs are relationships between concepts.}
 
-As of this writing there is one published parser that targets the AMR formalism, JAMR \cite{Flanigan:14}, which reports very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development. JAMR follows a two-stage approach to parse AMR, first generating a set of AMR sub-graphs from spans of the sentence, and then stitching those sub-graphs together with a constrained MST (using dual decomposition).
+This section briefly motivates AMR parsing, formally introduces the AMR parsing task, and outlines a decomposition of AMR parsing into NER++ and SRL++. Then we briefly motivate the need for alignments, and summarize our contribution to both NER++ and alignments.
 
-However, JAMR's architecture, while it has special case machinery for creating sensible chunks for named entities and time expressions, cannot generate AMR sub-graphs from unseen words in the general case. 
+\subsection{Motivation}
+
+The Abstract Meaning Representation (AMR) \cite{Banarescu:13} is a rich language for expressing semantic understanding on both a broad domain and at a relatively deep level. We give a brief tutorial on AMR in \refsec{crash}. AMR captures many useful pieces of semantic information in a single joint representation. These include (but are not limited to) named entity recognition, verb argument labeling, word sense disambiguation, time expression parsing, and coreference. There is an ongoing AMR data labeling effort that promises to produce a breakthrough resource in broad domain semantic parsing, for both its size and the AMR formalism's expressive richness.
+
+% As of this writing there is one published parser that targets the AMR formalism, JAMR \cite{Flanigan:14}, which reports very promising results. After experimentation with several different structured prediction algorithms, we find that JAMR's architecture is a very strong framework for further parser development. JAMR follows a two-stage approach to parse AMR, first generating a set of AMR sub-graphs from spans of the sentence, and then stitching those sub-graphs together with a constrained MST (using dual decomposition).
+
+% However, JAMR's architecture, while it has special case machinery for creating sensible chunks for named entities and time expressions, cannot generate AMR sub-graphs from unseen words in the general case. 
+
+\FigStar{method.png}{0.23}{method}{Derivation process for ``He gleefully ran to his dog Rover''. First the tokens in the sentence are labeled with derivation actions, then those actions are used to generate AMR sub-graphs, and then those sub-graphs are stitched together to form a coherent whole.}
+
+\Subsection{task}{Task Description}
+
+AMR parsing is a challenging task, defined as follows: given a sequence of tokens, generate a directed AMR graph corresponding to the sentence.
+
+Formally, given an array of tokens $S = [s_0, \ldots, s_n]$, generate a directed AMR graph $G$, defined as the pair $(N = [n_0, \ldots, n_k], A \in L^{k*k})$, where $N$ is an array of AMR nodes (which doesn't have to be the same length or have a clear correspondence to $S$), and $A$ is a matrix of labels $L$, where $A_{i,j} = l \in L$ means that an arc exists from node $n_i$ to node $n_j$ with label $l$ in the parsed graph. We include the special label ``NONE'' in $L$, corresponding to no arc existing between two nodes.
+
+% At test time, AMR parsing is commonly divided into two tasks, which we refer to as NER++ and SRL++.
+
+\subsection{NER++}
+
+Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{crash}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
+
+\subsection{SRL++}
+
+Given a perfect NER++ system for an AMR parser, there remains the task of noting the verb arguments, preposition sense tagging, and doing some augmented semantic dependency parsing in order to join the disjoint NER++ output into a single AMR parse. We call this task SRL++. SRL++ is the sub-task of taking as input the disjoint sub-graphs generated by NER++, and adding the maximum likelihood set of arcs between the sub-graphs in order to have a fully connected graph.
 
 % Valid examples to use:
 % excessively -> excessive
 % mother -> mother
 % exhaustive -> exhaust-01
 
-For instance, the adjective \textit{exhaustive} in ``the \textit{exhaustive} search'' should be parsed as an AMR verb, \textit{exhaust-01}, but JAMR is unable to recognize this because it has no instance of the adjective \textit{exhaustive} used in the training data. Our system can generalize from training data to learn that \textit{exhaustive} is 
+% For instance, the adjective \textit{exhaustive} in ``the \textit{exhaustive} search'' should be parsed as an AMR verb, \textit{exhaust-01}, but JAMR is unable to recognize this because it has no instance of the adjective \textit{exhaustive} used in the training data. Our system can generalize from training data to learn that \textit{exhaustive} is to be treated as a verb, and match against the OntoNotes \needcite database of verb sense frames at test time to produce \textit{exhaust-01}.
 
-Instead of memorizing a bank of AMR sub-graphs to generate from spans of tokens, we propose a small set of `generative actions' that our system can take to derive an AMR sub-graph from a span of tokens (see \reffig{method}). For example, we have an action \textit{IDENT} that will generate a node with the same title as the token in the source sentence that receives the label, which allows us to capture unseen nouns like `mother'. We show that having a set of actions as an intermediate to generating AMR sub-graphs greatly improves statistical efficiency when training a sub-graph generation system on the relatively small amount of available training data, and that end to end performance in-domain is improved from \textbf{0.58} smatch to \textbf{0.64} smatch when using JAMR's constrained MST to stitch together the resulting sub-graphs. This approach also enables us to use dense features to improve brittle out-of-domain performance significantly.
+\subsection{Alignments}
 
-\section{A Crash-Course in AMR}
+AMR training data is ``unaligned'', meaning that no effort is made to annotate which token in a sentence is being represented by a given node in an AMR graph. There are cases where such alignments are non-obvious or impossible, but the vast majority of alignments are obvious to a human. For example, a node with the title ``glee'' will almost certainly have been created to represent the token ``gleefully'' if that appears in the source text.
+
+One could imagine an alignment where every node in an AMR graph is annotated with the index of its source token in the source sentence. That would produce a projective alignment from nodes to tokens, which would facilitate training both an NER++ and SRL++ system. The accuracy of such an alignment would be a major factor in the performance of these systems.
+
+\subsection{Contributions}
+
+For the NER++ task, we propose a small set of `generative actions' that our system can take to derive an AMR sub-graph from a span of tokens (see \reffig{method}). For example, we have an action \textit{IDENT} that will generate a node with the same title as the token in the source sentence that receives the label, which allows us to capture nouns that are unseen in the training data, like `mother'. 
+
+We show that end to end performance in-domain is improved from \textbf{0.58} smatch to \textbf{0.64} smatch when using previously published state of the art SRL++ \cite{Flanigan:14} to stitch together the output of our NER++ system. The fact that we can capture words unseen during training (unsurprisingly) means that the performance of our parser when trained and tested on different domains is significantly higher than the previous state of the art.
+
+We also propose a novel alignment system inspired by our generative actions. We cast AMR alignment as the task of finding the alignment of AMR graph to the source sentence that maximizes the informativeness of the implied generative actions. We define this further in \refsec{alignment}.
+
+\Section{crash}{A Crash-Course in AMR}
 
 AMR is a language for expressing semantic understanding that represents meaning as a directed graph, where nodes represent concepts and arcs are relationships between concepts. AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in the sentence whose semantics is being represented. Thus AMR is not a ``semantic dependency'' representation. AMR represents the relationships between objects referred to by the surface text, not merely the relationships between the words themselves. In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
-
-\Fig{glee.png}{0.25}{glee}{AMR graph for ``He gleefully ran to his dog Rover''. Nodes represent concepts, and arcs are relationships between concepts.}
 
 To introduce AMR and its notation, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
 
@@ -92,19 +129,35 @@ Note that the root node of the graph is labeled ``run-01''. This is the name of 
 
 ``run-01'' has an outgoing ``ARG0'' arc to a node ``he'', with semantics (drawn from the PropBank frame) that roughly correspond to ``he'' being the doer of the ``run-01'' action. The ``run-01'' has an outgoing ``mod'' to ``glee,'' which has the catch-all semantics that ``run-01'' is somehow modified by the concept ``glee.'' ``run-01'' also has a ``destination'' arc to ``dog,'' which draws its semantics from Vivek Srikumar's thesis chapter on preposition sense tagging \needcite, and means that the destination of the ``run-01'' action is ``dog''. Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
-\todo{Discuss nasty nominalizations and NER}
+\Subsection{sub-chunks}{AMR Subgraphs}
+
+AMR contains components that, while they may be composed of multiple nodes, can logically be considered the expression of a single concept. For the NER++ task, we would like to be able to generate these ``single concept subgraphs'' directly from spans of text.
+
+\Fig{sailor.png}{0.25}{sailor}{AMR representation of the word ``sailor'', which is notable for breaking the word up into a self-contained multi-node unit signifying some etymological understanding.}
+
+\Fig{date.png}{0.25}{date}{AMR representation of the span ``January 1, 2008'', an example of how AMR can represent structured data by hallucinating additional nodes like ``date-entity'' to signify the presence of special structure}
+
+AMR makes an attempt to capture some semantic meanings in words that are difficult to capture in a way that is not domain specific. For example, the token ``sailor'' in a sentence will evoke the concept graph representing a person who performs the action ``sail-01'', see \reffig{sailor}. This is difficult to model without resorting to memorization, because the etymological clues are so sparse. We note this as an area for further exploration.
+
+AMR can also capture structured data, like time expressions, see \reffig{date}. In dates, a ``date-entity'' node is hallucinated to signify that this cluster of nodes is part of a structured sub-component of an AMR graph, with specific semantics. Dates are a good example of a recurring pattern in AMR, which is to have an ``artificial node'' signify that all its immediate children are part of a structured piece of data, with some special interpretation. The most common example of this pattern is the ``name'' node, which signifies that its immediate children comprise the tokens of a name object.
 
 \section{Previous Work}
 
-At the time of this writing, the JAMR parser \cite{Flanigan:14} is the only published AMR parser. It uses a two-stage approach to parsing AMR. In the first stage, a sequence model is used to generate small AMR sub-chunks. Then in the second stage these chunks are stitched together by a variation of a maximum spanning tree algorithm with dual decomposition to impose linguistically motivated constraints.
+Semantic parsing has been explored extensively. \todo{Cite Percy, Zettlemoyer, etc}
 
-To more carefully define what is meant by AMR sub-chunks, 
+The twin challenges of unobserved alignments and highly non-projective, potentially cyclic structures makes AMR a novel challenge.
+At the time of this writing, the JAMR parser \cite{Flanigan:14} is the only published AMR parser.
+The crucial insight in JAMR is that AMR parsing can be broken into two relatively distinct tasks: interpreting what entities are being referred to in the text (which we call NER++), and then discovering what relationships those entities have between one another other (which we call SRL++).
 
-\section{Methods}
+For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. Then for SRL++ JAMR uses a variation of the maximum spanning tree algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. JAMR's SRL++ component is extremely effective, and we were unable to produce a better SRL++ system in our experiments with several other structured prediction approaches.
 
-\FigStar{method.png}{0.23}{method}{Derivation process for ``He gleefully ran to his dog Rover''. First the tokens in the sentence are labeled with derivation actions, then those actions are used to generate AMR sub-graphs, and then those sub-graphs are stitched together to form a coherent whole.}
+\section{NER++ Method}
 
-Our method relies on a very simple insight about AMR: a vast majority of the AMR nodes can be explained by a very small set of derivation types. We do a sequence labeling of each token in the sentence with one of the following labels:
+Our approach to improving NER++ is very simple: instead of trying to pick which of thousands of AMR sub-graphs to generate from a span of text directly, we partition the AMR sub-graph space in terms of the actions needed to derive a node from its aligned token. At test time we do a sequence labeling of input tokens with these tags, and then deterministically derive the AMR sub-graphs from spans of tokens by applying the transformation decreed by their tags. This dramatically reduces sparsity, and helps improve end-to-end performance, but is most beneficial for domain transfer. We explain in \refsec{tags} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train a tag-type classifier. Then we setup the classifier itself in \refsec{classifier}.
+
+\Subsection{tags}{Derivation Tags}
+
+We partition the AMR sub-graph space into a set of 8 tags, each corresponding to an action that will be taken by the subgraph generation system if a token receives this label.
 
 \begin{itemize}
 \item \textbf{VERB}: Look for the most similar PropBank frame, make that the title of the corresponding node.
@@ -112,12 +165,16 @@ Our method relies on a very simple insight about AMR: a vast majority of the AMR
 \item \textbf{VALUE}: Parse the token to an integer value, and use that as the node.
 \item \textbf{LEMMA}: Take the lemma of the token to be the title of the corresponding node.
 \item \textbf{NONE}: Ignore this token in the final output.
+\item \textbf{COREF}: This token is co-refferring to something generated elsewhere in the text. Don't create any nodes.
+\item \textbf{NAME}: Attach a hallucinated ``name'' node to the top of this span, but don't add an NER tag type on top of the ``name'' node.
 \item \textbf{DICT}: Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
 \end{itemize}
 
-This has two primary benefits: We're able to more effectively generalize from training data to unseen examples, and we're able to exploit much greater statistical efficiency over our training data. 
+\Subsection{tags}{Notes on the DICT tag}
 
-The only class that doesn't give us an immediate win if we correctly classify it is \textbf{DICT}, for which we still have to resort to the JAMR expedient of looking up a span in a dictionary. This class functions as a catch-all. To see how rarely we need to resort to \textbf{DICT}, we turn to the distribution of different tag types on the training data, by token.
+It's not always possible to derive an AMR sub-graph directly from tokens at test time without having memorized a mapping. For example, the parse of ``sailor'' as ``person who sails'', see \reffig{sailor}, is nearly impossible without some form of memorization. That's where the \textbf{DICT} class is important.
+
+To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} tag. To see how rarely we need to resort to \textbf{DICT}, we turn to the distribution of different tag types on the training data, by token.
 
 \begin{table}[h]
 \begin{center}
@@ -136,21 +193,136 @@ COREF & 552 & 0.0078 \\
 \caption{\label{font-table} Distribution of tag types in the training data for LDC2013E117 dataset, generated from automatically aligned data. }
 \end{table}
 
-\section{Preprocessing}
+Note that \textbf{DICT} counts for less than 25\% of the training data, meaning that more than 75\% of tokens can be generated correctly by our tag type classifier even if we've never seen them before, allowing our broad domain parsing to improve dramatically. We believe \textbf{DICT} is an artificially inflated class because of issues with lemmatization, see \refsec{errors}.
 
-AMR training data is in the form of bi-text, where we are given a set of (sentence,graph) pairs, with no explicit alignments between them.
-\todo{alignments}
-\todo{sequence data gen}
-\todo{dictionary data gen}
+\Subsection{data}{Inducing Derivation Tags from Training Data}
+
+Given a set of AMR training data, in the form of (graph,sentence) pairs, we first induce alignments from the graph nodes to the sentence, see \refsec{alignment}. Given an alignment, which is an annotation on the graph noting for each node $N_i$ a token $S_j$ that is most likely to have ``generated'' $N_i$, we can induce alignments. For concreteness, imagine the token $S_j$ is ``running'', and the node $N_i$ has the title ``run-01''. For each tag type, we can ask whether that tag type is able to take token $S_j$ and correctly generate $N_i$. The two tag types we find that are able to correctly generate this node are \textbf{DICT} and \textbf{VERB}. We choose the most informative tag type of those available to generate the observed node. In this case, that means we choose \textbf{VERB}.
+
+In general, our algorithm is as follows. For all $S_j$ to which no $N_i$ exists such that $N_i$ aligns to $S_j$, assign the tag \textbf{NONE} to $S_j$. For all pairs $N_i$, $S_j$, assign $S_j$ the most informative tag possible that could have generated $N_i$. \todo{Flesh out discussion of adjacent DICT nodes}
+
+\Subsection{classifier}{Tag Classifier}
+
+We use an extremely simple max-ent classifier to make tag decisions. The classifier takes as input a pair $< i, S >$, where $i$ is the index of the token in the input sentence, and $S$ is a sequence tokens representing the source sentence. The output of the classifier is a tag $T$ such that the likelihood with respect to the data of token $i$ in sentence $S$ generating a node according to the action specified by $T$ is maximized. See Appendix A for a list of classifier features.
+
+\subsection{Test Time Behavior}
+
+At test time, given a sequence of input tokens, we do a simple classification of each token separately, to get a sequence labeling of our input tokens. Then for each token, we apply the behavior associated with the token label, and the resulting set of sub-graphs is passed on to SRL++ for linking.
+
+\Section{alignment}{Automatic Alignment of Training Data}
+
+AMR training data is in the form of bi-text, where we are given a set of (sentence,graph) pairs, with no explicit alignments between them. For example, imagine we are given the graph for "He gleefully ran to his dog Rover", as shown in \reffig{glee}. Although it's obvious to a human, the training data has no reference to the fact that the node ``run-01'' came from the token ``ran''. There is therefore a crucial task of generating these alignments prior to running training algorithms.
+
+\subsection{Alignment Task Definition}
+
+In plain english, we want a projective mapping from nodes to tokens. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
+
+To define exactly what is meant by an `alignment', let there be a pair $G = <N,A>$ where $N$ is a set of nodes and $A$ is an $|N|$ by $|N|$ matrix of binary variables, representing the presence or absence of directed arcs between nodes. For example, $A_{i,j} = T$ means that an arc exists between $N_i$ and $N_j$, and $A_{i,j} = F$ means that no arc exists between $N_i$ and $N_j$. Let there be a set of tokens $S$, such that $S_i$ is the $i$th token in the source sentence. We would like an array $B$, where $|B| = |N|$, and for all $i$, $B_i$ is in the range $(1,|S|)$. For $B_i = n$, it means that token $S_n$ generated $N_i$.
+
+\subsection{Previous Alignment Work}
+
+There have been two previous attempts at producing automatic AMR alignments. The first was published as a necessary component of JAMR, \cite{Flanigan:14}, and used a rule-based approach to perform alignments, which worked well on the small sample of 100 hand-labeled sentences used to develop the system. The second published approach, \todo{cite short paper}, rendered AMR graphs as text, and then used traditional alignment techniques from machine translation to align tokens in the source text and nodes in the AMR graphs. This approach works reasonably well, but fails to take advantage of the inherently graphical structure of AMR, and regularities within that structure like named entities and quantity values.
+
+\subsection{Intuition}
+
+Our decomposition of the AMR node generation process into a set of actions provides an interesting way to align unaligned AMR graphs. We would like an alignment of AMR nodes to the source tokens such that we maximize the ``informativeness'' of the actions that we use to generate the AMR nodes from the source text.
+
+We can define the ``informativeness'' of a given action by the probability of generating the correct nodes given the correct sequence label. The only label with a probability of correct generation that is less than 1 (i.e. is not and immediate guaranteed win) is \textbf{DICT}, which looks up the token in a dictionary, and on our dev set less than 70\% are correctly generated from a \textbf{DICT}.
+
+That suggests a relatively simple heuristic for producing good alignments: minimize the number of \textbf{DICT} sequence labels implied by a given alignment $A$. We would also like to constrain nodes that are not adjacent to one another to not align to the same token, except in certain cases where hallucinated AMR node structure suggests that a contiguous segment of 3 or more nodes is plausible.
+
+\subsection{Boolean Linear Program Formulation}
+
+We can formulate the alignment problem and constraints given above as a Boolean LP.
+
+Let $Q$ be a matrix in $\mathcal{B}^{|N| x |S|}$ ($Q$ is a matrix of boolean variables of size $|N|$ x $|S|$). The meaning of $Q_{i,j} = \mathbbm{1}$ can be interpreted as node $N_i$ having come from token $S_j$. Furthermore, let $V$ be a matrix $\mathcal{T}^{|N| x |S|}$ ($V$ is a matrix of derivation types, a set we call $\mathcal{T}$, of size $|N|$ x $|S|$). The matrix element $V_{i,j}$ gets the derivation type that would be implied by node $N_i$ aligning to token $S_j$. \todo{Needs graphic} Our goal can then be formulated roughly as follows:
+
+\[\sum_{i,j} Q_{i,j}*\mathbbm{1}{(V_{i,j} = DICT)}\]
+
+We would like to constrain the alignment so that each node must align to exactly one token:
+
+\[\forall i (\sum_{j} Q_{i,j} = 1)\]
+
+It is also useful to prevent nodes that are not adjacent in the AMR graph, and do not have exactly the same title, from aligning to the same token. Let $\mathcal{J}$ be the set of all pairs $(k,l)$ such that $k \neq l$ and $N_k$ and $N_l$ are not adjacent in the graph, and do not have the same title. Then we can enforce this constraint with,
+
+\[\forall (k,l) \in \mathcal{J} (\forall j (Q_{k,j} + Q_{l,j} \leq 1))\]
+
+We also find edit distance to be a useful encouragement for nodes to align to their correct source token, so we would like to linearly augment our goal term with another value to reflect how closely our proposed alignment follows edit distance. Let $\mathcal{E}$ be a matrix in $\mathcal{R}^{|N|x|S|}$, where $E_{i,j}$ is the Jaro-Winkler edit distance between the title of node $N_i$, and the sentence token $S_j$. Then we can augment our objective function with a linear encouragement, modulated by $\alpha$, to align to the close edit-distance concepts overall. Our new augmented objective function is:
+
+\[\sum_{i,j} Q_{i,j}*(\mathbbm{1}{(V_{i,j} = DICT)} - \alpha \mathcal{E}_{i,j})\]
+
+We have many choices for packages that can solve this Boolean LP efficiently. We used Gurobi \needcite.
+
+Given a matrix $Q$ that minimizes our objective, we can decode our solved alignment as follows: for each $i$, align $N_i$ to the $j$ s.t. $Q_{i,j} = 1$. By our constraints, exactly one such $j$ must exist.
 
 \section{Results}
-Our end to end results are reported by plugging the output of our subgraph generation system into the constrained-MST component of JAMR, which is able to produce final AMR graphs. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. We trained and tested on the \textbf{LDC2013E117} dataset, for which the last published result was a smatch score of 0.58 on the test set by JAMR \cite{Flanigan:14}. We report 0.64 on the same dataset, by substituting our subgraph generation system.
 
-\todo{Report on generalization}
+\subsection{End to end results}
+
+Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{Flanigan:14}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. We trained and tested on the \textbf{LDC2013E117} dataset, for which the only published result is a smatch score of \textbf{0.58} on the test set by JAMR \cite{Flanigan:14}. We report \textbf{0.64} on the same dataset, by substituting our subgraph generation system.
+
+\subsection{Alignment results}
+
+We hand annotated 500 sentence graph pairs with alignments. These pairs were selected to evenly represent every domain from the LDC2014T12 dataset, and were hand-annotated over a period of three weeks by a single individual, so alignment style is consistent throughout. Hallucinated nodes, like ``temporal-entity'', are aligned to their left-most child for consistency, with the reasoning that they will then grouped in a \textbf{DICT} tag with their children during training and testing.
+
+\todo{Report Results}
+
+% Our approach really shines in domain transfer. Using a system trained on \textbf{LDC2013E117}, which is composed of international newswire, and testing on the web forum subsection \textbf{LDC2014T12}, our system generalizes well.
+
+\Section{errors}{Error Analysis}
+
+\subsection{Weak lemmatization}
+
+The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like ``sailor''. These don't occur nearly 25\% of the time. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}, because AMR will aggressively normalize words and change their part of speech to a semantic neighbor. For example, `gleefully' gets mapped to `glee' and not `gleeful', which is hard to do automatically with stemming rules in the general case. We leave this as a direction for future work.
+
+\subsection{Linear Classifier}
 
 \section{Future Work}
-\todo{Better alignments}
-\todo{Etymological approach to generation}
+\subsection{Semantically equivalent POS normalization}
+The benefit of this approach could be increased by having a very strong stemmer tuned to AMR parsing, which currently doesn't exist.
+\subsection{Etymological approach to generation}
+There is an opportunity to create and test etymological-semantic approaches to parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously.
+
+\section{Appendix}
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|rl|}
+\hline \bf NER++ Features \\ \hline
+Input token\\
+Input token word embedding\\
+Left token\\
+Right token\\
+Left bigram\\
+Right bigram\\
+POS\\
+Left POS\\
+Right POS\\
+Left POS bigram\\
+Right POS bigram\\
+Token's dependency parent token\\
+Token's dependency parent POS\\
+Token's dependency parent arc name\\
+Bag of outgoing dependency arcs\\
+Number of outgoing dependency arcs\\
+Number of outgoing dependency arcs (indicator)\\
+Max JaroWinker to any lemma in PropBank\\
+Closest (JaroWinkler) in PropBank\\
+Token NER\\
+Left NER bigram\\
+Right NER bigram\\
+Right NER bigram\\
+Indicator for if token is a recognized AMR NER type\\
+Indicator for if token is capitalized\\
+Parent arc is prep\_* or appos, and parent has NER tag\\
+Indicator for token is pronoun\\
+Indicator for token is part of a coref chain\\
+Indicator for token pronoun and part of a coref chain\\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} The features for the NER++ max-ent classifiers. }
+\end{table}
 
 \section*{Acknowledgments}
 
