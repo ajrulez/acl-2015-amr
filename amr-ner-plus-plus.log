@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  25 FEB 2015 13:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  25 FEB 2015 15:46
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -101,6 +101,9 @@ Package color Info: Driver file: pdftex.def on input line 137.
 (./amr-ner-plus-plus.aux
 
 LaTeX Warning: Label `sec:actions' multiply defined.
+
+
+LaTeX Warning: Label `font-table' multiply defined.
 
 
 LaTeX Warning: Label `font-table' multiply defined.
@@ -321,7 +324,7 @@ File: informativeness.png Graphic file (type png)
 <use informativeness.png>
 Package pdftex.def Info: informativeness.png used on input line 205.
 (pdftex.def)             Requested size: 146.79808pt x 125.71938pt.
-
+ [5 <./informativeness.png>]
 Underfull \hbox (badness 1112) in paragraph at lines 213--214
 \OT1/ptm/m/n/10.95 to $\OML/cmm/m/it/10.95 S[]$\OT1/ptm/m/n/10.95 , as-sign the
  ac-tion \OT1/ptm/b/n/10.95 NONE \OT1/ptm/m/n/10.95 to $\OML/cmm/m/it/10.95 S[]
@@ -333,10 +336,9 @@ Overfull \hbox (21.82155pt too wide) in paragraph at lines 213--214
 [][][][][][] 
  []
 
-[5 <./informativeness.png>] [6]
+[6]
 LaTeX Font Info:    Try loading font information for U+bbm on input line 249.
-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/bbm-macros/ubbm.fd
+ (/usr/local/texlive/2014/texmf-dist/tex/latex/bbm-macros/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 )
 
@@ -346,29 +348,46 @@ LaTeX Font Warning: Command \small invalid in math mode on input line 265.
 LaTeX Font Warning: Command \small invalid in math mode on input line 273.
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Overfull \hbox (10.51772pt too wide) in paragraph at lines 277--285
+ [] 
+ []
 
- [7]
-Underfull \hbox (badness 4193) in paragraph at lines 295--296
+[7]
+Underfull \hbox (badness 4193) in paragraph at lines 319--320
 \OT1/ptm/m/n/10.95 There is an op-por-tu-nity to cre-ate and test
  []
 
 
-Underfull \hbox (badness 7851) in paragraph at lines 295--296
-\OT1/ptm/m/n/10.95 etymological-semantic ap-proaches to pars-ing
+Underfull \hbox (badness 10000) in paragraph at lines 319--320
+\OT1/ptm/m/n/10.95 etymologico-semantic ap-proaches to pars-ing
  []
 
 
-Overfull \hbox (41.48737pt too wide) in paragraph at lines 301--334
+Underfull \hbox (badness 2717) in paragraph at lines 319--320
+\OT1/ptm/m/n/10.95 words like `sailor' that would ben-e-fit AMR
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 319--320
+\OT1/ptm/m/n/10.95 pars-ing do-main gen-er-al-iza-tion tremen-dously.
+ []
+
+
+Overfull \hbox (41.48737pt too wide) in paragraph at lines 325--358
  [] 
  []
 
 
-Underfull \hbox (badness 1117) in paragraph at lines 351--354
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 1117) in paragraph at lines 375--378
 []\OT1/ptm/m/n/10 Jeffrey Flani-gan, Sam Thom-son, Jaime Car-bonell,
  []
 
-[8] (./amr-ner-plus-plus.aux)
+[8] [9
+
+] (./amr-ner-plus-plus.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
@@ -395,10 +414,10 @@ e/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/
 mf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fo
 nts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/
 urw/times/utmri8a.pfb>
-Output written on amr-ner-plus-plus.pdf (8 pages, 348120 bytes).
+Output written on amr-ner-plus-plus.pdf (9 pages, 349453 bytes).
 PDF statistics:
- 96 PDF objects out of 1000 (max. 8388607)
- 62 compressed objects within 1 object stream
+ 99 PDF objects out of 1000 (max. 8388607)
+ 64 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

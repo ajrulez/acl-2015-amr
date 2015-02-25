@@ -57,9 +57,9 @@
 The Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics.
 AMR parsing is commonly divided into three challenges: alignment of training graphs to source text, generation of small semantic sub-graphs from token spans, and joining those small semantic sub-graphs to form unified representations.
 We propose a small set of actions to construct a sub-graphs from a span of tokens.
-We show that our set of construction actions both perform and generalize better than previous approaches.
+We show that our set of construction actions generalize better than previous approaches, even when learned with an extremely simple classifier.
 These actions also provide an insight for an alignment system that yields a ``maximally informative'' set of action labels, which we show yields good results.
-We improve on published state-of-the-art AMR parsing, from \textit{0.58} smatch to \textit{0.62} smatch on the LDC2013E117 dataset.
+We improve on published state-of-the-art AMR parsing, reporting much higher recall and slightly boosting end-to-end F1 from \textit{0.59} to \textit{0.62} on the LDC2013E117 and LDC2014T12 datasets.
 
 \end{abstract}
 
@@ -270,7 +270,29 @@ Given a matrix $Q$ that minimizes our objective, we can decode our solved alignm
 
 \subsection{End to end results}
 
-Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{Flanigan:14}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. We trained and tested on the \textbf{LDC2013E117} dataset, for which the only published result is a smatch score of \textbf{0.58} on the test set by JAMR \cite{Flanigan:14}. We report \textbf{0.64} on the same dataset, by substituting our NER++ system.
+Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{Flanigan:14}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|l|r|}
+\hline NER++ & Dataset & P & R & \bf F1 \\ \hline
+JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.59 \\
+\textbf{Robust} & LDC2014T12 & 0.639 & \textbf{0.596} & \textbf{0.62} \\
+JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
+\bf Robust & LDC2014E117 & 0.636 & \textbf{0.601} & \textbf{0.62} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} Results on two AMR datasets. }
+\end{table}
+
+\todo{interpretation}
+
+\subsection{Component results}
+
+On our action-type sequence labeling data generated from automatic alignments on train and test splits of \textit{LDC2014T12}, our classifier achieved a test accuracy of \textbf{0.841}.
+
+The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67} on the same train and test set. This is remarkable, given that our model moves many of the difficult semantic tasks onto the \textbf{DICT} tag, and we are using no learning here beyond a simple count of observed span to sub-graph mappings.
 
 \subsection{Alignment results}
 
@@ -284,15 +306,17 @@ We hand annotated 500 sentence graph pairs with alignments. These pairs were sel
 
 \subsection{Weak lemmatization}
 
-The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like ``sailor''. These don't occur nearly 25\% of the time. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}, because AMR will aggressively normalize words and change their part of speech to a semantic neighbor. For example, `gleefully' gets mapped to `glee' and not `gleeful', which is hard to do automatically with stemming rules in the general case. We leave this as a direction for future work.
+The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like the nominalization of ``sailor'', see \reffig{sailor}. These don't occur nearly 25\% of the time in the training data. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}, because AMR will aggressively normalize words and change their part of speech to a semantic neighbor. For example, `gleefully' gets mapped to `glee' and not `gleeful', which is hard to do automatically with stemming rules in the general case. We leave this as a direction for future work.
 
-\subsection{Linear Classifier}
+\subsection{DICT Classifier}
+
+The \textbf{DICT} class is surprisingly large, and our attempts to handle node generation within the class were fairly feeble.
 
 \section{Future Work}
 \subsection{Semantically equivalent POS normalization}
 The benefit of this approach could be increased by having a very strong stemmer tuned to AMR parsing, which currently doesn't exist.
-\subsection{Etymological approach to generation}
-There is an opportunity to create and test etymological-semantic approaches to parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously.
+\subsection{Etymological approach to node generation}
+There is an opportunity to create and test etymologico-semantic approaches to parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the know verb lemma `arbitrage', and derive that the noun `arbitrageur' probably refers to an entity that is engaged in arbitrage. AMR training data provides an opportunity to perform and measure such a task in isolation, 
 
 \section{Appendix}
 
