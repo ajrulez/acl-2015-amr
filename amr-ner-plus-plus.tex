@@ -26,6 +26,10 @@
 
 \input std-macros.tex
 
+\newcommand\w[1]{\textit{#1}} % A textual phrase
+\newcommand\e[1]{\textit{#1}} % An AMR edge
+\newcommand\n[1]{\textit{#1}} % An AMR node
+
 %\setlength\titlebox{5cm}
 
 % You can expand the titlebox if you need extra space
@@ -142,16 +146,30 @@ We suspect that the modest improvement is due to the fact that our NER++ system 
 \Section{crash}{A Crash-Course in AMR}
 
 AMR is a language for expressing semantics as a rooted, directed, and potentially cyclic graph, where nodes represent concepts and arcs are relationships between concepts.
+The nodes (concepts) in an AMR graph do not have to be explicitly grounded in the source sentence, and while such an alignment can often be generated it is not provided in the corpus.
+The semantics of nodes range from representing lexical items (e.g., \w{dog}), analyzed lexical items (e.g., \textit{run-01}), type markers (e.g., \textit{date-entity}), or other phenomena.
+
+The edges (relationships) in AMR describe one of a number of semantic relationships between concepts.
+The most salient of these is semantic role labels, such as the ARG0 and destination arcs in \reffig{method}.
+However, often these arcs define a semantics more akin to syntactic dependencies (e.g., \textit{mod} standing in for adjective and adverbial modification), or take on domain-specific semantics (e.g., the month, day, and year arcs of a \textit{date-entity}).
+
 AMR is based on neo-Davidsonian semantics, \cite{Davidson:1967}, and propositional semantics, \cite{Parsons:1990}.
-AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in the sentence whose semantics is being represented.
-In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
-It's important to understand that AMR represents the relationships between objects referred to by the surface text, \textit{not} the relationships between the words themselves.
+To introduce AMR and its notation in more detail, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. 
+We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
 
-To introduce AMR and its notation, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
+%AMR makes no effort to have a one-to-one correspondence between nodes in a graph and tokens in the sentence whose semantics is being represented.
+%In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
+%It's important to understand that AMR represents the relationships between objects referred to by the surface text, \textit{not} the relationships between the words themselves.
 
-Note that the root node of the graph is labeled ``run-01''. This is the name of a verb sense definition drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence.
 
-``run-01'' has an outgoing ``ARG0'' arc to a node ``he'', with semantics (drawn from the PropBank frame) that roughly correspond to ``he'' being the doer of the ``run-01'' action. The ``run-01'' has an outgoing ``mod'' to ``glee,'' which has the catch-all semantics that ``run-01'' is somehow modified by the concept ``glee.'' ``run-01'' also has a ``destination'' arc to ``dog,'' which preposition senses from (Srikumar, 2013) \needcite, and means that the destination of the ``run-01'' action is ``dog''. Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
+The root node of the graph is labeled \n{run-01}, corresponding to the PropBank\needcite definition of the verb \w{ran} .
+%This is the name of a verb sense definition drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence.
+\w{run-01} has an outgoing \e{ARG0} arc to a node \w{he}, with the usual PropBank semantics.
+%semantics (drawn from the PropBank frame) that roughly correspond to ``he'' being the doer of the ``run-01'' action. 
+The outgoing \e{mod} edge from \n{run-01} to \n{glee} takes a general purpose semantics corresponding to adjective, adverbial, or other modification of the governor by the dependent.
+We note that \n{run-01} has a \e{destination} arc to \n{dog}, taking the fine-grained prepositional sense tags of Srikumar (2013) \needcite.
+The last portion of the figure parses \w{dog} to a node which will eventually serve as a type marker, and \w{Rover} into the larger subgraph indicating a concept with name ``Rover.''
+%Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
 \Subsection{formal}{Formal task definition}
 
@@ -170,12 +188,25 @@ AMR makes an attempt to capture some semantic meanings in words that are difficu
 AMR can also capture structured data, like time expressions, see \reffig{date}. In dates, a ``date-entity'' node is created to signify that this cluster of nodes is part of a structured sub-component of an AMR graph, with specific semantics. Dates are a good example of a recurring pattern in AMR, which is to have an ``artificial node'' signify that all its immediate children are part of a structured piece of data, with some special interpretation. The most common example of this pattern is the ``name'' node, which signifies that its immediate children comprise the tokens of a name object.
 
 \section{Task decomposition}
-
-We define the terms \textbf{NER++} and \textbf{SRL++} in more detail within this section.
+As in \newcite{Flanigan:14}, we decompose the end-to-end task of parsing to AMR into two stages:
+  \textbf{NER++} -- the task of of generating the best AMR sub-graphs given a set of tokens; and
+  \textbf{SRL++} -- the task of taking the disjoint subgraphs generated
+  by NER++ and creating a fully-connected graph.
+We describe both of these in more detail below.
+%We define the terms \textbf{NER++} and \textbf{SRL++} in more detail within this section.
 
 \Subsection{ner}{NER++}
+Much of the difficulty of parsing to AMR lies in generating local sub-graphs representing the meaning of token spans.
+For instance, the formalism implicitly demands rich notions of NER, lemmatization, word sense disambiguation, number normalization, and temporal parsing; among others.
+To illustrate, \reffig{method} requires lemmatization (\textit{gleefully} $\rightarrow$ \textit{glee}), word sense tagging (\textit{run} $\rightarrow$ \textit{run-01}), and open domain NER (i.e., \textit{Rover}); \reffig{date} shows an example of temporal parsing.
+Furthermore, many of the generated subgraphs (e.g., \textit{sailor} in \reffig{sailor}) have rich semantics beyond those produced by standard NLP systems.
 
-Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
+We refer to this task as NER++.
+Formally, this is the task of generating a disjoint set of subgraphs representing the meanings of localized spans of words in the sentence.
+This is also the task where AMR alignment is useful.
+Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
+
+%Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
 
 \Subsection{srl}{SRL++}
 
