@@ -168,6 +168,7 @@ The label for \e{destination} is taken from a finite set of special arc sense ta
 The last portion of the figure parses \w{dog} to a node which will eventually serve as a type marker, and \w{Rover} into the larger subgraph indicating a concept with name ``Rover.''
 %Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
+
 \Subsection{formal}{Formal task definition}
 Formally, an AMR graph is represented as a directed multigraph.
 Following \newcite{2014flanigan-amr}, we simplify the representation by (1) disallowing
@@ -232,13 +233,26 @@ Whereas often the AMR node aligned to a span of text is a straightforward functi
 
 
 \section{Task decomposition}
+
+
 % Two stages
-As in \newcite{2014flanigan-amr}, we decompose the end-to-end task of parsing to AMR into two stages:
-  \textbf{NER++} -- the task of of generating the best AMR sub-graphs given a set of tokens; and
-  \textbf{SRL++} -- the task of taking the disjoint subgraphs generated
+
+To the best of our knowledge, the JAMR parser \cite{2014flanigan-amr} is
+the only published end-to-end AMR parser.
+The crucial insight in JAMR is that AMR parsing can be broken into two 
+relatively distinct tasks: (1) \textbf{NER++} -- the task of interpreting what entities are being referred to in 
+the text, realized by generating the best AMR sub-graphs for a given set of tokens, and
+(2) \textbf{SRL++} -- the task of discovering what 
+relationships those entities have between one another other, realized by taking the disjoint subgraphs generated
   by NER++ and creating a fully-connected graph.
 We describe both tasks in more detail below.
 %We define the terms \textbf{NER++} and \textbf{SRL++} in more detail within this section.
+
+% +++
+% We adopt the dual decomposition based MST algorithm from the parser, 
+%   and contribute primarily towards replacing
+%  the NER++ component.
+%---
 
 \Subsection{ner}{NER++}
 % JON: s/To illustrate/For example/ ?
@@ -248,11 +262,12 @@ To illustrate, \reffig{method} requires lemmatization (\textit{gleefully} $\righ
 Furthermore, many of the generated subgraphs (e.g., \textit{sailor} in \reffig{sailor}) have rich semantics beyond those produced by standard NLP systems.
 
 % JON: This is not formal compared to the formal-ness of previous sections (e.g. definition of A)
-We refer to this task as NER++ (see \reffig{method}).
+% We refer to this task as NER++ (see \reffig{method}).
 Formally, this is the task of generating a disjoint set of subgraphs representing the meanings of localized spans of words in the sentence.
 % NOTE: not quite true, SRL++ uses dependency path features that rely on alignments
 % This is also the task where AMR alignment is useful
 % Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
+For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. The main contribution of this paper is our exploration of a better way of doing NER++ in \refsec{nerplusplus}.
 
 %Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
 
@@ -263,46 +278,14 @@ Unlike the domain-specific arcs within a single sub-graph produced by NER++, the
   arcs in SRL++ tend to have generally applicable semantics.
 For example, the SRL arcs (e.g., \e{ARG0} and \e{destination} in \reffig{method}),
   or the syntactic dependency arcs (e.g., \e{mod} and \e{poss} in \reffig{method}).
-We use the modified MST algorithm implemented in \newcite{2014flanigan-amr} to produce
-  a labeled DAG corresponding to these edges.
+For SRL++, JAMR uses a variation of the maximum spanning tree algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. JAMR's SRL++ component is extremely effective, and we were unable to produce a better SRL++ system in our experiments with several other structured prediction approaches.
+Therefore, we use the modified MST algorithm implemented in \newcite{2014flanigan-amr} to produce
+  a labeled DAG corresponding to the relation edges.
 
 %Given a perfect NER++ system for an AMR parser, there remains the task of noting the verb arguments, preposition sense actionging, and doing some augmented semantic dependency parsing in order to join the disjoint NER++ output into a single AMR parse. We call this task SRL++. SRL++ is the sub-task of taking as input the disjoint sub-graphs generated by NER++, and adding the maximum likelihood set of arcs between the sub-graphs in order to have a fully connected graph.
 
-\Section{related}{Related Work}
-The NER++ component of AMR encapsulates a number of lexical NLP tasks.
-These include named entity recognition \cite{2007nadeau-ner,stanford-ner}.
 
-In turn, the SRL++ facet of AMR takes many insights from semantic role labeling
-  \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl}, in addition to
-  syntactic dependency representations 
-  \cite{stanford-dependencies,2005mcdonald-dependency0,2006buchholz-conll}.
-
-More generally, parsing to a semantic representation is has been explored in
-  depth for when the representation is a logical form
-  \cite{2005kate-semantics,2005zettlemoyer-semantics,2011liang-semantics}.
-Recent work by \newcite{2014berant-bio} has used semantic parsing for parsing 
-  text into a formal representation of a biological process.
-
-Interlingua
-  \cite{1991mitamura-interlingua,1999carbonell-interlingua,1998levin-interlingua}
-  are an important inspiration for decoupling the semantics of the AMR language
-  from the surface form of the text being parsed; although, AMR has a self-admitted
-  English bias.
-
-To the best of the authors' knowledge, the JAMR parser \cite{2014flanigan-amr} is
-  the only published end-to-end AMR parser.
-We adopt the dual decomposition based MST algorithm from the parser, 
-  and contribute primarily towards replacing
-  the NER++ component.
-%The crucial insight in JAMR is that AMR parsing can be broken into two 
-%  relatively distinct tasks: interpreting what entities are being referred to in 
-%  the text (which we call NER++), and then discovering what 
-%  relationships those entities have between one another other (which we call SRL++).
-
-%For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. Then for SRL++ JAMR uses a variation of the maximum spanning tree algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. JAMR's SRL++ component is extremely effective, and we were unable to produce a better SRL++ system in our experiments with several other structured prediction approaches.
-
-
-\section{NER++ Method}
+\section{A Novel NER++ Method}\label{sec:nerplusplus}
 
 Our approach to improving NER++ is very simple: instead of trying to pick which of thousands of AMR sub-graphs to generate from a span of text directly, we partition the AMR sub-graph space in terms of the actions needed to derive a node from its aligned token. At test time we do a sequence labeling of input tokens with these actions, and then deterministically derive the AMR sub-graphs from spans of tokens by applying the transformation decreed by their actions. This dramatically reduces sparsity, and helps improve end-to-end performance, but is most beneficial for domain transfer. We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train a action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
 
@@ -414,6 +397,29 @@ The \textbf{DICT} class was intended to be used for things that a system cannot 
 \subsection{DICT Classifier}
 
 The \textbf{DICT} class is surprisingly large, and our attempts to handle node generation within the class were fairly feeble.
+
+\Section{related}{Related Work}
+
+Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
+the NER++ component of AMR encapsulates a number of lexical NLP tasks.
+These include named entity recognition \cite{2007nadeau-ner,stanford-ner}.
+
+In turn, the SRL++ facet of AMR takes many insights from semantic role labeling
+  \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl}, in addition to
+  syntactic dependency representations 
+  \cite{stanford-dependencies,2005mcdonald-dependency0,2006buchholz-conll}.
+
+More generally, parsing to a semantic representation is has been explored in
+  depth for when the representation is a logical form
+  \cite{2005kate-semantics,2005zettlemoyer-semantics,2011liang-semantics}.
+Recent work by \newcite{2014berant-bio} has used semantic parsing for parsing 
+  text into a formal representation of a biological process.
+
+Interlingua
+  \cite{1991mitamura-interlingua,1999carbonell-interlingua,1998levin-interlingua}
+  are an important inspiration for decoupling the semantics of the AMR language
+  from the surface form of the text being parsed; although, AMR has a self-admitted
+  English bias.
 
 \section{Future Work}
 \subsection{Semantically equivalent POS normalization}
