@@ -1,0 +1,613 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  26 FEB 2015 22:13
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**amr-ner-plus-plus.tex
+(./amr-ner-plus-plus.tex
+LaTeX2e <2014/05/01>
+Babel <3.9k> and hyphenation patterns for 78 languages loaded.
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (./acl2015.sty
+Conference Style for ACL 2015 -- released December 7, 2014
+\titlebox=\skip43
+) (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/times.sty
+Package: times 2005/04/12 PSNFSS-v9.2a (SPQR) 
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip10
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup4
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 47.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2014/04/25 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/05/08 v1.15 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/graphics.cfg
+File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count87
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/bbm-macros/bbm.sty
+Package: bbm 1999/03/15 V 1.2 provides fonts for set symbols - TH
+LaTeX Font Info:    Overwriting math alphabet `\mathbbm' in version `bold'
+(Font)                  U/bbm/m/n --> U/bbm/bx/n on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathbbmss' in version `bold'
+(Font)                  U/bbmss/m/n --> U/bbmss/bx/n on input line 35.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/jknapltx/mathrsfs.sty
+Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
+\symrsfs=\mathgroup5
+)
+(./std-macros.tex
+\c@definition=\count88
+\c@assumption=\count89
+\c@proposition=\count90
+\c@theorem=\count91
+\c@lemma=\count92
+\c@corollary=\count93
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/color.sty
+Package: color 2014/04/23 v1.1a Standard LaTeX Color (DPC)
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/color.cfg
+File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
+)
+Package color Info: Driver file: pdftex.def on input line 137.
+))
+No file amr-ner-plus-plus.aux.
+\openout1 = `amr-ner-plus-plus.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 56.
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count94
+\scratchdimen=\dimen105
+\scratchbox=\box26
+\nofMPsegments=\count95
+\nofMParguments=\count96
+\everyMPshowfont=\toks15
+\MPscratchCnt=\count97
+\MPscratchDim=\dimen106
+\MPnumerator=\count98
+\makeMPintoPDFobject=\count99
+\everyMPtoPDFconversion=\toks16
+) (/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
+))
+(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
+
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+
+(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 452.
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 57.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 57.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 57.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 57.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 57.
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+LaTeX Font Info:    Try loading font information for U+rsfs on input line 57.
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/jknapltx/ursfs.fd
+File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
+)
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 57.
+
+Underfull \hbox (badness 1533) in paragraph at lines 63--73
+\OT1/ptm/m/n/10.95 AMR pars-ing, boost-ing end-to-end F1
+ []
+
+<glee.png, id=1, 647.41875pt x 1035.87pt>
+File: glee.png Graphic file (type png)
+ <use glee.png>
+Package pdftex.def Info: glee.png used on input line 78.
+(pdftex.def)             Requested size: 161.85428pt x 258.96686pt.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+
+
+LaTeX Warning: Citation `2013banarescu-amr' on page 1 undefined on input line 8
+0.
+
+
+LaTeX Warning: Reference `fig:glee' on page 1 undefined on input line 82.
+
+
+LaTeX Warning: Reference `sec:crash' on page 1 undefined on input line 82.
+
+
+Underfull \hbox (badness 1142) in paragraph at lines 84--87
+\OT1/ptm/m/n/10.95 pars-ing is ex-cit-ing be-cause a prac-ti-cal broad-
+ []
+
+<method.png, id=3, 2068.72874pt x 1195.46625pt>
+File: method.png Graphic file (type png)
+ <use method.png>
+Package pdftex.def Info: method.png used on input line 88.
+(pdftex.def)             Requested size: 475.7976pt x 274.95145pt.
+
+Overfull \hbox (20.55353pt too wide) in paragraph at lines 88--88
+ [] 
+ []
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 1 undefined on input line 94
+.
+
+
+LaTeX Warning: Reference `sec:ner' on page 1 undefined on input line 95.
+
+
+LaTeX Warning: Reference `sec:srl' on page 1 undefined on input line 96.
+
+
+Underfull \vbox (badness 4441) has occurred while \output is active []
+
+ [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+
+
+
+ <./glee.png>]
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 2 undefined on input line 99
+.
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 2 undefined on input line 10
+1.
+
+
+Underfull \hbox (badness 1270) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 the only pub-lished AMR parser to date, (\OT1/ptm/b/n/10.95 
+?\OT1/ptm/m/n/10.95 ),
+ []
+
+
+Underfull \hbox (badness 1009) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 own NER++ and SRL++ com-po-nents, it gets
+ []
+
+
+Underfull \hbox (badness 1038) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 scores 0.80 F1 against a vir-tual up-per bound
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 on AMR [][][][][][].
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 (And an-no-ta-tors very rarely dis-agree on
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 NER++, which amounts to dis-agree-ing
+ []
+
+
+Underfull \hbox (badness 2707) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 about the en-ti-ties men-tioned in a sen-tence).
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--105
+[][][][][][]
+ []
+
+
+Underfull \hbox (badness 2376) in paragraph at lines 101--105
+\OT1/ptm/m/n/10.95 with deriva-tional mor-phol-ogy to ex-pand into
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+LaTeX Warning: Reference `fig:glee' on page 2 undefined on input line 108.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [2 <./method.png>]
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 3 undefined on input line 11
+2.
+
+
+LaTeX Warning: Reference `fig:method' on page 3 undefined on input line 116.
+
+
+LaTeX Warning: Citation `o' on page 3 undefined on input line 117.
+
+
+LaTeX Warning: Reference `fig:glee' on page 3 undefined on input line 117.
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 3 undefined on input line 11
+9.
+
+
+LaTeX Warning: Reference `fig:method' on page 3 undefined on input line 149.
+
+
+LaTeX Warning: Citation `Davidson:1967' on page 3 undefined on input line 152.
+
+
+LaTeX Warning: Citation `Parsons:1990' on page 3 undefined on input line 152.
+
+
+LaTeX Warning: Reference `fig:glee' on page 3 undefined on input line 154.
+
+
+LaTeX Warning: Citation `Palmer:2005' on page 3 undefined on input line 161.
+
+
+LaTeX Warning: Citation `Srikumar:2013' on page 3 undefined on input line 167.
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 3 undefined on input line 17
+3.
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 179.
+
+LaTeX Warning: Reference `sec:ner' on page 3 undefined on input line 195.
+
+[3] <sailor.png, id=27, 213.79875pt x 412.54124pt>
+File: sailor.png Graphic file (type png)
+ <use sailor.png>
+Package pdftex.def Info: sailor.png used on input line 199.
+(pdftex.def)             Requested size: 53.44955pt x 103.13506pt.
+
+<date.png, id=28, 526.96875pt x 379.4175pt>
+File: date.png Graphic file (type png)
+ <use date.png>
+Package pdftex.def Info: date.png used on input line 202.
+(pdftex.def)             Requested size: 131.74185pt x 94.85414pt.
+
+
+LaTeX Warning: Reference `fig:date' on page 4 undefined on input line 206.
+
+
+LaTeX Warning: Reference `fig:glee' on page 4 undefined on input line 213.
+
+
+LaTeX Warning: Reference `fig:sailor' on page 4 undefined on input line 224.
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 4 undefined on input line 23
+6.
+
+
+LaTeX Warning: Reference `fig:method' on page 4 undefined on input line 247.
+
+
+LaTeX Warning: Reference `fig:date' on page 4 undefined on input line 247.
+
+
+LaTeX Warning: Reference `fig:sailor' on page 4 undefined on input line 248.
+
+
+LaTeX Warning: Reference `fig:method' on page 4 undefined on input line 251.
+
+
+LaTeX Warning: Reference `fig:method' on page 4 undefined on input line 264.
+
+
+LaTeX Warning: Reference `fig:method' on page 4 undefined on input line 265.
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 4 undefined on input line 26
+6.
+
+
+LaTeX Warning: Citation `2007nadeau-ner' on page 4 undefined on input line 273.
+
+
+
+LaTeX Warning: Citation `stanford-ner' on page 4 undefined on input line 273.
+
+
+Underfull \vbox (badness 2213) has occurred while \output is active []
+
+ [4 <./sailor.png> <./date.png>]
+
+LaTeX Warning: Citation `2002gildea-srl' on page 5 undefined on input line 276.
+
+
+
+LaTeX Warning: Citation `2004punyakanok-srl' on page 5 undefined on input line 
+276.
+
+
+LaTeX Warning: Citation `srikumar2013-srl' on page 5 undefined on input line 27
+6.
+
+
+LaTeX Warning: Citation `stanford-dependencies' on page 5 undefined on input li
+ne 278.
+
+
+LaTeX Warning: Citation `2005mcdonald-dependency0' on page 5 undefined on input
+ line 278.
+
+
+LaTeX Warning: Citation `2006buchholz-conll' on page 5 undefined on input line 
+278.
+
+
+LaTeX Warning: Citation `2005kate-semantics' on page 5 undefined on input line 
+282.
+
+
+LaTeX Warning: Citation `2005zettlemoyer-semantics' on page 5 undefined on inpu
+t line 282.
+
+
+LaTeX Warning: Citation `2011liang-semantics' on page 5 undefined on input line
+ 282.
+
+
+LaTeX Warning: Citation `2014berant-bio' on page 5 undefined on input line 283.
+
+
+
+LaTeX Warning: Citation `1991mitamura-interlingua' on page 5 undefined on input
+ line 287.
+
+
+LaTeX Warning: Citation `1999carbonell-interlingua' on page 5 undefined on inpu
+t line 287.
+
+
+LaTeX Warning: Citation `1998levin-interlingua' on page 5 undefined on input li
+ne 287.
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 5 undefined on input line 29
+2.
+
+
+LaTeX Warning: Reference `sec:actions' on page 5 undefined on input line 307.
+
+
+LaTeX Warning: Reference `sec:data' on page 5 undefined on input line 307.
+
+
+LaTeX Warning: Reference `sec:classifier' on page 5 undefined on input line 307
+.
+
+
+LaTeX Warning: Reference `fig:sailor' on page 5 undefined on input line 323.
+
+
+LaTeX Warning: Reference `fig:sailor' on page 5 undefined on input line 325.
+
+
+LaTeX Warning: Reference `sec:data' on page 5 undefined on input line 325.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `sec:errors' on page 5 undefined on input line 346.
+
+[5] <informativeness.png, id=37, 587.19376pt x 502.87875pt>
+File: informativeness.png Graphic file (type png)
+
+<use informativeness.png>
+Package pdftex.def Info: informativeness.png used on input line 356.
+(pdftex.def)             Requested size: 146.79808pt x 125.71938pt.
+
+
+LaTeX Warning: Reference `fig:hierarchy' on page 6 undefined on input line 358.
+
+
+
+LaTeX Warning: Reference `sec:alignment' on page 6 undefined on input line 362.
+
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 364--365
+\OT1/ptm/m/n/10.95 to $\OML/cmm/m/it/10.95 S[]$\OT1/ptm/m/n/10.95 , as-sign the
+ ac-tion \OT1/ptm/b/n/10.95 NONE \OT1/ptm/m/n/10.95 to $\OML/cmm/m/it/10.95 S[]
+$\OT1/ptm/m/n/10.95 . For
+ []
+
+
+Overfull \hbox (21.82155pt too wide) in paragraph at lines 364--365
+[][][][][][] 
+ []
+
+
+LaTeX Warning: Citation `2014flanigan-amr' on page 6 undefined on input line 38
+0.
+
+
+LaTeX Font Warning: Command \small invalid in math mode on input line 380.
+
+
+Underfull \vbox (badness 6157) has occurred while \output is active []
+
+ [6 <./informativeness.png>]
+Overfull \hbox (15.9927pt too wide) in paragraph at lines 384--392
+ [] 
+ []
+
+
+LaTeX Warning: Reference `fig:sailor' on page 7 undefined on input line 410.
+
+
+Underfull \hbox (badness 4193) in paragraph at lines 420--421
+\OT1/ptm/m/n/10.95 There is an op-por-tu-nity to cre-ate and test
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 420--421
+\OT1/ptm/m/n/10.95 etymologico-semantic ap-proaches to pars-ing
+ []
+
+
+Underfull \hbox (badness 2717) in paragraph at lines 420--421
+\OT1/ptm/m/n/10.95 words like `sailor' that would ben-e-fit AMR
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 420--421
+\OT1/ptm/m/n/10.95 pars-ing do-main gen-er-al-iza-tion tremen-dously.
+ []
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <9> on input line 427.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 427.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 428.
+No file amr-ner-plus-plus.bbl.
+[7] [8
+
+] (./amr-ner-plus-plus.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 2121 strings out of 493117
+ 28186 string characters out of 6135433
+ 94326 words of memory out of 5000000
+ 5528 multiletter control sequences out of 15000+600000
+ 24585 words of font info for 67 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 38i,10n,23p,877b,258s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
+exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/te
+xlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/tex
+live/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texli
+ve/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive
+/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/20
+14/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/201
+4/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2014/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2014/te
+xmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/f
+onts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
+/urw/times/utmri8a.pfb>
+Output written on amr-ner-plus-plus.pdf (8 pages, 335179 bytes).
+PDF statistics:
+ 87 PDF objects out of 1000 (max. 8388607)
+ 55 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
+

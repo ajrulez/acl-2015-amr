@@ -310,15 +310,13 @@ Our approach to improving NER++ is very simple: instead of trying to pick which 
 
 We partition the AMR sub-graph space into a set of 7 actions, each corresponding to an action that will be taken by the NER++ system if a token receives this classification.
 
-\begin{itemize}
-\item \textbf{VERB}: Look for the most similar PropBank frame, make that the title of the corresponding node.
-\item \textbf{IDENTITY}: Take the lowercased version of the token to be the title of the corresponding node.
-\item \textbf{VALUE}: Parse the token to an integer value, and use that as the node. AMR actually does type-check, so 
-\item \textbf{LEMMA}: Take the lemma of the token to be the title of the corresponding node.
-\item \textbf{NONE}: Ignore this token in the final output.
-\item \textbf{NAME}: Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
-\item \textbf{DICT}: Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
-\end{itemize}
+\paragraph{VERB} Look for the most similar PropBank frame, make that the title of the corresponding node.
+\paragraph{IDENTITY} Take the lowercased version of the token to be the title of the corresponding node.
+\paragraph{VALUE} Parse the token to an integer value, and use that as the node. AMR actually does type-check, so 
+\paragraph{LEMMA} Take the lemma of the token to be the title of the corresponding node.
+\paragraph{NONE} Ignore this token in the final output.
+\paragraph{NAME} Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
+\paragraph{DICT} Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
 
 \Subsection{actions}{Notes on the DICT action}
 
@@ -385,8 +383,8 @@ Our end to end results are reported by plugging the output of our NER++ into the
 \begin{center}
 \begin{tabular}{|l|l|l|l|r|}
 \hline NER++ & Dataset & P & R & \bf F1 \\ \hline
-JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.59 \\
-\textbf{Robust} & LDC2014T12 & 0.639 & \textbf{0.596} & \textbf{0.62} \\
+JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.593 \\
+\textbf{Robust} & LDC2014T12 & 0.666 & \textbf{0.583} & \textbf{0.622} \\
 JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
 \bf Robust & LDC2014E117 & 0.636 & \textbf{0.601} & \textbf{0.62} \\
 \hline
