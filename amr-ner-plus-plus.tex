@@ -172,20 +172,67 @@ The last portion of the figure parses \w{dog} to a node which will eventually se
 %Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
 \Subsection{formal}{Formal task definition}
+Formally, an AMR graph is represented as a directed multigraph.
+Following \newcite{Flanigan:14}, we simplify the representation by (1) disallowing
+  cycles in the graph, and (2) disallowing multiple edges between two nodes in a
+  graph.
+Both of these are rare phenomena in the representation, and substantially complicate
+  the task.
 
-Formally, given an array of tokens $S = [s_0, \ldots, s_n]$, generate a directed AMR graph $G$, defined as the pair $(N = [n_0, \ldots, n_k], A \in L^{k*k})$, where $N$ is an array of AMR nodes (which doesn't have to be the same length or have a clear correspondence to $S$), and $A$ is a matrix of labels $L$, where $A_{i,j} = l \in L$ means that an arc exists from node $n_i$ to node $n_j$ with label $l$ in the parsed graph. We include the special label ``NONE'' in $L$, corresponding to no arc existing between two nodes.
+Thus, we treat AMR as a directed graph $G$ of nodes $\bN = \{n_0 \dots n_k\}$, and
+  an edge matrix $\bA$ over a label space $\bL$: $\bA \in \bL^{k \times k}$.
+Each label $l \in \bL$ is one of the valid arc labels between two nodes (e.g.,
+  \e{ARG0}, \e{mod}), in addition to a special label denoting the lack of an arc.
+The matrix $\bA$ then defines both the existence and label of arcs in the graph:
+  $\bA_{i,j} = l$ means that an arc exists from $n_i$ to $n_j$ with label $l$;
+  $\bA_{i,j} = \e{NONE}$ entails that no arc exists between the nodes.
+
+%Formally, given an array of tokens $S = [s_0, \ldots, s_n]$, we generate a directed AMR graph $G$, defined as the pair $(N = [n_0, \ldots, n_k], A \in L^{k*k})$, where $N$ is an array of AMR nodes (which doesn't have to be the same length or have a clear correspondence to $S$), and $A$ is a matrix of labels $L$, where $A_{i,j} = l \in L$ means that an arc exists from node $n_i$ to node $n_j$ with label $l$ in the parsed graph. We include the special label ``NONE'' in $L$, corresponding to no arc existing between two nodes.
 
 \Subsection{sub-chunks}{AMR Subgraphs}
+% One-to-many mapping
+The mapping from tokens of a sentence to AMR nodes is not one-to-one.
+A single token or span of tokens can generate a \textit{subgraph} of AMR consisting
+  of multiple nodes.
+%AMR contains components that, while they may be composed of multiple nodes, 
+These subgraphs can logically be considered the expression of a single concept,
+  and are useful to treat as such (e.g., see \refsec{ner}).
+%For the NER++ task, we would like to be able to generate these single concept subgraphs directly from spans of text.
 
-AMR contains components that, while they may be composed of multiple nodes, can logically be considered the expression of a single concept. For the NER++ task, we would like to be able to generate these ``single concept subgraphs'' directly from spans of text.
+% Figure: Sailors 
+\Fig{sailor.png}{0.25}{sailor}{AMR representation of the word \w{sailor}, which is notable for breaking the word up into a self-contained multi-node unit signifying some etymological understanding.}
 
-\Fig{sailor.png}{0.25}{sailor}{AMR representation of the word ``sailor'', which is notable for breaking the word up into a self-contained multi-node unit signifying some etymological understanding.}
+% Figure: Time expression 
+\Fig{date.png}{0.25}{date}{AMR representation of the span \w{January 1, 2008}, an example of how AMR can represent structured data by creating additional nodes like \n{date-entity} to signify the presence of special structure}
 
-\Fig{date.png}{0.25}{date}{AMR representation of the span ``January 1, 2008'', an example of how AMR can represent structured data by creating additional nodes like ``date-entity'' to signify the presence of special structure}
+% Structured data
+Many of these multi-node subgraphs capture structured data such as time expressions
+  (\reffig{date}).
+%AMR can also capture structured data, like time expressions, see \reffig{date}. 
+In this example, a \n{date-entity} node is created to signify that this cluster of 
+  nodes is part of a structured sub-component representing a date, where the node
+  and arcs within the component have specific semantics.
+This illustrates a broader recurring pattern in AMR, which is to have an 
+  artificial node signify that all its immediate children are part of a 
+  structured piece of data, with some special interpretation. 
+A particularly salient example of this pattern is the \n{name} node, which signifies 
+  that its immediate children comprise the tokens of a name object.
 
-AMR makes an attempt to capture some semantic meanings in words that are difficult to capture in a way that is not domain specific. For example, the token ``sailor'' in a sentence will evoke the concept graph representing a person who performs the action ``sail-01'', see \reffig{sailor}. This is difficult to model without resorting to memorization, because the etymological clues are so sparse. We note this as an area for further exploration.
+% Hard cases
+The ability to decouple the meaning representation of a lexical item from its
+  surface form allows for rich semantic interpretations of certain concepts
+  in a sentence.
+%AMR makes an attempt to capture some semantic meanings in words that are 
+%  difficult to capture in a way that is not domain specific. 
+For example, the token \w{sailor} in \reffig{sailor} aligns to the concept graph 
+  representing a person who performs the action \n{sail-01}. 
+Whereas often the AMR node aligned to a span of text is a straightforward function
+  of the text, these cases remain difficult to capture in a more principled way than
+  dictionary lookups.
+%This is difficult to model without resorting to memorization, because the 
+%  etymological clues are so sparse. 
+%We note this as an area for further exploration.
 
-AMR can also capture structured data, like time expressions, see \reffig{date}. In dates, a ``date-entity'' node is created to signify that this cluster of nodes is part of a structured sub-component of an AMR graph, with specific semantics. Dates are a good example of a recurring pattern in AMR, which is to have an ``artificial node'' signify that all its immediate children are part of a structured piece of data, with some special interpretation. The most common example of this pattern is the ``name'' node, which signifies that its immediate children comprise the tokens of a name object.
 
 \section{Task decomposition}
 As in \newcite{Flanigan:14}, we decompose the end-to-end task of parsing to AMR into two stages:
