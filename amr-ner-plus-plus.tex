@@ -64,12 +64,12 @@
 
 Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing
   and machine translation.
-We identify that node generation, typically done using a simple
+This paper shows that node generation, typically done using a simple
   dictionary lookup, is currently the crucial limiting factor in AMR parsing.
 % The state-of-the-art AMR parser cannot generate nodes for tokens unseen at training time, limiting its generalization.
 We propose a small set of actions to construct parts of the AMR parse from spans of tokens, which allows for more robust learning of this stage.
 %the first AMR parser that can handle words at test time that were unseen during training.
-We show that our set of construction actions generalize better than the previous approach, even when learned with an extremely simple classifier.
+Our set of construction actions generalize better than the previous approach, even when learned with an extremely simple classifier.
 % These actions also provide an insight for an alignment system that yields a ``maximally informative'' set of action labels, which we show yields good results.
 We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end F$_1$ from 0.59 to 0.62 on the LDC2013E117 and LDC2014T12 datasets.
 
@@ -102,10 +102,11 @@ We follow previous work \cite{2014flanigan-amr} in dividing AMR parsing into two
 The first step is \textit{concept identification}, which generates concept (or entity) nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
 The second step is \textit{relation identification}, which adds arcs to link these nodes into a fully connected AMR graph, which we'll call \textit{SRL++} (\refsec{srl}).
 
-Our initial assumption (which we suspect would be shared by many researchers with a background in structured prediction) was to assume that the main area deserving further attention in AMR parsing is predicting the edges in the unreliably-aligned, cyclic, non-projective graphs of AMR (i.e., SRL++).
-This intuition follows by analogy from the locus of work for syntactic dependency parsing. We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of MST presented in \newcite{2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.
+Our initial assumption (which we suspect would be shared by many researchers with a background in structured prediction) was that the main area deserving further attention in AMR parsing is predicting the edges in the unreliably-aligned, cyclic, non-projective graphs of AMR (i.e., SRL++).
+This intuition follows naturally from an analogy to syntactic dependency parsing.
+We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of an MST variant presented in \newcite{2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.
 
-Over time we realized that SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. A first piece of evidence for this claim comes from a close analysis of the only published AMR parser to date, \cite{2014flanigan-amr}, dubbed ``JAMR''.
+SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. A first piece of evidence for this claim comes from a close analysis of the only published AMR parser to date, \cite{2014flanigan-amr}, dubbed ``JAMR''.
 When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F$_1$.
 However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores 0.80 F$_1$. Contrast that to the 0.83 F$_1$, which is inter-annotator agreement on AMR \cite{2013banarescu-amr}  \footnote{Keeping in mind that annotators can sometimes disagree about NER++, this means that the IAA is not a perfect upper bound for parsing performance when given perfect NER++}.
 This means the SRL++ component is quite good, if given perfect NER++.
@@ -115,16 +116,16 @@ There's a strong type-check feature for the existence and type of any arc just b
 If a system is considering how to link the node ``run-01'' in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an ARG0 arc.
 It must be a noun, which leaves either ``he'' or ``dog'', and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. Given a modest amount of data, a simple parser can learn these lexical and syntactic type-check rules.
 
-While SRL++ is hard, NER++ is extremely challenging, encompassing many SemEval tasks in a single monolith.
+While SRL++ is hard, NER++ is extremely challenging, encompassing many SemEval tasks and a rich set of lemmas, nominalizations, and functional shifts.
 This task was handled by a simple baseline system in \cite{2014flanigan-amr}, which memorized a purely lexical mapping from spans of text to AMR nodes, augmented by an NER system and time expression regex at test time.
-This is problematic, because fully 38\% of the tokens in the test set are unobserved at training time, and the existing method has no way to handle generation for them.
+This is problematic, because 38\% of the tokens in the test set are unobserved at training time, and the existing method has no way to handle generation for them.
 
 The primary contribution of this paper is a method to largely delexicalize NER++ to gracefully handle unseen tokens.
 Choosing from among a small set of `generative actions' our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
-For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite{palmer2005proposition-srl} on the source token, like the \w{ran} to \n{run-01} example in \reffig{glee}.
+For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite{palmer2005proposition-srl} on the source token, like from \w{ran} to \n{run-01} in \reffig{glee}.
 
-We show that this approach improves recall dramatically over previous approaches, and that end to end performance is improved from 0.59 to 0.62 smatch when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
-We suspect that the gains are not even bigger mainly because our NER++ system is able to generate nodes that the SRL++ system has never seen during training time, which makes the still lexicalized typecheck features of the SRL++ component useless.
+We show that this approach improves recall dramatically over previous approaches, and that end to end performance is improved from 0.59 to 0.62 \n{smatch} (the metric for measure AMR parsing performance, \cite{cai2013smatch-amr}) when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
+We suspect that the gains are disproportionately small mainly because our NER++ system is able to generate nodes that the SRL++ system never saw during training time, which makes the still lexicalized typecheck features of the SRL++ component useless.
 
 % Previous work has observed that AMR parsing can be partitioned into two tasks: a rich lexically grounded entity detection system, which we call NER++ (see \refsec{ner}), and a relationship detection system, which we call SRL++ (see \refsec{srl}).
 
@@ -178,11 +179,6 @@ The last portion of the figure parses \w{dog} to a node which will eventually se
 
 \Subsection{formal}{Formal task definition}
 Formally, an AMR graph is represented as a directed multigraph.
-Following \newcite{2014flanigan-amr}, we simplify the representation by (1) disallowing
-  cycles in the graph, and (2) disallowing multiple edges between two nodes in a
-  graph.
-Both of these are rare phenomena in the representation, and substantially complicate
-  the task.
 
 Thus, we treat AMR as a directed graph $G$ of nodes $\bN = \{n_0 \dots n_k\}$, and
   an edge matrix $\bA$ such that $\bA_{i,j} = l$ means that an arc exists from $n_i$ to $n_j$ with label $l$;
@@ -273,7 +269,7 @@ Formally, NER++ is the task of generating a disjoint set of subgraphs representi
 % NOTE: not quite true, SRL++ uses dependency path features that rely on alignments
 % This is also the task where AMR alignment is useful
 % Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
-For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. The main contribution of this paper is our exploration of a better way of doing NER++ in \refsec{nerplusplus}.
+For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. The main contribution of this paper is our exploration of delexicalizing NER++ in \refsec{nerplusplus}.
 
 %Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
 
@@ -303,7 +299,7 @@ This dramatically reduces sparsity, and improves generalization (and consequentl
   recall) on the test set, without noticeablely affecting precision.
 To illustrate, 38\% of the words in the LDC2014E113 test set are 
   unseen during training time.
-We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train an action-type classifier, and setup the classifier itself.
+We explain in \refsec{actions} how exactly we manage this partition, and in \refsec{data} how we create training data from existing resources to setup and train an action-type classifier.
 
 \Subsection{actions}{Derivation actions}
 
@@ -318,12 +314,12 @@ The AMR representation is sensitive to the difference between a node with a titl
   of \n{5} (the integer value) and ``5'' or ``five'' -- the string value.
 This is a rare action, but is nonetheless distinct from any of the other classes.
 %In AMR a node with title ``five'' and a node with title ``5'' are two distinct entities, with different semantic interpretation. 
-We execute this action by getting an integer value with a regex based number normalizer, and using that as the title of the generated node.
+We execute this action by extracting an integer value with a regex based number normalizer, and using that as the title of the generated node.
 
 \paragraph{LEMMA} AMR often performs stemming and POS transformations on the source token in generating a node. 
 For example, we get \n{glee} from \w{gleefully}.
-We try to capture this by a \textbf{LEMMA} action, which is executed by using the lemma of the source token as the generated node title.
-Note that this does not capture all lemmatizations, as there is often a discrepancy
+We capture this by a \textbf{LEMMA} action, which is executed by using the lemma of the source token as the generated node title.
+Note that this does not capture all lemmatizations, as there are often discrepancies
   between the lemma generated by the lemmatizer and the correct AMR lemma.
 
 \paragraph{NONE} This action corresponds to ignoring this token, in the case that
@@ -332,9 +328,9 @@ Note that this does not capture all lemmatizations, as there is often a discrepa
 
 \paragraph{NAME} A common structured data type in AMR is the \n{name} construction. 
 For example, \w{Rover} in \reffig{glee}.
-We can capture this phenomenon on unseen names by attaching a created \n{name} node to the top of this span.
+We can capture this phenomenon on unseen names by attaching a created \n{name} node to the top of a span.
 
-\paragraph{PERSON} Another common structured data type in AMR is the \n{person} with \n{name} construction. 
+\paragraph{PERSON} A related common structured data type in AMR is the \n{person} with \n{name} construction. 
 For unknown people during broad-domain use, it's useful to have this classification category.
 This action applies \textbf{NAME}, and then attaches a created \n{person} type-indicator above the created \n{name} for the span.
 
@@ -473,13 +469,13 @@ Therefore, these are relatively easy gains in the case where a word is unseen in
 Input token; word embedding                  \\
 Left+right token / bigram                    \\
 Token length indicator     \\
-Token starts with "non"     \\
+Token starts with ``non''     \\
 POS; Left+right POS / bigram                 \\
 Dependency parent token / POS                \\
 Incoming dependency arc                      \\
 Bag of outgoing dependency arcs              \\
 Number of outgoing dependency arcs           \\
-Max JaroWinker to any lemma in PropBank      \\
+Max JaroWinkler to any lemma in PropBank      \\
 Output tag of the \textbf{VERB} action if applied \\
 Output tag of the \textbf{DICT} action if applied \\
 NER; Left+right NER / bigram                 \\
@@ -580,25 +576,25 @@ Interlingua
 
 
 \section{Results}
-We present improvements in end-to-end AMR parsing given our NER++ component on two datasets,
-action type classifier accuracy on an automatically aligned corpus,
-and alignment accuracy on a small hand-labeled corpus.
+We present improvements in end-to-end AMR parsing on two datasets by using our NER++ component.
+Action type classifier accuracy on an automatically aligned corpus
+and alignment accuracy on a small hand-labeled corpus are also reported.
 
 \Subsection{result-amr}{End-to-end AMR Parsing}
-We evaluate our novel NER++ component in the context of end-to-end AMR parsing
-We evaluate on two corpora: the LDC2014T12 corpus and LDC2013E117 corpus, both consisting
+We evaluate our NER++ component in the context of end-to-end AMR parsing
+on two corpora: the LDC2014T12 corpus and LDC2013E117 corpus, both consisting
   primarily of newswire.
 We compare two systems: the JAMR parser \cite{2014flanigan-amr}
 \footnote{Available at \url{https://github.com/jflanigan/jamr}.},
   and the JAMR SRL++ component with our NER++ approach.
 
-AMR parsing accuracy is measured with a metric called smatch \cite{cai2013smatch-amr}, which stands 
+AMR parsing accuracy is measured with a metric called \w{smatch} \cite{cai2013smatch-amr}, which stands 
   for ``s(emantic) match''. 
 The metric is the F$_1$ of a best-match between triples implied by the target graph, 
   and triples in the parsed graph. 
 
 Our results are given in \reftab{results}.
-We report much higher recall numbers on both datasets, with only small ($\leq .01$) 
+We report much higher recall numbers on both datasets, with only small ($\leq 1$ point) 
   loss in precision.
 This is natural considering our approach.
 A better NER++ system allows for more correct AMR sub-graphs to be generated --
@@ -634,11 +630,13 @@ We evaluate our aligner on a small set of 100 hand-labeled alignments,
   and evaluate our NER++ classifier on automatically generated alignments over the whole corpus,
   
 On a hand-annotated dataset of 100 AMR parses from the LDC2014T12 corpus, our aligner achieves
-  an accuracy of \textbf{0.832}. Previous aligners have pursued a slightly different definition of alignment,
-  and so are not strictly comparable, though we achieve good precision given that we force every node
-  to align to a token.
+  an accuracy of \textbf{0.832}.
 This is a measurement of the percentage of AMR nodes that are
   aligned to the correct token in their source sentence.
+Previous aligners have pursued a slightly different definition of alignment,
+  and so are not strictly comparable, though we achieve good precision given that we force every node
+  to align to a token.
+
 
 On the automatic alignments over the LDC2014T12 corpus,
   our action classifier achieved a test accuracy of \textbf{0.841}.
@@ -650,9 +648,9 @@ This is particularly impressive given that our model moves many of the difficult
 % Our approach really shines in domain transfer. Using a system trained on \textbf{LDC2013E117}, which is composed of international newswire, and testing on the web forum subsection \textbf{LDC2014T12}, our system generalizes well.
 
 \Section{conclude}{Conclusion}
-We have shown that a key challenge and area for improvement in AMR parsing is the
+A key challenge and area for improvement in AMR parsing is the
   generation of sub-graphs from lexical items in the sentence.
-We show that a simple classifier over \textit{actions} to generate
+A simple classifier over \textit{actions} to generate
   these graphs improves end-to-end recall for AMR parsing with only a small
   drop in precision, leading to an overall gain in F$_1$.
 We encourage future work on improving the accuracy of the graph generation from
@@ -661,7 +659,7 @@ We encourage future work on improving the accuracy of the graph generation from
 
 \section{Future Work}
 
-Many features of NER++ are already semantic parsing tasks in their own right and need just to be integrated in a coherent way. One feature in particular stands out as not having ready-made systems available. There is an opportunity to create and test derivational morphology components in parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the known verb root `arbitrage', and to derive that the noun `arbitrageur' probably refers to an entity that is engaged in \n{arbitrage-01}. The AMR corpus provides an opportunity to perform and measure such a task.
+Many features of NER++ are already semantic parsing tasks in their own right and need just to be integrated in a coherent way. One feature in particular stands out as not having ready-made systems available: a derivational morphology system for parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the known verb root `arbitrage', and to derive that the noun `arbitrageur' probably refers to an entity that is engaged in \n{arbitrage-01}. The AMR corpus provides an opportunity to perform and measure such a task.
 
 % \section{Appendix}
 
