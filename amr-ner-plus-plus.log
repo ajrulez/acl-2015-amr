@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  26 FEB 2015 18:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  26 FEB 2015 19:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -259,128 +259,120 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 LaTeX Warning: Citation `o' on page 3 undefined on input line 121.
 
 
-LaTeX Warning: Citation `Palmer:2005' on page 3 undefined on input line 165.
-
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 170.
-
-LaTeX Font Warning: Command \small invalid in math mode on input line 170.
+LaTeX Warning: Citation `Srikumar:2013' on page 3 undefined on input line 171.
 
 
-Underfull \hbox (badness 1033) in paragraph at lines 175--181
+Underfull \hbox (badness 1033) in paragraph at lines 176--182
 \OT1/ptm/m/n/10.95 Formally, an AMR graph is rep-re-sented as a
  []
 
-[3] <sailor.png, id=28, 213.79875pt x 412.54124pt>
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 183.
+[3] <sailor.png, id=27, 213.79875pt x 412.54124pt>
 File: sailor.png Graphic file (type png)
  <use sailor.png>
-Package pdftex.def Info: sailor.png used on input line 203.
+Package pdftex.def Info: sailor.png used on input line 204.
 (pdftex.def)             Requested size: 53.44955pt x 103.13506pt.
 
-<date.png, id=29, 526.96875pt x 379.4175pt>
+<date.png, id=28, 526.96875pt x 379.4175pt>
 File: date.png Graphic file (type png)
  <use date.png>
-Package pdftex.def Info: date.png used on input line 206.
+Package pdftex.def Info: date.png used on input line 207.
 (pdftex.def)             Requested size: 131.74185pt x 94.85414pt.
 
-Underfull \hbox (badness 1248) in paragraph at lines 238--244
+Underfull \hbox (badness 1248) in paragraph at lines 239--245
 \OT1/ptm/m/n/10.95 end-to-end task of pars-ing to AMR into two
  []
 
-
-Underfull \hbox (badness 1102) in paragraph at lines 260--261
-\OT1/ptm/m/n/10.95 Given a per-fect NER++ sys-tem for an AMR
- []
-
 [4 <./sailor.png> <./date.png>]
-Underfull \hbox (badness 1990) in paragraph at lines 267--268
+Underfull \hbox (badness 1990) in paragraph at lines 271--272
 []\OT1/ptm/m/n/10.95 For NER++, JAMR uses a sim-ple Viterbi
  []
 
 
-Underfull \hbox (badness 4981) in paragraph at lines 267--268
+Underfull \hbox (badness 4981) in paragraph at lines 271--272
 \OT1/ptm/m/n/10.95 se-quence model to di-rectly gen-er-ate AMR-
  []
 
 
-Underfull \hbox (badness 2050) in paragraph at lines 267--268
+Underfull \hbox (badness 2050) in paragraph at lines 271--272
 \OT1/ptm/m/n/10.95 subgraphs from mem-o-rized map-pings of text
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 269--270
+Underfull \hbox (badness 10000) in paragraph at lines 273--274
 []\OT1/ptm/m/n/10.95 Semantic pars-ing has been ex-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 269--270
+Underfull \hbox (badness 10000) in paragraph at lines 273--274
 \OT1/ptm/m/n/10.95 plored ex-ten-sively out-side of AMR.
  []
 
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 280.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 284.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 280.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 284.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[5] <informativeness.png, id=38, 587.19376pt x 502.87875pt>
+[5] <informativeness.png, id=37, 587.19376pt x 502.87875pt>
 File: informativeness.png Graphic file (type png)
 
 <use informativeness.png>
-Package pdftex.def Info: informativeness.png used on input line 324.
+Package pdftex.def Info: informativeness.png used on input line 328.
 (pdftex.def)             Requested size: 146.79808pt x 125.71938pt.
 
 
-LaTeX Warning: Reference `sec:alignment' on page 6 undefined on input line 330.
+LaTeX Warning: Reference `sec:alignment' on page 6 undefined on input line 334.
 
 
 
-Underfull \hbox (badness 1112) in paragraph at lines 332--333
+Underfull \hbox (badness 1112) in paragraph at lines 336--337
 \OT1/ptm/m/n/10.95 to $\OML/cmm/m/it/10.95 S[]$\OT1/ptm/m/n/10.95 , as-sign the
  ac-tion \OT1/ptm/b/n/10.95 NONE \OT1/ptm/m/n/10.95 to $\OML/cmm/m/it/10.95 S[]
 $\OT1/ptm/m/n/10.95 . For
  []
 
 
-Overfull \hbox (21.82155pt too wide) in paragraph at lines 332--333
+Overfull \hbox (21.82155pt too wide) in paragraph at lines 336--337
 [][][][][][] 
  []
 
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 348.
+LaTeX Font Warning: Command \small invalid in math mode on input line 352.
 
 [6 <./informativeness.png>]
-Overfull \hbox (10.51772pt too wide) in paragraph at lines 352--360
+Overfull \hbox (10.51772pt too wide) in paragraph at lines 356--364
  [] 
  []
 
 
-Underfull \hbox (badness 4193) in paragraph at lines 388--389
+Underfull \hbox (badness 4193) in paragraph at lines 392--393
 \OT1/ptm/m/n/10.95 There is an op-por-tu-nity to cre-ate and test
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 388--389
+Underfull \hbox (badness 10000) in paragraph at lines 392--393
 \OT1/ptm/m/n/10.95 etymologico-semantic ap-proaches to pars-ing
  []
 
 
-Underfull \hbox (badness 2717) in paragraph at lines 388--389
+Underfull \hbox (badness 2717) in paragraph at lines 392--393
 \OT1/ptm/m/n/10.95 words like `sailor' that would ben-e-fit AMR
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 388--389
+Underfull \hbox (badness 10000) in paragraph at lines 392--393
 \OT1/ptm/m/n/10.95 pars-ing do-main gen-er-al-iza-tion tremen-dously.
  []
 
 
-Overfull \hbox (41.48737pt too wide) in paragraph at lines 394--427
+Overfull \hbox (41.48737pt too wide) in paragraph at lines 398--431
  [] 
  []
 
@@ -388,11 +380,13 @@ Overfull \hbox (41.48737pt too wide) in paragraph at lines 394--427
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \hbox (badness 1117) in paragraph at lines 444--447
+Underfull \hbox (badness 1117) in paragraph at lines 448--451
 []\OT1/ptm/m/n/10 Jeffrey Flani-gan, Sam Thom-son, Jaime Car-bonell,
  []
 
-[7] [8] (./amr-ner-plus-plus.aux)
+[7] [8
+
+] (./amr-ner-plus-plus.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -401,10 +395,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2107 strings out of 493117
- 28039 string characters out of 6135433
- 97767 words of memory out of 5000000
- 5518 multiletter control sequences out of 15000+600000
+ 2105 strings out of 493117
+ 28026 string characters out of 6135433
+ 97666 words of memory out of 5000000
+ 5516 multiletter control sequences out of 15000+600000
  22745 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,10n,23p,875b,258s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -420,7 +414,7 @@ texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2014/te
 xmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/f
 onts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmri8a.pfb>
-Output written on amr-ner-plus-plus.pdf (8 pages, 338765 bytes).
+Output written on amr-ner-plus-plus.pdf (8 pages, 338115 bytes).
 PDF statistics:
  87 PDF objects out of 1000 (max. 8388607)
  55 compressed objects within 1 object stream

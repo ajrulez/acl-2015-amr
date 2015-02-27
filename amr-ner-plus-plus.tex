@@ -146,8 +146,8 @@ We suspect that the modest improvement is due to the fact that our NER++ system 
 \Section{crash}{A Crash-Course in AMR}
 
 AMR is a language for expressing semantics as a rooted, directed, and potentially cyclic graph, where nodes represent concepts and arcs are relationships between concepts.
-The nodes (concepts) in an AMR graph do not have to be explicitly grounded in the source sentence, and while such an alignment can often be generated it is not provided in the corpus.
-The semantics of nodes range from representing lexical items (e.g., \w{dog}), analyzed lexical items (e.g., \textit{run-01}), type markers (e.g., \textit{date-entity}), to a host of other phenomena.
+The nodes (concepts) in an AMR graph do not have to be explicitly grounded in the source sentence, and while such an alignment can often be generated it is not provided in the training corpora.
+The semantics of nodes can represent lexical items (e.g., \w{dog}), sense tagged lexical items (e.g., \textit{run-01}), type markers (e.g., \textit{date-entity}), and a host of other phenomena.
 
 The edges (relationships) in AMR describe one of a number of semantic relationships between concepts.
 The most salient of these is semantic role labels, such as the ARG0 and destination arcs in \reffig{method}.
@@ -161,13 +161,14 @@ We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
 %In fact, AMR will often expand single tokens into large sub-graph elements, or ignore tokens completely.
 %It's important to understand that AMR represents the relationships between objects referred to by the surface text, \textit{not} the relationships between the words themselves.
 
-
+% JON: Kind of inconvenient that Figure 2 is not on the same page as the explanation..
 The root node of the graph is labeled \n{run-01}, corresponding to the PropBank \cite{Palmer:2005} definition of the verb \w{ran} .
 %This is the name of a verb sense definition drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence.
 \w{run-01} has an outgoing \e{ARG0} arc to a node \w{he}, with the usual PropBank semantics.
 %semantics (drawn from the PropBank frame) that roughly correspond to ``he'' being the doer of the ``run-01'' action. 
 The outgoing \e{mod} edge from \n{run-01} to \n{glee} takes a general purpose semantics corresponding to adjective, adverbial, or other modification of the governor by the dependent.
-We note that \n{run-01} has a \e{destination} arc to \n{dog}, using the fine-grained prepositional sense tags of \cite{Srikumar:2013}.
+We note that \n{run-01} has a \e{destination} arc to \n{dog}.
+The label for \e{destination} is taken from a finite set of special arc sense tags similar to the preposition senses found in \cite{Srikumar:2013}.
 The last portion of the figure parses \w{dog} to a node which will eventually serve as a type marker, and \w{Rover} into the larger subgraph indicating a concept with name ``Rover.''
 %Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
@@ -180,12 +181,11 @@ Both of these are rare phenomena in the representation, and substantially compli
   the task.
 
 Thus, we treat AMR as a directed graph $G$ of nodes $\bN = \{n_0 \dots n_k\}$, and
-  an edge matrix $\bA$ over a label space $\bL$: $\bA \in \bL^{k \times k}$.
-Each label $l \in \bL$ is one of the valid arc labels between two nodes (e.g.,
-  \e{ARG0}, \e{mod}), in addition to a special label denoting the lack of an arc.
-The matrix $\bA$ then defines both the existence and label of arcs in the graph:
-  $\bA_{i,j} = l$ means that an arc exists from $n_i$ to $n_j$ with label $l$;
+  an edge matrix $\bA$ such that $\bA_{i,j} = l$ means that an arc exists from $n_i$ to $n_j$ with label $l$;
   $\bA_{i,j} = \e{NONE}$ entails that no arc exists between the nodes.
+  $\bA$ is over a label space $\bL$: $\bA \in \bL^{k \times k}$.
+Each label $l \in \bL$ is one of the valid arc labels between two nodes (e.g.,
+  \e{ARG0}, \e{mod}), in addition to a special label denoting the lack of an arc, \e{NONE}.
 
 %Formally, given an array of tokens $S = [s_0, \ldots, s_n]$, we generate a directed AMR graph $G$, defined as the pair $(N = [n_0, \ldots, n_k], A \in L^{k*k})$, where $N$ is an array of AMR nodes (which doesn't have to be the same length or have a clear correspondence to $S$), and $A$ is a matrix of labels $L$, where $A_{i,j} = l \in L$ means that an arc exists from node $n_i$ to node $n_j$ with label $l$ in the parsed graph. We include the special label ``NONE'' in $L$, corresponding to no arc existing between two nodes.
 
@@ -210,13 +210,12 @@ Many of these multi-node subgraphs capture structured data such as time expressi
   (\reffig{date}).
 %AMR can also capture structured data, like time expressions, see \reffig{date}. 
 In this example, a \n{date-entity} node is created to signify that this cluster of 
-  nodes is part of a structured sub-component representing a date, where the node
+  nodes is part of a structured sub-component representing a date, where the nodes
   and arcs within the component have specific semantics.
 This illustrates a broader recurring pattern in AMR, which is to have an 
-  artificial node signify that all its immediate children are part of a 
-  structured piece of data, with some special interpretation. 
-A particularly salient example of this pattern is the \n{name} node, which signifies 
-  that its immediate children comprise the tokens of a name object.
+  artificial node with certain expected children with special semantics.
+A particularly salient example of this pattern is the \n{name} node (see ``Rover'' in \reffig{glee}) which signifies 
+  that all outgoing arcs with label \e{op} comprise the tokens of a name object.
 
 % Hard cases
 The ability to decouple the meaning representation of a lexical item from its
@@ -224,6 +223,8 @@ The ability to decouple the meaning representation of a lexical item from its
   in a sentence.
 %AMR makes an attempt to capture some semantic meanings in words that are 
 %  difficult to capture in a way that is not domain specific. 
+% JON: reword "difficult to capture in a more difficult to capture in a more principled way than dictionary lookups"
+% JON: plus, what do "dictionary lookups" look like?
 For example, the token \w{sailor} is represented in \reffig{sailor} by a concept graph 
   representing a person who performs the action \n{sail-01}. 
 Whereas often the AMR node aligned to a span of text is a straightforward function
@@ -243,11 +244,13 @@ We describe both of these in more detail below.
 %We define the terms \textbf{NER++} and \textbf{SRL++} in more detail within this section.
 
 \Subsection{ner}{NER++}
+% JON: s/To illustrate/For example/ ?
 Much of the difficulty of parsing to AMR lies in generating local sub-graphs representing the meaning of token spans.
 For instance, the formalism implicitly demands rich notions of NER, lemmatization, word sense disambiguation, number normalization, and temporal parsing; among others.
 To illustrate, \reffig{method} requires lemmatization (\textit{gleefully} $\rightarrow$ \textit{glee}), word sense tagging (\textit{run} $\rightarrow$ \textit{run-01}), and open domain NER (i.e., \textit{Rover}); \reffig{date} shows an example of temporal parsing.
 Furthermore, many of the generated subgraphs (e.g., \textit{sailor} in \reffig{sailor}) have rich semantics beyond those produced by standard NLP systems.
 
+% JON: This is not formal compared to the formal-ness of previous sections (e.g. definition of A)
 We refer to this task as NER++ (see \reffig{method}).
 Formally, this is the task of generating a disjoint set of subgraphs representing the meanings of localized spans of words in the sentence.
 % NOTE: not quite true, SRL++ uses dependency path features that rely on alignments
