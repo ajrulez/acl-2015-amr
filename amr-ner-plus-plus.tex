@@ -364,16 +364,18 @@ At test time, given a sequence of input tokens, we do a simple classification of
 
 \subsection{End to end results}
 
-Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
+Our end-to-end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr},\footnote
+  {Available at \url{https://github.com/jflanigan/jamr}.}
+which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
 
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{|l|l|l|l|r|}
+\begin{tabular}{|l|l|llr|}
 \hline NER++ & Dataset & P & R & \bf F1 \\ \hline
 JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.59 \\
-\textbf{Robust} & LDC2014T12 & 0.639 & \textbf{0.596} & \textbf{0.62} \\
+\textbf{Robust} & & 0.639 & \textbf{0.596} & \textbf{0.62} \\ \hline
 JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
-\bf Robust & LDC2014E117 & 0.636 & \textbf{0.601} & \textbf{0.62} \\
+\bf Robust &  & 0.636 & \textbf{0.601} & \textbf{0.62} \\
 \hline
 \end{tabular}
 \end{center}
@@ -384,7 +386,7 @@ JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
 
 \subsection{Component results}
 
-On our action-type sequence labeling data generated from automatic alignments on train and test splits of \textit{LDC2014T12}, our classifier achieved a test accuracy of \textbf{0.841}.
+On our action-type sequence labeling data generated from automatic alignments on train and test splits of LDC2014T12, our classifier achieved a test accuracy of \textbf{0.841}.
 
 The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67} on the test set. This is remarkable, given that our model moves many of the difficult semantic tasks onto the \textbf{DICT} tag, and we are using no learning here beyond a simple count of observed span to sub-graph mappings.
 
