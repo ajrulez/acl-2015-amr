@@ -396,7 +396,7 @@ The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67} on t
 
 \subsection{Weak lemmatization}
 
-The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like the nominalization of ``sailor'', see \reffig{sailor}. These don't occur nearly 25\% of the time in the training data. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}, because AMR will aggressively normalize words and change their part of speech to a semantic neighbor. For example, `gleefully' gets mapped to `glee' and not `gleeful', which is hard to do automatically with stemming rules in the general case. We leave this as a direction for future work.
+The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like the nominalization of ``sailor'', see \reffig{sailor}. These don't occur nearly 25\% of the time in the training data. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}. This is because AMR will generally normalize a word to its root by removing derivational morphology. For example, `gleefully' gets mapped to `glee', rather than being left alone or just mapped to `gleeful'. While appropriate lexical resources should allow us to generate the root for such derived words, in practice we only had available to us a lemmatizer which handled inflectional morphology. We leave this as a direction for future work.
 
 \subsection{DICT Classifier}
 
@@ -443,8 +443,9 @@ Interlingua
 \section{Future Work}
 \subsection{Semantically equivalent POS normalization}
 The benefit of this approach could be increased by having a very strong stemmer tuned to AMR parsing, which currently doesn't exist.
-\subsection{Etymological approach to node generation}
-There is an opportunity to create and test etymologico-semantic approaches to parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the know verb lemma `arbitrage', and derive that the noun `arbitrageur' probably refers to an entity that is engaged in arbitrage. AMR training data provides an opportunity to perform and measure such a task in isolation, 
+
+\subsection{Morphological approach to node generation}
+There is an opportunity to create and test derivational morphology components in parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the known verb root `arbitrage', and to derive that the noun `arbitrageur' probably refers to an entity that is engaged in arbitrage. AMR training data provides an opportunity to perform and measure such a task in isolation, 
 
 \section{Appendix}
 
