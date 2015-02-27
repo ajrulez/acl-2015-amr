@@ -315,7 +315,11 @@ We partition the AMR sub-graph space into a set of 7 actions, each corresponding
 
 \Subsection{actions}{Notes on the DICT action}
 
-It's not always possible to derive an AMR sub-graph directly from tokens at test time without having memorized a mapping. For example, the parse of ``sailor'' as ``person who sails'', see \reffig{sailor}, is nearly impossible without some form of memorization. That's where the \textbf{DICT} class is important.
+It's not always possible to derive an AMR sub-graph directly from tokens at test 
+  time without having memorized a mapping. 
+For example, the parse of \w{sailor} as ``person who sails'' (\reffig{sailor}),
+  is nearly impossible without some form of memorization. 
+That's where the \textbf{DICT} class is important.
 
 To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. \reftab{distro} gives the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
 
