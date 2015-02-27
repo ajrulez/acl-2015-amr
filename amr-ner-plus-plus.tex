@@ -311,20 +311,16 @@ We partition the AMR sub-graph space into a set of 7 actions, each corresponding
 \paragraph{NAME} Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
 \paragraph{DICT} Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
 
-\Subsection{actions}{Notes on the DICT action}
+%
+% ACTION DISTRIBUTION
+%
+\Subsection{actions}{Distribution of Actions}
 
-It's not always possible to derive an AMR sub-graph directly from tokens at test 
-  time without having memorized a mapping. 
-For example, the parse of \w{sailor} as ``person who sails'' (\reffig{sailor}),
-  is nearly impossible without some form of memorization. 
-That's where the \textbf{DICT} class is important.
-
-To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. \reftab{distro} gives the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
-
+% Distribution of Actions
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{|l|rr|}
-\hline \bf Action & \bf \# Tokens & \bf \% Total \\ \hline
+\begin{tabular}{l|rr}
+\bf Action & \bf \# Tokens & \bf \% Total \\ \hline
 NONE & 41538 & 37.1\\
 DICT & 30027 & 26.8 \\
 IDENTITY & 19034 & 17.0 \\
@@ -332,11 +328,34 @@ VERB & 11739 & 10.4 \\
 LEMMA & 5029 & 4.5 \\
 NAME & 4537 & 4.0 \\
 VALUE & 16  & 0.1\\
-\hline
 \end{tabular}
 \end{center}
 \caption{\label{tab:distro} Distribution of action types in the proxy section of the LDC2014T12 dataset, generated from automatically aligned data. }
 \end{table}
+
+% Intro
+We analyze the empirical distribution of actions in our automatically 
+  aligned corpus in \reftab{distro}.
+The most common class of action is the NONE action.
+This is not unexpected, as many of the tokens in the source sentence are either
+  considered semantically meaningless by the AMR representation (e.g.,
+  \w{a}, \w{the}), or serve as lexical grounding for an AMR arc (e.g.,
+  prepositions).
+
+% Dict
+The second highest class is the DICT action.
+Recall that prior work uses dictionary lookup for every lexical item in the
+  sentence, which is equivalent to a distribution of 100\% on this class.
+
+
+%It's not always possible to derive an AMR sub-graph directly from tokens at test 
+%  time without having memorized a mapping. 
+%For example, the parse of \w{sailor} as ``person who sails'' (\reffig{sailor}),
+%  is nearly impossible without some form of memorization. 
+%That's where the \textbf{DICT} class is important.
+
+To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. \reftab{distro} gives the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
+
 
 Note that \textbf{DICT} counts for around 27\% of the training data, meaning that more than 72\% of tokens can be generated correctly by our action type classifier even if we've never seen them before, which is a huge win.
 
