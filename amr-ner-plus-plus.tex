@@ -91,20 +91,20 @@ However, no matter how much data we are soon to have, AMR parsing remains a hard
 A good AMR parser needs to be able to handle a broad range of semantic interpretation tasks, and 
 AMR also possesses distinctive computational challenges from structural properties such as providing no guarantees about projectivity or even acyclicity of its graphs.
 
-We follow previous work \cite{key:2014flanigan-amr} in dividing AMR parsing into two steps. 
+We follow previous work \cite{2014flanigan-amr} in dividing AMR parsing into two steps. 
 The first step is \textit{concept identification}, which generates concept (or entity) nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
 The second step is \textit{relation identification}, which adds arcs to link these nodes into a fully connected AMR graph, which we'll call \textit{SRL++} (\refsec{srl}).
 
 Our initial assumption (which we suspect would be shared by many researchers with a background in structured prediction) was to assume that the main area deserving further attention in AMR parsing is predicting the edges in the not well-aligned, cyclic non-projective graphs of AMR (i.e., SRL++).
-This intuition follows by analogy from the locus of work for syntactic dependency parsing. We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of MST presented in \newcite{key:2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.
+This intuition follows by analogy from the locus of work for syntactic dependency parsing. We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of MST presented in \newcite{2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.
 
-Over time we realized that SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. One piece of evidence for this claim comes from a close analysis of the only published AMR parser to date, \cite{key:2014flanigan-amr}, dubbed ``JAMR''.
-When JAMR makes parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F1.
-However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores \textit{0.80} F1.
-Inter-annotator agreement on AMR is 0.83 F1 (and annotators very rarely disagree on NER++ \todo{verify}, which amounts to disagreeing about the entities mentioned in a sentence) so this means the SRL++ component is nearly perfect, if given perfect NER++.
+Over time we realized that SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. A first piece of evidence for this claim comes from a close analysis of the only published AMR parser to date, \cite{2014flanigan-amr}, dubbed ``JAMR''.
+When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F1.
+However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores 0.80 F1 against a virtual upper bound of 0.83 F1, which is inter-annotator agreement on AMR \todo{NEED CITE FOR THIS}.  (And annotators very rarely disagree on NER++, which amounts to disagreeing about the entities mentioned in a sentence). \todo{verify -- CDM: I'm not sure this is true} [since surely there is quite a bit of inconsistency in NER++, such as for which compound words with derivational morphology to expand into subgraphs.]
+So this means the SRL++ component is nearly perfect, if given perfect NER++.
 
-Upon reflection it makes sense that SRL++ within AMR is \textit{relatively} easy given a perfect set of nodes to link together.
-There's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and dependency features are very informative for removing any remaining ambiguity.
+In retrospect, it makes sense that SRL++ within AMR is \textit{relatively} easy given a perfect set of nodes to link together.
+There's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and syntactic dependency features are very informative for removing any remaining ambiguity.
 If a system is considering how to link the node ``run-01'' in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an ARG0 arc.
 It must be a noun, which leaves either ``he'' or ``dog'', and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. Given a modest amount of data, a simple parser can learn these lexical and syntactic type-check rules.
 
@@ -116,8 +116,8 @@ The primary contribution of this paper is a method to largely delexicalize NER++
 Choosing from among a small set of `generative actions' our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
 For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite on the source token, like the ``ran'' to ``run-01'' example in \reffig{glee}.
 
-We show this approach improves recall dramatically over previous approaches, and that end to end performance is improved 0.59 to 0.62 smatch when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
-We suspect that the modest improvement is due to the fact that our NER++ system is able to generate nodes that the SRL++ system has never seen during training time, which makes the lexicalized typecheck features useless.
+We show that this approach improves recall dramatically over previous approaches, and that end to end performance is improved from 0.59 to 0.62 smatch when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
+We suspect that the gains are not even bigger mainly because our NER++ system is able to generate nodes that the SRL++ system has never seen during training time, which makes the still lexicalized typecheck features of the SRL++ component useless.
 
 % Previous work has observed that AMR parsing can be partitioned into two tasks: a rich lexically grounded entity detection system, which we call NER++ (see \refsec{ner}), and a relationship detection system, which we call SRL++ (see \refsec{srl}).
 
