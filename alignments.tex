@@ -2,6 +2,9 @@
 \Section{alignment}{Automatic Alignment of Training Data}
 AMR training data is in the form of bi-text, where we are given a set of
   (sentence,graph) pairs, with no explicit alignments between them.
+
+We want a projective mapping from each node to the token it represents. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
+
 %For example, imagine we are given the graph for "He gleefully ran to his dog Rover", as shown in \reffig{glee}. Although it's obvious to a human, the training data has no reference to the fact that the node ``run-01'' came from the token ``ran''. There is therefore a crucial task of generating these alignments prior to running training algorithms.
 
 %In plain English, we want a projective mapping from nodes to tokens. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
@@ -26,8 +29,10 @@ We would like to produce the most \textit{reliable}
   sequence of actions for the NER++ model to train from, where reliable is taken
   in the sense defined in \refsec{informativeness}.
 That is, we would like to maximize the probability of generating a perfect set of
-  nodes, given the sequence of actions.
-In practice, this means we maximize the number of nodes which will be generated
+  nodes, given the sequence of actions that could generate a perfect set of nodes.
+To give an example to explain the distinction, a sequence of all \textbf{DICT} actions could generate anything, but is very low reliability.
+A sequence of all \textbf{IDENTITY} actions could only generate one set of nodes, but does it with absolute certainty.
+In practice, this objective means we maximize the number of nodes which will be generated
   from one of the reliable actions (e.g., IDENTITY), and minimize the nodes
   generated from unreliable actions (e.g., DICT).
 %We would like an alignment of AMR nodes to the source tokens such that we maximize the ``informativeness'' of the actions that we use to generate the AMR nodes from the source text.
@@ -52,7 +57,7 @@ Each matrix element $\bV_{i,j}$ is assigned the most reliable action which would
   generate node $n_i$ from token $s_j$.
 We would like to maximize the probability of the actions collectively generating a perfect set of nodes.
 This can be formulated linearly by maximizing the log-likelihood of the actions.
-Let the function $\textrm{\small{RGEN}}(l)$ be the reliability of action $l$ (probability of generating intended node).
+Let the function $\textrm{\small{REL}}(l)$ be the reliability of action $l$ (probability of generating intended node).
 % For simplicity, we assume that the only unreliable action is \textbf{DICT}, and all other
   % actions are equally reliable. We justify this because in practice a token generally 
   % has only two ways to generate the node it should align to: \textbf{DICT}, and the correct action.
@@ -64,7 +69,7 @@ Our objective can then be formulated as follows:
   & \underset{\bQ}{\textrm{max}}
      & & \sum_{i,j} \bQ_{i,j} \left[ 
          % \mathbbm{1}{(\bV_{i,j} = \textrm{\small{DICT}})}
-         ln(\textrm{\small{RGEN}}(\bV_{i,j}))
+         ln(\textrm{\small{REL}}(\bV_{i,j}))
          + \alpha \sE_{i,j} \right] \\
   \label{eqn:constraint1}
   & \textrm{s.t.}
@@ -86,10 +91,10 @@ Note that most incorrect alignments fall into the DICT class by default, as no o
 Therefore, if there exists an alignment that would consume the token using another
   action, the optimization prefers that alignment.
 The Jaro Winkler similarity term, in turn, serves as a tie-breaker between equally
-  reliable alignments.
+  (un)reliable alignments.
 % Constraints
-The constraint \refeqn{constraint1} ensures that every token in the sentence has
-  a single incoming edge.
+The constraint \refeqn{constraint1} ensures that every node in the graph is
+  aligned to exactly one token in the source sentence.
 The constraint \refeqn{constraint2} ensures that two non-adjacent nodes which do
   not share a title do not refer to the same token.
 
@@ -105,6 +110,6 @@ The constraint \refeqn{constraint2} ensures that two non-adjacent nodes which do
 
 There are many packages which can solve this Boolean LP efficiently.
 We used Gurobi \cite{gurobi}.
-Given a matrix $\bQ$ that minimizes our objective, we can decode our solved alignment 
+Given a matrix $\bQ$ that maximizes our objective, we can decode our solved alignment 
   as follows: for each $i$, align $n_i$ to the $j$ s.t. $\bQ_{i,j} = 1$. 
 By our constraints, exactly one such $j$ must exist.
