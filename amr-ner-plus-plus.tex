@@ -147,7 +147,7 @@ We suspect that the modest improvement is due to the fact that our NER++ system 
 
 AMR is a language for expressing semantics as a rooted, directed, and potentially cyclic graph, where nodes represent concepts and arcs are relationships between concepts.
 The nodes (concepts) in an AMR graph do not have to be explicitly grounded in the source sentence, and while such an alignment can often be generated it is not provided in the corpus.
-The semantics of nodes range from representing lexical items (e.g., \w{dog}), analyzed lexical items (e.g., \textit{run-01}), type markers (e.g., \textit{date-entity}), or other phenomena.
+The semantics of nodes range from representing lexical items (e.g., \w{dog}), analyzed lexical items (e.g., \textit{run-01}), type markers (e.g., \textit{date-entity}), to a host of other phenomena.
 
 The edges (relationships) in AMR describe one of a number of semantic relationships between concepts.
 The most salient of these is semantic role labels, such as the ARG0 and destination arcs in \reffig{method}.
@@ -162,12 +162,12 @@ We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
 %It's important to understand that AMR represents the relationships between objects referred to by the surface text, \textit{not} the relationships between the words themselves.
 
 
-The root node of the graph is labeled \n{run-01}, corresponding to the PropBank\needcite definition of the verb \w{ran} .
+The root node of the graph is labeled \n{run-01}, corresponding to the PropBank \cite{Palmer:2005} definition of the verb \w{ran} .
 %This is the name of a verb sense definition drawn from PropBank \needcite for the sense of the verb ``ran'' in this sentence.
 \w{run-01} has an outgoing \e{ARG0} arc to a node \w{he}, with the usual PropBank semantics.
 %semantics (drawn from the PropBank frame) that roughly correspond to ``he'' being the doer of the ``run-01'' action. 
 The outgoing \e{mod} edge from \n{run-01} to \n{glee} takes a general purpose semantics corresponding to adjective, adverbial, or other modification of the governor by the dependent.
-We note that \n{run-01} has a \e{destination} arc to \n{dog}, taking the fine-grained prepositional sense tags of Srikumar (2013) \needcite.
+We note that \n{run-01} has a \e{destination} arc to \n{dog}, using the fine-grained prepositional sense tags of \cite{Srikumar:2013}.
 The last portion of the figure parses \w{dog} to a node which will eventually serve as a type marker, and \w{Rover} into the larger subgraph indicating a concept with name ``Rover.''
 %Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
@@ -224,7 +224,7 @@ The ability to decouple the meaning representation of a lexical item from its
   in a sentence.
 %AMR makes an attempt to capture some semantic meanings in words that are 
 %  difficult to capture in a way that is not domain specific. 
-For example, the token \w{sailor} in \reffig{sailor} aligns to the concept graph 
+For example, the token \w{sailor} is represented in \reffig{sailor} by a concept graph 
   representing a person who performs the action \n{sail-01}. 
 Whereas often the AMR node aligned to a span of text is a straightforward function
   of the text, these cases remain difficult to capture in a more principled way than
@@ -250,8 +250,9 @@ Furthermore, many of the generated subgraphs (e.g., \textit{sailor} in \reffig{s
 
 We refer to this task as NER++.
 Formally, this is the task of generating a disjoint set of subgraphs representing the meanings of localized spans of words in the sentence.
-This is also the task where AMR alignment is useful.
-Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
+% NOTE: not quite true, SRL++ uses dependency path features that rely on alignments
+% This is also the task where AMR alignment is useful
+% Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
 
 %Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
 
@@ -468,35 +469,23 @@ Nima Pourdamghani, Yang Gao, Ulf Hermjakob and Kevin Knight
 \newblock {\em Aligning English Strings with Abstract Meaning Representation Graphs}
 \newblock Proc. EMNLP.
 
+\bibitem[\protect\citename{Palmer}2005]{Palmer:2005}
+Palmer M, Kingsbury P, Gildea D
+\newblock 2005
+\newblock {\em The Proposition Bank: An Annotated Corpus of Semantic Roles}
+\newblock Computational Linguistics 31
+
 \bibitem[\protect\citename{Aho and Ullman}1972]{Aho:72}
 Alfred~V. Aho and Jeffrey~D. Ullman.
 \newblock 1972.
 \newblock {\em The Theory of Parsing, Translation and Compiling}, volume~1.
 \newblock Prentice-{Hall}, Englewood Cliffs, NJ.
 
-\bibitem[\protect\citename{{American Psychological Association}}1983]{APA:83}
-{American Psychological Association}.
-\newblock 1983.
-\newblock {\em Publications Manual}.
-\newblock American Psychological Association, Washington, DC.
-
-\bibitem[\protect\citename{{Association for Computing Machinery}}1983]{ACM:83}
-{Association for Computing Machinery}.
-\newblock 1983.
-\newblock {\em Computing Reviews}, 24(11):503--512.
-
-\bibitem[\protect\citename{Chandra \bgroup et al.\egroup }1981]{Chandra:81}
-Ashok~K. Chandra, Dexter~C. Kozen, and Larry~J. Stockmeyer.
-\newblock 1981.
-\newblock Alternation.
-\newblock {\em Journal of the Association for Computing Machinery},
-  28(1):114--133.
-
-\bibitem[\protect\citename{Gusfield}1997]{Gusfield:97}
-Dan Gusfield.
-\newblock 1997.
-\newblock {\em Algorithms on Strings, Trees and Sequences}.
-\newblock Cambridge University Press, Cambridge, UK.
+\bibitem[\protect\citename{Srikumar}2013]{Srikumar:13}
+Vivek Srikumar
+\newblock 2013
+\newblock {\em The Semantics of Role Labeling}
+\newblock ProQuest
 
 \end{thebibliography}
 
