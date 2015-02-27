@@ -91,18 +91,18 @@ No matter how much data we are soon to have, though, AMR parsing remains a hard 
 A successful AMR parser will need to handle every SemEval task well, and conquer several additional semantic parsing challenges unique to AMR.
 AMR also has nasty structural properties, providing no guarantees about projectivity or even acyclicity of its graphs.
 
-In our dicussion of the challenges inherent in AMR parsing, we follow the convention of dividing AMR parsing into two steps, first proposed by \cite{key:2014flanigan-amr}. 
+In our dicussion of the challenges inherent in AMR parsing, we follow the convention of dividing AMR parsing into two steps, first proposed by \cite{2014flanigan-amr}. 
 The first step is \textit{concept identification}, which generates nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
 The second step is \textit{relation identification}, which adds arcs to link these nodes into a fully connected AMR graph, which we'll call \textit{SRL++} (\refsec{srl}).
 
 A reasonable NLP researcher posessing a background in structure-prediction might look at AMR parsing and assume that the area deserving attention is predicting the edges in these nasty cyclic non-projective graphs (SRL++).
 This would be supported by a perfectly plausible analogy to existing dependency parsers.
-Such a researcher might spend months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that with a careful application of MST, \cite{key:2014flanigan-amr} has set an extremely strong baseline on the SRL++ task, and gains are negligible at best.
+Such a researcher might spend months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that with a careful application of MST, \cite{2014flanigan-amr} has set an extremely strong baseline on the SRL++ task, and gains are negligible at best.
 
 This is because, contrary to perfectly reasonable intuition, SRL++ is \textit{not} the hard part of AMR parsing.
 The hard part of AMR parsing is NER++.
 
-Our first piece of evidence in making this claim is a close analysis of the only published AMR parser to date, \cite{key:2014flanigan-amr}, dubbed ``JAMR''.
+Our first piece of evidence in making this claim is a close analysis of the only published AMR parser to date, \cite{2014flanigan-amr}, dubbed ``JAMR''.
 When JAMR makes parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F1.
 However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores \textit{0.80} F1.
 Inter-annotator agreement on AMR is 0.83 F1 (and annotators very rarely disagree on NER++ \todo{verify}, which amounts to disagreeing about the entities mentioned in a sentence) so this means the SRL++ component is nearly perfect, if given perfect NER++.
@@ -113,14 +113,14 @@ If a system is considering how to link the node ``run-01'' in \reffig{glee}, the
 It must be a noun, which leaves either ``he'' or ``dog'', and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. Given a modest amount of data, a simple parser can learn these lexical and syntactic type-check rules.
 
 While SRL++ is hard, NER++ is extremely challenging, encompassing many SemEval tasks in a single monolith.
-This task was handled by a simple baseline system in \cite{key:2014flanigan-amr}, which memorized a purely lexical mapping from spans of text to AMR nodes, augmented by an NER system and time expression regex at test time.
+This task was handled by a simple baseline system in \cite{2014flanigan-amr}, which memorized a purely lexical mapping from spans of text to AMR nodes, augmented by an NER system and time expression regex at test time.
 This is problematic, because fully 38\% of the tokens in the test set are unobserved at training time, and the existing method has no way to handle generation for them.
 
 The primary contribution of this paper is a method to largely delexicalize NER++ to gracefully handle unseen tokens.
 Choosing from among a small set of `generative actions' our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
 For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite on the source token, like the ``ran'' to ``run-01'' example in \reffig{glee}.
 
-We show this approach improves recall dramatically over previous approaches, and that end to end performance is improved 0.59 to 0.62 smatch when our generative actions are stitched together by the previous state of the art parser \cite{key:2014flanigan-amr}.
+We show this approach improves recall dramatically over previous approaches, and that end to end performance is improved 0.59 to 0.62 smatch when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
 We suspect that the modest improvement is due to the fact that our NER++ system is able to generate nodes that the SRL++ system has never seen during training time, which makes the lexicalized typecheck features useless.
 
 % Previous work has observed that AMR parsing can be partitioned into two tasks: a rich lexically grounded entity detection system, which we call NER++ (see \refsec{ner}), and a relationship detection system, which we call SRL++ (see \refsec{srl}).
@@ -174,7 +174,7 @@ The last portion of the figure parses \w{dog} to a node which will eventually se
 
 \Subsection{formal}{Formal task definition}
 Formally, an AMR graph is represented as a directed multigraph.
-Following \newcite{key:2014flanigan-amr}, we simplify the representation by (1) disallowing
+Following \newcite{2014flanigan-amr}, we simplify the representation by (1) disallowing
   cycles in the graph, and (2) disallowing multiple edges between two nodes in a
   graph.
 Both of these are rare phenomena in the representation, and substantially complicate
@@ -237,7 +237,7 @@ Whereas often the AMR node aligned to a span of text is a straightforward functi
 
 \section{Task decomposition}
 % Two stages
-As in \newcite{key:2014flanigan-amr}, we decompose the end-to-end task of parsing to AMR into two stages:
+As in \newcite{2014flanigan-amr}, we decompose the end-to-end task of parsing to AMR into two stages:
   \textbf{NER++} -- the task of of generating the best AMR sub-graphs given a set of tokens; and
   \textbf{SRL++} -- the task of taking the disjoint subgraphs generated
   by NER++ and creating a fully-connected graph.
@@ -366,7 +366,7 @@ At test time, given a sequence of input tokens, we do a simple classification of
 
 \subsection{End to end results}
 
-Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{key:2014flanigan-amr}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
+Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
 
 \begin{table}[h]
 \begin{center}
@@ -461,7 +461,7 @@ when submitting your paper for review.
 
 %\begin{thebibliography}{}
 %
-%\bibitem[\protect\citename{Flanigan \bgroup et al.\egroup}2014]{key:2014flanigan-amr}
+%\bibitem[\protect\citename{Flanigan \bgroup et al.\egroup}2014]{2014flanigan-amr}
 %Jeffrey Flanigan, Sam Thomson, Jaime Carbonell, Chris Dyer, Noah~A. Smith
 %\newblock 2014.
 %\newblock {\em ACL 14}, volume~1.
