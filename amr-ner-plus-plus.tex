@@ -168,6 +168,7 @@ The label for \e{destination} is taken from a finite set of special arc sense ta
 The last portion of the figure parses \w{dog} to a node which will eventually serve as a type marker, and \w{Rover} into the larger subgraph indicating a concept with name ``Rover.''
 %Then we have a section of the graph that is best interpreted as a unit, where all of the children of ``dog'' effectively mean that ``dog'' has the name ``Rover.''
 
+
 \Subsection{formal}{Formal task definition}
 Formally, an AMR graph is represented as a directed multigraph.
 Following \newcite{2014flanigan-amr}, we simplify the representation by (1) disallowing
@@ -232,13 +233,26 @@ Whereas often the AMR node aligned to a span of text is a straightforward functi
 
 
 \section{Task decomposition}
+
+
 % Two stages
-As in \newcite{2014flanigan-amr}, we decompose the end-to-end task of parsing to AMR into two stages:
-  \textbf{NER++} -- the task of of generating the best AMR sub-graphs given a set of tokens; and
-  \textbf{SRL++} -- the task of taking the disjoint subgraphs generated
+
+To the best of our knowledge, the JAMR parser \cite{2014flanigan-amr} is
+the only published end-to-end AMR parser.
+The crucial insight in JAMR is that AMR parsing can be broken into two 
+relatively distinct tasks: (1) \textbf{NER++} -- the task of interpreting what entities are being referred to in 
+the text, realized by generating the best AMR sub-graphs for a given set of tokens, and
+(2) \textbf{SRL++} -- the task of discovering what 
+relationships those entities have between one another other, realized by taking the disjoint subgraphs generated
   by NER++ and creating a fully-connected graph.
 We describe both tasks in more detail below.
 %We define the terms \textbf{NER++} and \textbf{SRL++} in more detail within this section.
+
+% +++
+% We adopt the dual decomposition based MST algorithm from the parser, 
+%   and contribute primarily towards replacing
+%  the NER++ component.
+%---
 
 \Subsection{ner}{NER++}
 % JON: s/To illustrate/For example/ ?
@@ -248,11 +262,12 @@ To illustrate, \reffig{method} requires lemmatization (\textit{gleefully} $\righ
 Furthermore, many of the generated subgraphs (e.g., \textit{sailor} in \reffig{sailor}) have rich semantics beyond those produced by standard NLP systems.
 
 % JON: This is not formal compared to the formal-ness of previous sections (e.g. definition of A)
-We refer to this task as NER++ (see \reffig{method}).
+% We refer to this task as NER++ (see \reffig{method}).
 Formally, this is the task of generating a disjoint set of subgraphs representing the meanings of localized spans of words in the sentence.
 % NOTE: not quite true, SRL++ uses dependency path features that rely on alignments
 % This is also the task where AMR alignment is useful
 % Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
+For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. The main contribution of this paper is our exploration of a better way of doing NER++ in \refsec{nerplusplus}.
 
 %Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
 
@@ -263,19 +278,150 @@ Unlike the domain-specific arcs within a single sub-graph produced by NER++, the
   arcs in SRL++ tend to have generally applicable semantics.
 For example, the SRL arcs (e.g., \e{ARG0} and \e{destination} in \reffig{method}),
   or the syntactic dependency arcs (e.g., \e{mod} and \e{poss} in \reffig{method}).
-We use the modified MST algorithm implemented in \newcite{2014flanigan-amr} to produce
-  a labeled DAG corresponding to these edges.
+For SRL++, JAMR uses a variation of the maximum spanning tree algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. JAMR's SRL++ component is extremely effective, and we were unable to produce a better SRL++ system in our experiments with several other structured prediction approaches.
+Therefore, we use the modified MST algorithm implemented in \newcite{2014flanigan-amr} to produce
+  a labeled DAG corresponding to the relation edges.
 
 %Given a perfect NER++ system for an AMR parser, there remains the task of noting the verb arguments, preposition sense actionging, and doing some augmented semantic dependency parsing in order to join the disjoint NER++ output into a single AMR parse. We call this task SRL++. SRL++ is the sub-task of taking as input the disjoint sub-graphs generated by NER++, and adding the maximum likelihood set of arcs between the sub-graphs in order to have a fully connected graph.
 
+
+\section{A Novel NER++ Method}\label{sec:nerplusplus}
+Our approach to improving NER++ comes from a simple idea: instead of trying to pick 
+  which of thousands of AMR sub-graphs to generate from a span of text directly, 
+  we partition the AMR sub-graph search space in terms of the actions needed to 
+  derive a node from its aligned token. 
+At test time we do a sequence labeling of input tokens with these actions, and 
+  then deterministically derive the AMR sub-graphs from spans of tokens by applying 
+  the transformation decreed by their actions. 
+This dramatically reduces sparsity, and improves generalization (and consequently
+  recall) on the test set, without noticable affecting precision.
+To illustrate, 38\% of the words in the LDC2014E113 test set are 
+  unseen during training time.
+We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train an action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
+
+\Subsection{actions}{Derivation actions}
+
+We partition the AMR sub-graph space into a set of 7 actions, each corresponding to an action that will be taken by the NER++ system if a token receives this classification.
+
+\begin{itemize}
+\item \textbf{VERB}: Look for the most similar PropBank frame, make that the title of the corresponding node.
+\item \textbf{IDENTITY}: Take the lowercased version of the token to be the title of the corresponding node.
+\item \textbf{VALUE}: Parse the token to an integer value, and use that as the node. AMR actually does type-check, so \todo{WHAT???}
+\item \textbf{LEMMA}: Take the lemma of the token to be the title of the corresponding node.
+\item \textbf{NONE}: Ignore this token in the final output.
+\item \textbf{NAME}: Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
+\item \textbf{DICT}: Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
+\end{itemize}
+
+\Subsection{actions}{Notes on the DICT action}
+
+It's not always possible to derive an AMR sub-graph directly from tokens at test time without having memorized a mapping. For example, the parse of ``sailor'' as ``person who sails'', see \reffig{sailor}, is nearly impossible without some form of memorization. That's where the \textbf{DICT} class is important.
+
+To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. \reftab{distro} gives the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|rr|}
+\hline \bf Action & \bf \# Tokens & \bf \% Total \\ \hline
+NONE & 41538 & 37.1\\
+DICT & 30027 & 26.8 \\
+IDENTITY & 19034 & 17.0 \\
+VERB & 11739 & 10.4 \\
+LEMMA & 5029 & 4.5 \\
+NAME & 4537 & 4.0 \\
+VALUE & 16  & 0.1\\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{tab:distro} Distribution of action types in the proxy section of the LDC2014T12 dataset, generated from automatically aligned data. }
+\end{table}
+
+Note that \textbf{DICT} counts for around 27\% of the training data, meaning that more than 72\% of tokens can be generated correctly by our action type classifier even if we've never seen them before, which is a huge win.
+
+We believe that \textbf{DICT} should count for much less than 27\%, and \textbf{LEMMA} should count for much more than 4\%, but issues with existing lemmatizers prevent this, see our error analysis in \refsec{errors}.
+
+\Subsection{informativeness}{Action Informativeness Hierarchy}
+
+We define the concept of ``action informativeness'' of an action $a$ as the probability of deriving the correct node from a span of tokens, given that those tokens are labeled with the action $a$, and $a$ is the correct action for that span of tokens.
+
+To provide a concrete example, our dictionary lookup classifier has a test-set accuracy of 0.67. That means that the ``action informativeness'' of the \textbf{DICT} action is 0.67, because given that we correctly label a token as \textbf{DICT}, there is a probability of 0.67 that we correctly generate the corresponding node.
+
+In contrast to \textbf{DICT}, correctly labeling a node as \textbf{IDENTITY}, \textbf{NAME}, and \textbf{NONE} have action informativeness of 1.0, since there is no ambiguity in the node generation once one of those actions have been selected, and we are guaranteed (probability 1.0) to generate the correct node given the correct action.
+
+\Fig{informativeness.png}{0.25}{hierarchy}{Informativeness hierarchy for action tags within AMR.}
+
+This allows us to induce an action informativeness hierarchy, with more informative actions taking precedence over less informative actions for several important tasks. We demonstrate this hierarchy in \reffig{hierarchy}.
+
+\Subsection{data}{Inducing Derivation actions from Training Data}
+
+Given a set of AMR training data, in the form of (graph,sentence) pairs, we first induce alignments from the graph nodes to the sentence, see \refsec{alignment}. Given an alignment, which is an annotation on the graph noting for each node $N_i$ a token $S_j$ that is most likely to have ``generated'' $N_i$, we can induce alignments. For concreteness, imagine the token $S_j$ is ``running'', and the node $N_i$ has the title ``run-01''. For each action type, we can ask whether that action type is able to take token $S_j$ and correctly generate $N_i$. The two action types we find that are able to correctly generate this node are \textbf{DICT} and \textbf{VERB}. We choose the most informative action type of those available to generate the observed node. In this case, that means we choose \textbf{VERB}.
+
+In general, our algorithm is as follows. For all $S_j$ to which no $N_i$ exists such that $N_i$ aligns to $S_j$, assign the action \textbf{NONE} to $S_j$. For all pairs $N_i$, $S_j$, assign $S_j$ the most informative action possible that could have generated $N_i$. \todo{Flesh out discussion of adjacent DICT nodes}
+
+\Subsection{classifier}{Action Classifier}
+
+We use an extremely simple maxent classifier to make action decisions. The classifier takes as input a pair $\langle i, S \rangle$, where $i$ is the index of the token in the input sentence, and $S$ is a sequence tokens representing the source sentence. The output of the classifier is an action $T$ such that the likelihood with respect to the data of token $i$ in sentence $S$ generating a node according to the action specified by $T$ is maximized. See Appendix A for a list of classifier features.
+
+\todo{How do you work out verb senses?}
+
+\subsection{Test Time Behavior}
+
+At test time, given a sequence of input tokens, we do a simple classification of each token separately, to get a sequence labeling of our input tokens. Then for each token, we apply the behavior associated with the token label, and the resulting set of sub-graphs is passed on to SRL++ for linking.
+
+% \input alignments.tex
+
+\section{Results}
+
+\subsection{End to end results}
+
+Our end-to-end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr},\footnote
+  {Available at \url{https://github.com/jflanigan/jamr}.}
+which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|llr|}
+\hline NER++ & Dataset & P & R & \bf F1 \\ \hline
+JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.59 \\
+\textbf{Robust} & & 0.639 & \textbf{0.596} & \textbf{0.62} \\ \hline
+JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
+\bf Robust &  & 0.636 & \textbf{0.601} & \textbf{0.62} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} Results on two AMR datasets. }
+\end{table}
+
+\todo{interpretation}
+
+\subsection{Component results}
+
+On our action-type sequence labeling data generated from automatic alignments on train and test splits of LDC2014T12, our classifier achieved a test accuracy of \textbf{0.841}.
+
+The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67} on the test set. This is remarkable, given that our model moves many of the difficult semantic tasks onto the \textbf{DICT} tag, and we are using no learning here beyond a simple count of observed span to sub-graph mappings.
+
+% Our approach really shines in domain transfer. Using a system trained on \textbf{LDC2013E117}, which is composed of international newswire, and testing on the web forum subsection \textbf{LDC2014T12}, our system generalizes well.
+
+\Section{errors}{Error Analysis}
+
+\subsection{Weak lemmatization}
+
+The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like the nominalization of ``sailor'', see \reffig{sailor}. These don't occur nearly 25\% of the time in the training data. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}. This is because AMR will generally normalize a word to its root by removing derivational morphology. For example, `gleefully' gets mapped to `glee', rather than being left alone or just mapped to `gleeful'. While appropriate lexical resources should allow us to generate the root for such derived words, in practice we only had available to us a lemmatizer which handled inflectional morphology. We leave this as a direction for future work.
+
+\subsection{DICT Classifier}
+
+The \textbf{DICT} class is surprisingly large, and our attempts to handle node generation within the class were fairly feeble.
+
 \Section{related}{Related Work}
-The NER++ component of AMR encapsulates a number of lexical NLP tasks.
+
+Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
+the NER++ component of AMR encapsulates a number of lexical NLP tasks.
 These include named entity recognition \cite{2007nadeau-ner,stanford-ner},
   word sense disambiguation \cite{1995yarowsky-wsd,2002banerjee-wsd},
   lemmatization, and a number of more domain specific tasks.
 For example, a full understanding of AMR requires normalizing temporal
   expressions \cite{2010verhagen-tempeval,2010strotgen-temporal,2012chang-temporal}.
-
+ 
 In turn, the SRL++ facet of AMR takes many insights from semantic role labeling
   \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl} to capture the
   relations between verbs and their arguments.
@@ -303,152 +449,13 @@ Interlingua
   from the surface form of the text being parsed; although, AMR has a self-admitted
   English bias.
 
-To the best of the authors' knowledge, the JAMR parser \cite{2014flanigan-amr} is
-  the only published end-to-end AMR parser.
-We adopt the dual decomposition based MST algorithm from the parser, 
-  and contribute primarily towards replacing
-  the NER++ component.
-%The crucial insight in JAMR is that AMR parsing can be broken into two 
-%  relatively distinct tasks: interpreting what entities are being referred to in 
-%  the text (which we call NER++), and then discovering what 
-%  relationships those entities have between one another other (which we call SRL++).
-
-%For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. Then for SRL++ JAMR uses a variation of the maximum spanning tree algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. JAMR's SRL++ component is extremely effective, and we were unable to produce a better SRL++ system in our experiments with several other structured prediction approaches.
-
-
-\section{NER++ Method}
-Our approach to improving NER++ comes from a simple idea: 
-  instead of trying to pick which of thousands of AMR sub-graphs to generate 
-  from a span of text directly, we partition the AMR sub-graph space in 
-  terms of the actions needed to derive a node from its aligned token. 
-At test time we do a sequence labeling of input tokens with these actions, 
-  and then deterministically derive the AMR sub-graphs from spans of tokens by 
-  applying the transformation decreed by their actions. 
-This dramatically reduces sparsity, and improves generalization (and consequently
-  recall) on the test set, without noticable affecting precision.
-To illustrate, 38\% of the words in the LDC2014E113 test set are 
-  unseen during training time.
-
-We describe our partitioning of the action space in \refsec{actions}, describe our
-  training data in \refsec{data}, and our training of the action classifier in
-  \refsec{classifier}.
-%We explain in \refsec{actions} how we manage this partition, and ,
-%explain in \refsec{data} how we create training data from existing resources to train a action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
-
-\Subsection{actions}{Derivation actions}
-
-We partition the AMR sub-graph space into a set of 7 actions, each corresponding to an action that will be taken by the NER++ system if a token receives this classification.
-
-\begin{itemize}
-\item \textbf{VERB}: Look for the most similar PropBank frame, make that the title of the corresponding node.
-\item \textbf{IDENTITY}: Take the lowercased version of the token to be the title of the corresponding node.
-\item \textbf{VALUE}: Parse the token to an integer value, and use that as the node. AMR actually does type-check, so 
-\item \textbf{LEMMA}: Take the lemma of the token to be the title of the corresponding node.
-\item \textbf{NONE}: Ignore this token in the final output.
-\item \textbf{NAME}: Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
-\item \textbf{DICT}: Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
-\end{itemize}
-
-\Subsection{actions}{Notes on the DICT action}
-
-It's not always possible to derive an AMR sub-graph directly from tokens at test time without having memorized a mapping. For example, the parse of ``sailor'' as ``person who sails'', see \reffig{sailor}, is nearly impossible without some form of memorization. That's where the \textbf{DICT} class is important.
-
-To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. This is the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
-
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{|l|rl|}
-\hline \bf Action & \bf \# Tokens & \bf \% Total \\ \hline
-NONE & 41538 & 0.371\\
-DICT & 30027 & 0.268 \\
-IDENTITY & 19034 & 0.170 \\
-VERB & 11739 & 0.104 \\
-LEMMA & 5029 & 0.045 \\
-NAME & 4537 & 0.04 \\
-VALUE & 16  & 0.001\\
-\hline
-\end{tabular}
-\end{center}
-\caption{\label{font-table} Distribution of action types in the proxy section of the LDC2014T12 dataset, generated from automatically aligned data. }
-\end{table}
-
-Note that \textbf{DICT} counts for around 27\% of the training data, meaning that more than 72\% of tokens can be generated correctly by our action type classifier even if we've never seen them before, which is a huge win.
-
-We believe that \textbf{DICT} should count for much less than 27\%, and \textbf{LEMMA} should count for much more than 4\%, but issues with existing lemmatizers prevent this, see our error analysis in \refsec{errors}.
-
-\Subsection{informativeness}{Action Informativeness Hierarchy}
-
-We define the concept of ``action informativeness'' of an action $a$ as the probability of deriving the correct node from a span of tokens, given that those tokens are labeled with the action $a$, and $a$ is the correct action for that span of tokens.
-
-To provide a concrete example, our dictionary lookup classifier has a test-set accuracy of 0.67. That means that the ``action informativeness'' of the \textbf{DICT} action is 0.67, because given that we correctly label a token as \textbf{DICT}, there is a probability of 0.67 that we correctly generate the corresponding node.
-
-In contrast to \textbf{DICT}, correctly labeling a node as \textbf{IDENTITY}, \textbf{NAME}, and \textbf{NONE} have action informativeness of 1.0, since there is no ambiguity in the node generation once one of those actions have been selected, and we are guaranteed (probability 1.0) to generate the correct node given the correct action.
-
-\Fig{informativeness.png}{0.25}{hierarchy}{Informativeness hierarchy for action tags within AMR.}
-
-This allows us to induce an action informativeness hierarchy, with more informative actions taking precedence over less informative actions for several important tasks. We demonstrate this hierarchy in \reffig{hierarchy}.
-
-\Subsection{data}{Inducing Derivation actions from Training Data}
-
-Given a set of AMR training data, in the form of (graph,sentence) pairs, we first induce alignments from the graph nodes to the sentence, see \refsec{alignment}. Given an alignment, which is an annotation on the graph noting for each node $N_i$ a token $S_j$ that is most likely to have ``generated'' $N_i$, we can induce alignments. For concreteness, imagine the token $S_j$ is ``running'', and the node $N_i$ has the title ``run-01''. For each action type, we can ask whether that action type is able to take token $S_j$ and correctly generate $N_i$. The two action types we find that are able to correctly generate this node are \textbf{DICT} and \textbf{VERB}. We choose the most informative action type of those available to generate the observed node. In this case, that means we choose \textbf{VERB}.
-
-In general, our algorithm is as follows. For all $S_j$ to which no $N_i$ exists such that $N_i$ aligns to $S_j$, assign the action \textbf{NONE} to $S_j$. For all pairs $N_i$, $S_j$, assign $S_j$ the most informative action possible that could have generated $N_i$. \todo{Flesh out discussion of adjacent DICT nodes}
-
-\Subsection{classifier}{Action Classifier}
-
-We use an extremely simple max-ent classifier to make action decisions. The classifier takes as input a pair $< i, S >$, where $i$ is the index of the token in the input sentence, and $S$ is a sequence tokens representing the source sentence. The output of the classifier is a action $T$ such that the likelihood with respect to the data of token $i$ in sentence $S$ generating a node according to the action specified by $T$ is maximized. See Appendix A for a list of classifier features.
-
-\subsection{Test Time Behavior}
-
-At test time, given a sequence of input tokens, we do a simple classification of each token separately, to get a sequence labeling of our input tokens. Then for each token, we apply the behavior associated with the token label, and the resulting set of sub-graphs is passed on to SRL++ for linking.
-
-% \input alignments.tex
-
-\section{Results}
-
-\subsection{End to end results}
-
-Our end to end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr}, which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
-
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{|l|l|l|l|r|}
-\hline NER++ & Dataset & P & R & \bf F1 \\ \hline
-JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.59 \\
-\textbf{Robust} & LDC2014T12 & 0.639 & \textbf{0.596} & \textbf{0.62} \\
-JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
-\bf Robust & LDC2014E117 & 0.636 & \textbf{0.601} & \textbf{0.62} \\
-\hline
-\end{tabular}
-\end{center}
-\caption{\label{font-table} Results on two AMR datasets. }
-\end{table}
-
-\todo{interpretation}
-
-\subsection{Component results}
-
-On our action-type sequence labeling data generated from automatic alignments on train and test splits of \textit{LDC2014T12}, our classifier achieved a test accuracy of \textbf{0.841}.
-
-The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67} on the test set. This is remarkable, given that our model moves many of the difficult semantic tasks onto the \textbf{DICT} tag, and we are using no learning here beyond a simple count of observed span to sub-graph mappings.
-
-% Our approach really shines in domain transfer. Using a system trained on \textbf{LDC2013E117}, which is composed of international newswire, and testing on the web forum subsection \textbf{LDC2014T12}, our system generalizes well.
-
-\Section{errors}{Error Analysis}
-
-\subsection{Weak lemmatization}
-
-The \textbf{DICT} class was intended to be used for things that a system cannot know without memorization, like the nominalization of ``sailor'', see \reffig{sailor}. These don't occur nearly 25\% of the time in the training data. One of the reasons that the \textbf{DICT} class is so disappointingly large is that it's stealing from \textbf{LEMMA}, because AMR will aggressively normalize words and change their part of speech to a semantic neighbor. For example, `gleefully' gets mapped to `glee' and not `gleeful', which is hard to do automatically with stemming rules in the general case. We leave this as a direction for future work.
-
-\subsection{DICT Classifier}
-
-The \textbf{DICT} class is surprisingly large, and our attempts to handle node generation within the class were fairly feeble.
 
 \section{Future Work}
 \subsection{Semantically equivalent POS normalization}
 The benefit of this approach could be increased by having a very strong stemmer tuned to AMR parsing, which currently doesn't exist.
-\subsection{Etymological approach to node generation}
-There is an opportunity to create and test etymologico-semantic approaches to parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the know verb lemma `arbitrage', and derive that the noun `arbitrageur' probably refers to an entity that is engaged in arbitrage. AMR training data provides an opportunity to perform and measure such a task in isolation, 
+
+\subsection{Morphological approach to node generation}
+There is an opportunity to create and test derivational morphology components in parsing words like `sailor' that would benefit AMR parsing domain generalization tremendously. We envision a system that upon discovering the unseen noun `arbitrageur' at training time is able to retrieve the known verb root `arbitrage', and to derive that the noun `arbitrageur' probably refers to an entity that is engaged in arbitrage. AMR training data provides an opportunity to perform and measure such a task in isolation, 
 
 \section{Appendix}
 
