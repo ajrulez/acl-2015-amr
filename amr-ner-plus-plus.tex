@@ -71,7 +71,7 @@ We propose a small set of actions to construct parts of the AMR parse from spans
 %the first AMR parser that can handle words at test time that were unseen during training.
 We show that our set of construction actions generalize better than the previous approach, even when learned with an extremely simple classifier.
 % These actions also provide an insight for an alignment system that yields a ``maximally informative'' set of action labels, which we show yields good results.
-We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end F1 from 0.59 to 0.62 on the LDC2013E117 and LDC2014T12 datasets.
+We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end F$_1$ from 0.59 to 0.62 on the LDC2013E117 and LDC2014T12 datasets.
 
 \end{abstract}
 
@@ -105,8 +105,8 @@ Our initial assumption (which we suspect would be shared by many researchers wit
 This intuition follows by analogy from the locus of work for syntactic dependency parsing. We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of MST presented in \newcite{2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.
 
 Over time we realized that SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. A first piece of evidence for this claim comes from a close analysis of the only published AMR parser to date, \cite{2014flanigan-amr}, dubbed ``JAMR''.
-When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F1.
-However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores 0.80 F1 against a virtual upper bound of 0.83 F1, which is inter-annotator agreement on AMR \todo{NEED CITE FOR THIS}.  (And annotators very rarely disagree on NER++, which amounts to disagreeing about the entities mentioned in a sentence). \todo{verify -- CDM: I'm not sure this is true} [since surely there is quite a bit of inconsistency in NER++, such as for which compound words with derivational morphology to expand into subgraphs.]
+When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F$_1$.
+However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores 0.80 F$_1$ against a virtual upper bound of 0.83 F$_1$, which is inter-annotator agreement on AMR \todo{NEED CITE FOR THIS}.  (And annotators very rarely disagree on NER++, which amounts to disagreeing about the entities mentioned in a sentence). \todo{verify -- CDM: I'm not sure this is true} [since surely there is quite a bit of inconsistency in NER++, such as for which compound words with derivational morphology to expand into subgraphs.]
 So this means the SRL++ component is nearly perfect, if given perfect NER++.
 
 In retrospect, it makes sense that SRL++ within AMR is \textit{relatively} easy given a perfect set of nodes to link together.
@@ -567,51 +567,101 @@ Interlingua
 
 
 \section{Results}
+We present improvements in end-to-end AMR parsing given our NER++ component,
+and present alignment accuracy of our aligner and our NER++ action classifier
+  on a small hand-labeled corpus.
 
-\subsection{End to end results}
+\Subsection{result-amr}{End-to-end AMR Parsing}
+We evaluate our novel NER++ component in the context of end-to-end AMR parsing
+We evaluate on two corpora: the LDC2014T12 corpus, consisting of \todo{what?};
+  and, the LDC2014E117 corpus, consisting of \todo{what?}.
+We compare two systems: the JAMR parser \cite{2014flanigan-amr}
+  \footnote{Available at \url{https://github.com/jflanigan/jamr}.},
+  and the JAMR SRL++ component with our NER++ approach.
 
-Our end-to-end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr},\footnote
-  {Available at \url{https://github.com/jflanigan/jamr}.}
-which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, with negligible ($\leq .01$) loss in precision.
+AMR parsing accuracy is measured with a metric called smatch \needcite, which stands 
+  for ``s(emantic) match''. 
+The metric is the F$_1$ of a best-match between triples implied by the target graph, 
+  and triples in the parsed graph. 
 
-\begin{table}[h]
+Our results are given in \reftab{results}.
+We report much higher recall numbers on both datasets, with only small ($\leq .01$) 
+  loss in precision.
+This is natural considering our approach.
+A better NER++ system allows for more correct AMR sub-graphs to be generated --
+  improving recall -- but does not in itself improve the accuracy of the
+  SRL++ system it is integrated in.
+
+%Our end-to-end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr},\footnote
+%  {Available at \url{https://github.com/jflanigan/jamr}.}
+%which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. 
+
+\begin{table}[t]
 \begin{center}
-\begin{tabular}{|l|l|llr|}
-\hline NER++ & Dataset & P & R & F1 \\ \hline
-JAMR & 2014T12 & \textbf{0.671} & 0.532 & 0.593 \\
-JAMR & 2013E117 & \textbf{0.669} & 0.529 & 0.591 \\
-\textbf{Robust} & 2014T12 & 0.666 & \textbf{0.583} & \textbf{0.622} \\
-\bf Robust & 2014E117 & 0.659 & \textbf{0.590} & \textbf{0.623} \\
+\begin{tabular}{l|l|llr}
+\textbf{Dataset} &  \textbf{System} & \textbf{P} & \textbf{R} & \textbf{F$_1$} \\
 \hline
+\multirow{2}{*}{2014T12} & JAMR & \textbf{67.1} & 53.2 & 59.3 \\
+  & \textbf{Our System} & 66.6 & \textbf{58.3} & \textbf{62.2} \\
+\hline
+\multirow{2}{*}{2014E117} & JAMR & \textbf{66.9} & 52.9 & 59.1 \\
+  & \textbf{Our System} & 65.9 & \textbf{59.0} & \textbf{62.3} \\
 \end{tabular}
 \end{center}
-\caption{\label{font-table} Results on two AMR datasets for JAMR \cite{2014flanigan-amr} and Robust (our system).}
+\caption{\label{tab:results} 
+Results on two AMR datasets for JAMR and our NER++ embedded in the JAMR SRL++
+  component.
+Note that recall is consistently higher across both dataasets, with only a small
+  loss in precision.
+}
 \end{table}
 
 
-\begin{table}[h]
+\begin{table}[t]
 \begin{center}
-\begin{tabular}{|l|llr|}
-\hline Dataset & P & R & F1 \\ \hline
+\begin{tabular}{|l|ll:r|}
+\hline Dataset & P & R & F$_1$ \\ \hline
 LDC2014T12 & 0.839 & 0.765 & 0.800 \\
 LDC2014E117 & 0.847 & 0.776 & 0.810 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{\label{font-table} Results on two AMR datasets when given gold NER++. }
+\caption{\label{tab:goldner} 
+Results on two AMR datasets when given gold NER++.
+\todo{gabor: isn't this a repeat of the CMU table?}
+}
 \end{table}
 
 \todo{interpretation}
 
-\subsection{Component results}
+\Subsection{result-component}{Component Accuracy}
+We evaluate our aligner on a small set of 100 hand-labeled alignments,
+  and evaluate our NER++ classifer on these automatically generated alignments,
+\todo{alignment accuracy}
 
-On our action-type sequence labeling data generated from automatic alignments on train and test splits of LDC2014T12, our classifier achieved a test accuracy of \textbf{0.841}.
-
-The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67} on the test set. This is remarkable, given that our model moves many of the difficult semantic tasks onto the \textbf{DICT} tag, and we are using no learning here beyond a simple count of observed span to sub-graph mappings.
+On the automatic alignments over the LDC2014T12 corpus,
+  our actionclassifier achieved a test accuracy of \textbf{0.841}.
+The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67}.
+This is particularly impressive given that our model moves many of the difficult 
+  semantic tasks onto the \textbf{DICT} tag, and that this lookup does not make
+  use of any learning beyond a simple count of observed span to sub-graph mappings.
 
 % Our approach really shines in domain transfer. Using a system trained on \textbf{LDC2013E117}, which is composed of international newswire, and testing on the web forum subsection \textbf{LDC2014T12}, our system generalizes well.
 
-\Section{errors}{Error Analysis}
+\Section{conclude}{Conclusion}
+We have shown that a key challenge and area for improvement in AMR parsing is the
+  generation of sub-graphs from lexical items in the sentence.
+We show that a simple classifier over \textit{actions} to generate
+  these graphs improves end-to-end recall for AMR parsing with only a small
+  drop in precision, leading to an overall gain in F$_1$.
+We encourage future work on improving the accuracy of the graph generation from
+  actions -- particularly the lemmatizer -- and on further reducing the number of
+  tokens which must be generated by a dictionary lookup.
+
+
+\Subsection{errors}{Error Analysis}
+\todo{gabor}
+I'd cut these out, unless there's more to say than ``our lemmatizer is bad''
 
 \subsection{Weak lemmatization}
 
