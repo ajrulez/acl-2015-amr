@@ -300,7 +300,7 @@ At test time we do a sequence labeling of input tokens with these actions, and
   then deterministically derive the AMR sub-graphs from spans of tokens by applying 
   the transformation decreed by their actions. 
 This dramatically reduces sparsity, and improves generalization (and consequently
-  recall) on the test set, without noticable affecting precision.
+  recall) on the test set, without noticeable affecting precision.
 To illustrate, 38\% of the words in the LDC2014E113 test set are 
   unseen during training time.
 We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train an action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
@@ -316,7 +316,7 @@ We partition the AMR sub-graph space into a set of 7 actions, each corresponding
 \paragraph{VALUE} This action interprets a token by its integer value. 
 The AMR representation is sensitive to the difference between a node with a title
   of \n{5} (the integer value) and ``5'' or ``five'' -- the string value.
-This is a rare action, but is nontheless distinct from any of the other classes.
+This is a rare action, but is nonetheless distinct from any of the other classes.
 %In AMR a node with title ``five'' and a node with title ``5'' are two distinct entities, with different semantic interpretation. 
 We execute this action by getting an integer value with a regex based number normalizer, and using that as the title of the generated node.
 
@@ -374,7 +374,7 @@ In contrast to DICT, correctly labeling a node as IDENTITY, NAME, and NONE have
 Reliability of each action.
 The top row are actions which are deterministic;
   the second row are actions which occasionally produce errors.
-DICT is the least prefered action, with a relatively high error rate.
+DICT is the least preferred action, with a relatively high error rate.
 \todo{replace I with $p$}
 }
 
@@ -611,7 +611,7 @@ A better NER++ system allows for more correct AMR sub-graphs to be generated --
 \caption{\label{tab:results} 
 Results on two AMR datasets for JAMR and our NER++ embedded in the JAMR SRL++
   component.
-Note that recall is consistently higher across both dataasets, with only a small
+Note that recall is consistently higher across both datasets, with only a small
   loss in precision.
 }
 \end{table}
@@ -636,11 +636,11 @@ Results on two AMR datasets when given gold NER++.
 
 \Subsection{result-component}{Component Accuracy}
 We evaluate our aligner on a small set of 100 hand-labeled alignments,
-  and evaluate our NER++ classifer on these automatically generated alignments,
+  and evaluate our NER++ classifier on these automatically generated alignments,
 \todo{alignment accuracy}
 
 On the automatic alignments over the LDC2014T12 corpus,
-  our actionclassifier achieved a test accuracy of \textbf{0.841}.
+  our action classifier achieved a test accuracy of \textbf{0.841}.
 The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67}.
 This is particularly impressive given that our model moves many of the difficult 
   semantic tasks onto the \textbf{DICT} tag, and that this lookup does not make

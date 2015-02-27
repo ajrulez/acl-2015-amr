@@ -39,14 +39,14 @@ That is, we would like to maximize the number of nodes which will be generated
 We formulate this objective as a Boolean LP problem.
 %the alignment problem and constraints given above as a Boolean LP.
 
-Let $\bQ$ be a matrix in $\mathcal{B}^{|\bN| \times |\bS|}$ of boolean variables,
+Let $\bQ$ be a matrix in $\mathcal{B}^{|\bN| \times |\bS|}$ of Boolean variables,
   where $\bN$ are the 
   nodes in an AMR graph, and $\bS$ are the tokens in the sentence.
 The meaning of $\bQ_{i,j} = \mathbbm{1}$ can be interpreted as node 
   $n_i$ having being aligned to token $s_j$.
 Furthermore, let $\bV$ be a matrix $\sT^{|\bN| \times |\bS|}$, where
   $\sT$ is the set of NER++ actions from \refsec{nerplusplus}.
-Each matrix element $\bV_{i,j}$ is asigned the most reliable action which would
+Each matrix element $\bV_{i,j}$ is assigned the most reliable action which would
   generate node $n_i$ from token $s_j$.
 For simplicity, we assume that the only unreliable action is DICT, and all other
   actions are equally reliable.
