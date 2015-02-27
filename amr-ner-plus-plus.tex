@@ -287,7 +287,7 @@ Therefore, we use the modified MST algorithm implemented in \newcite{2014flaniga
 
 \section{A Novel NER++ Method}\label{sec:nerplusplus}
 
-Our approach to improving NER++ is very simple: instead of trying to pick which of thousands of AMR sub-graphs to generate from a span of text directly, we partition the AMR sub-graph space in terms of the actions needed to derive a node from its aligned token. At test time we do a sequence labeling of input tokens with these actions, and then deterministically derive the AMR sub-graphs from spans of tokens by applying the transformation decreed by their actions. This dramatically reduces sparsity, and helps improve end-to-end performance, but is most beneficial for domain transfer. We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train a action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
+Our approach to improving NER++ is very simple: instead of trying to pick which of thousands of AMR sub-graphs to generate from a span of text directly, we partition the AMR sub-graph search space in terms of the actions needed to derive a node from its aligned token. At test time we do a sequence labeling of input tokens with these actions, and then deterministically derive the AMR sub-graphs from spans of tokens by applying the transformation decreed by their actions. This dramatically reduces sparsity, and helps improve end-to-end performance, but is most beneficial for domain transfer. We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train an action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
 
 \Subsection{actions}{Derivation actions}
 
@@ -296,7 +296,7 @@ We partition the AMR sub-graph space into a set of 7 actions, each corresponding
 \begin{itemize}
 \item \textbf{VERB}: Look for the most similar PropBank frame, make that the title of the corresponding node.
 \item \textbf{IDENTITY}: Take the lowercased version of the token to be the title of the corresponding node.
-\item \textbf{VALUE}: Parse the token to an integer value, and use that as the node. AMR actually does type-check, so 
+\item \textbf{VALUE}: Parse the token to an integer value, and use that as the node. AMR actually does type-check, so \todo{WHAT???}
 \item \textbf{LEMMA}: Take the lemma of the token to be the title of the corresponding node.
 \item \textbf{NONE}: Ignore this token in the final output.
 \item \textbf{NAME}: Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
@@ -307,23 +307,23 @@ We partition the AMR sub-graph space into a set of 7 actions, each corresponding
 
 It's not always possible to derive an AMR sub-graph directly from tokens at test time without having memorized a mapping. For example, the parse of ``sailor'' as ``person who sails'', see \reffig{sailor}, is nearly impossible without some form of memorization. That's where the \textbf{DICT} class is important.
 
-To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. This is the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
+To implement a \textbf{DICT} class, we memorize a simple mapping from spans of text, like ``sailor'' to their corresponding most frequently seen AMR sub-graphs in the training data, in this case \reffig{sailor}. At test time we can do a lookup in this dictionary for any element that gets labeled with a \textbf{DICT} action. Previous approaches have been the equivalent of labeling every node with the \textbf{DICT} action, so our reduction of its use is significant. \reftab{distro} gives the distribution of actions on the LDC2014T12 proxy training data, after our automatic alignment allows us to induce actions (see \refsec{data} for how this is done).
 
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{|l|rl|}
+\begin{tabular}{|l|rr|}
 \hline \bf Action & \bf \# Tokens & \bf \% Total \\ \hline
-NONE & 41538 & 0.371\\
-DICT & 30027 & 0.268 \\
-IDENTITY & 19034 & 0.170 \\
-VERB & 11739 & 0.104 \\
-LEMMA & 5029 & 0.045 \\
-NAME & 4537 & 0.04 \\
-VALUE & 16  & 0.001\\
+NONE & 41538 & 37.1\\
+DICT & 30027 & 26.8 \\
+IDENTITY & 19034 & 17.0 \\
+VERB & 11739 & 10.4 \\
+LEMMA & 5029 & 4.5 \\
+NAME & 4537 & 4.0 \\
+VALUE & 16  & 0.1\\
 \hline
 \end{tabular}
 \end{center}
-\caption{\label{font-table} Distribution of action types in the proxy section of the LDC2014T12 dataset, generated from automatically aligned data. }
+\caption{\label{tab:distro} Distribution of action types in the proxy section of the LDC2014T12 dataset, generated from automatically aligned data. }
 \end{table}
 
 Note that \textbf{DICT} counts for around 27\% of the training data, meaning that more than 72\% of tokens can be generated correctly by our action type classifier even if we've never seen them before, which is a huge win.
@@ -350,7 +350,9 @@ In general, our algorithm is as follows. For all $S_j$ to which no $N_i$ exists 
 
 \Subsection{classifier}{Action Classifier}
 
-We use an extremely simple max-ent classifier to make action decisions. The classifier takes as input a pair $< i, S >$, where $i$ is the index of the token in the input sentence, and $S$ is a sequence tokens representing the source sentence. The output of the classifier is a action $T$ such that the likelihood with respect to the data of token $i$ in sentence $S$ generating a node according to the action specified by $T$ is maximized. See Appendix A for a list of classifier features.
+We use an extremely simple maxent classifier to make action decisions. The classifier takes as input a pair $\langle i, S \rangle$, where $i$ is the index of the token in the input sentence, and $S$ is a sequence tokens representing the source sentence. The output of the classifier is an action $T$ such that the likelihood with respect to the data of token $i$ in sentence $S$ generating a node according to the action specified by $T$ is maximized. See Appendix A for a list of classifier features.
+
+\todo{How do you work out verb senses?}
 
 \subsection{Test Time Behavior}
 
