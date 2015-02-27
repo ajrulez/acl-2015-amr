@@ -303,13 +303,17 @@ We explain in \refsec{actions} how exactly we manage this partition, and explain
 
 We partition the AMR sub-graph space into a set of 7 actions, each corresponding to an action that will be taken by the NER++ system if a token receives this classification.
 
-\paragraph{VERB} Look for the most similar PropBank frame, make that the title of the corresponding node.
-\paragraph{IDENTITY} Take the lowercased version of the token to be the title of the corresponding node.
-\paragraph{VALUE} Parse the token to an integer value, and use that as the node. AMR actually does type-check, so 
-\paragraph{LEMMA} Take the lemma of the token to be the title of the corresponding node.
-\paragraph{NONE} Ignore this token in the final output.
-\paragraph{NAME} Attach a created ``name'' node to the top of this span, but don't add an NER action type on top of the ``name'' node.
-\paragraph{DICT} Look up the most probable chunk associate with this lexical span. This functions as a back off if no other actions are appropriate.
+\paragraph{VERB} This action capture the verb-sense disambiguation feature of AMR (10.4\% of tokens). To execute on a token, we look for the most similar PropBank frame, make that the title of the corresponding node.
+\paragraph{IDENTITY} This action handles the common (17\% of tokens) case that the title of the node corresponding to a token is identical to the source token. To execute, we take the lowercased version of the token to be the title of the corresponding node.
+\paragraph{VALUE} This action interprets a token by its integer value. This is a rare action, included for theoretical completeness. In AMR a node with title ``five'' and a node with title ``5'' are two distinct entities, with different semantic interpretation. We execute this action by getting an integer value with a regex based number normalizer, and using that as the title of the generated node.
+\paragraph{LEMMA} AMR often performs stemming and POS transformations on the source token in generating a node. 
+For example, we get ``glee'' from ``gleefully''.
+We try to capture this by a \textbf{LEMMA} action, which is executed by using the lemma of the source token as the generated node title.
+\paragraph{NONE} 37\% of the time, we can just ignore the token.
+\paragraph{NAME} A common structured data type in AMR is the ``name'' construction. 
+For example, ``Rover'' in \reffig{glee}.
+We can capture this phenomenon on unseen names by attaching a created ``name'' node to the top of this span.
+\paragraph{DICT} This is basically our catch-all. \todo{how to introduce this gingerly...}
 
 %
 % ACTION DISTRIBUTION
@@ -397,20 +401,33 @@ At test time, given a sequence of input tokens, we do a simple classification of
 
 Our end-to-end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr},\footnote
   {Available at \url{https://github.com/jflanigan/jamr}.}
-which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, and a slightly improved F1 score.
+which is able to produce final AMR graphs when given a sequence of spans and their corresponding chunks. AMR parsing accuracy is measured with a metric called smatch \needcite, which stands for ``s(emantic) match''. The metric is the F1 of a best-match between triples implied by the target graph, and triples in the parsed graph. We report much higher recall, with negligible ($\leq .01$) loss in precision.
 
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|llr|}
-\hline NER++ & Dataset & P & R & \bf F1 \\ \hline
-JAMR & LDC2014T12 & \textbf{0.671} & 0.532 & 0.593 \\
-\textbf{Robust} & LDC2014T12 & 0.666 & \textbf{0.583} & \textbf{0.622} \\
-JAMR & LDC2014E117 & \textbf{0.669} & 0.529 & 0.59 \\
-\bf Robust &  & 0.636 & \textbf{0.601} & \textbf{0.62} \\
+\hline NER++ & Dataset & P & R & F1 \\ \hline
+JAMR & 2014T12 & \textbf{0.671} & 0.532 & 0.593 \\
+JAMR & 2013E117 & \textbf{0.669} & 0.529 & 0.591 \\
+\textbf{Robust} & 2014T12 & 0.666 & \textbf{0.583} & \textbf{0.622} \\
+\bf Robust & 2014E117 & 0.659 & \textbf{0.590} & \textbf{0.623} \\
 \hline
 \end{tabular}
 \end{center}
-\caption{\label{font-table} Results on two AMR datasets. }
+\caption{\label{font-table} Results on two AMR datasets for JAMR \cite{2014flanigan-amr} and Robust (our system).}
+\end{table}
+
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|llr|}
+\hline Dataset & P & R & F1 \\ \hline
+LDC2014T12 & 0.839 & 0.765 & 0.800 \\
+LDC2014E117 & 0.847 & 0.776 & 0.810 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} Results on two AMR datasets when given gold NER++. }
 \end{table}
 
 \todo{interpretation}
