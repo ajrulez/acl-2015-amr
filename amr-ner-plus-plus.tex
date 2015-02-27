@@ -525,6 +525,47 @@ It then uses the features in \reftab{features} to predict the actions to take at
 
 \input alignments.tex
 
+
+\Section{related}{Related Work}
+
+Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
+the NER++ component of AMR encapsulates a number of lexical NLP tasks.
+These include named entity recognition \cite{2007nadeau-ner,stanford-ner},
+  word sense disambiguation \cite{1995yarowsky-wsd,2002banerjee-wsd},
+  lemmatization, and a number of more domain specific tasks.
+For example, a full understanding of AMR requires normalizing temporal
+  expressions \cite{2010verhagen-tempeval,2010strotgen-temporal,2012chang-temporal}.
+ 
+In turn, the SRL++ facet of AMR takes many insights from semantic role labeling
+  \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl} to capture the
+  relations between verbs and their arguments.
+In addition, many of the arcs in AMR have nearly syntactic interpretations
+  (e.g., \e{mod} for adjective/adverb modification, \e{op} for compound noun
+  expressions).
+These are similar to representations used in syntactic dependency parsing
+  \cite{stanford-dependencies,2005mcdonald-dependency0,2006buchholz-conll}.
+
+More generally, parsing to a semantic representation is has been explored in
+  depth for when the representation is a logical form
+  \cite{2005kate-semantics,2005zettlemoyer-semantics,2011liang-semantics}.
+Recent work has applied semantic parsing techniques to representations beyond
+  lambda calculus expressions.
+For example, work by \newcite{2014berant-bio} parses
+  text into a formal representation of a biological process.
+\newcite{2014hosseini-algebra} solves algabreic word problems by parsing them
+  into a structured meaning representation.
+In contrast to these approaches, AMR attempts to capture open domain semantics
+  over arbitrary text.
+
+Interlingua
+  \cite{1991mitamura-interlingua,1999carbonell-interlingua,1998levin-interlingua}
+  are an important inspiration for decoupling the semantics of the AMR language
+  from the surface form of the text being parsed; although, AMR has a self-admitted
+  English bias.
+
+
+
+
 \section{Results}
 
 \subsection{End to end results}
@@ -579,44 +620,6 @@ The \textbf{DICT} class was intended to be used for things that a system cannot 
 \subsection{DICT Classifier}
 
 The \textbf{DICT} class is surprisingly large, and our attempts to handle node generation within the class were fairly feeble.
-
-\Section{related}{Related Work}
-
-Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
-the NER++ component of AMR encapsulates a number of lexical NLP tasks.
-These include named entity recognition \cite{2007nadeau-ner,stanford-ner},
-  word sense disambiguation \cite{1995yarowsky-wsd,2002banerjee-wsd},
-  lemmatization, and a number of more domain specific tasks.
-For example, a full understanding of AMR requires normalizing temporal
-  expressions \cite{2010verhagen-tempeval,2010strotgen-temporal,2012chang-temporal}.
- 
-In turn, the SRL++ facet of AMR takes many insights from semantic role labeling
-  \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl} to capture the
-  relations between verbs and their arguments.
-In addition, many of the arcs in AMR have nearly syntactic interpretations
-  (e.g., \e{mod} for adjective/adverb modification, \e{op} for compound noun
-  expressions).
-These are similar to representations used in syntactic dependency parsing
-  \cite{stanford-dependencies,2005mcdonald-dependency0,2006buchholz-conll}.
-
-More generally, parsing to a semantic representation is has been explored in
-  depth for when the representation is a logical form
-  \cite{2005kate-semantics,2005zettlemoyer-semantics,2011liang-semantics}.
-Recent work has applied semantic parsing techniques to representations beyond
-  lambda calculus expressions.
-For example, work by \newcite{2014berant-bio} parses
-  text into a formal representation of a biological process.
-\newcite{2014hosseini-algebra} solves algabreic word problems by parsing them
-  into a structured meaning representation.
-In contrast to these approaches, AMR attempts to capture open domain semantics
-  over arbitrary text.
-
-Interlingua
-  \cite{1991mitamura-interlingua,1999carbonell-interlingua,1998levin-interlingua}
-  are an important inspiration for decoupling the semantics of the AMR language
-  from the surface form of the text being parsed; although, AMR has a self-admitted
-  English bias.
-
 
 \section{Future Work}
 \subsection{Semantically equivalent POS normalization}

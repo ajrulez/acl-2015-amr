@@ -1,46 +1,102 @@
 
 \Section{alignment}{Automatic Alignment of Training Data}
+AMR training data is in the form of bi-text, where we are given a set of
+  (sentence,graph) pairs, with no explicit alignments between them.
+%For example, imagine we are given the graph for "He gleefully ran to his dog Rover", as shown in \reffig{glee}. Although it's obvious to a human, the training data has no reference to the fact that the node ``run-01'' came from the token ``ran''. There is therefore a crucial task of generating these alignments prior to running training algorithms.
 
-AMR training data is in the form of bi-text, where we are given a set of (sentence,graph) pairs, with no explicit alignments between them. For example, imagine we are given the graph for "He gleefully ran to his dog Rover", as shown in \reffig{glee}. Although it's obvious to a human, the training data has no reference to the fact that the node ``run-01'' came from the token ``ran''. There is therefore a crucial task of generating these alignments prior to running training algorithms.
+%In plain English, we want a projective mapping from nodes to tokens. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
 
-\subsection{Alignment Task Definition}
+%To define exactly what is meant by an `alignment', let there be a pair $G = <N,A>$ where $N$ is a set of nodes and $A$ is an $|N|$ by $|N|$ matrix of binary variables, representing the presence or absence of directed arcs between nodes. For example, $A_{i,j} = T$ means that an arc exists between $N_i$ and $N_j$, and $A_{i,j} = F$ means that no arc exists between $N_i$ and $N_j$. Let there be a set of tokens $S$, such that $S_i$ is the $i$th token in the source sentence. We would like an array $B$, where $|B| = |N|$, and for all $i$, $B_i$ is in the range $(1,|S|)$. For $B_i = n$, it means that token $S_n$ generated $N_i$.
 
-In plain english, we want a projective mapping from nodes to tokens. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
+There have been two previous attempts at producing automatic AMR alignments. 
+The first was published as a necessary component of JAMR, 
+  and used a rule-based approach to perform alignments.
+This was shown to work well on the sample of 100 hand-labeled sentences used to 
+  develop the system.
+\newcite{2014pourdamghani-amr} approached the alignment problem in 
+  the framework of the IBM alignment models.
+They rendered AMR graphs as text, and then used traditional machine translation 
+  alignment techniques to generate an alignment.
+%  from machine translation to align tokens in the source text and nodes in the AMR graphs. This approach works reasonably well, but fails to take advanactione of the inherently graphical structure of AMR, and regularities within that structure like named entities and quantity values.
 
-To define exactly what is meant by an `alignment', let there be a pair $G = <N,A>$ where $N$ is a set of nodes and $A$ is an $|N|$ by $|N|$ matrix of binary variables, representing the presence or absence of directed arcs between nodes. For example, $A_{i,j} = T$ means that an arc exists between $N_i$ and $N_j$, and $A_{i,j} = F$ means that no arc exists between $N_i$ and $N_j$. Let there be a set of tokens $S$, such that $S_i$ is the $i$th token in the source sentence. We would like an array $B$, where $|B| = |N|$, and for all $i$, $B_i$ is in the range $(1,|S|)$. For $B_i = n$, it means that token $S_n$ generated $N_i$.
+Our decomposition of the AMR node generation process into a set of actions 
+  provides a novel objective for the aligner to optimize, in addition to the
+  accuracy of the alignment itself.
+We would like to produce the most \textit{reliable}
+  sequence of actions for the NER++ model to train from, where reliable is taken
+  in the sense defined in \refsec{informativeness}.
+That is, we would like to maximize the number of nodes which will be generated
+  from one of the reliable actions (e.g., IDENTITY), and minimize the nodes
+  generated from unreliable actions (e.g., DICT).
+%We would like an alignment of AMR nodes to the source tokens such that we maximize the ``informativeness'' of the actions that we use to generate the AMR nodes from the source text.
 
-\subsection{Previous Alignment Work}
+%We can define the ``informativeness'' of a given action by the probability of generating the correct nodes given the correct sequence label. The only label with a probability of correct generation that is less than 1 (i.e. is not and immediate guaranteed win) is \textbf{DICT}, which looks up the token in a dictionary, and on our dev set less than 70\% are correctly generated from a \textbf{DICT}.
 
-There have been two previous attempts at producing automatic AMR alignments. The first was published as a necessary component of JAMR, \cite{Flanigan:14}, and used a rule-based approach to perform alignments, which worked well on the small sample of 100 hand-labeled sentences used to develop the system. The second published approach, \todo{cite short paper}, rendered AMR graphs as text, and then used traditional alignment techniques from machine translation to align tokens in the source text and nodes in the AMR graphs. This approach works reasonably well, but fails to take advanactione of the inherently graphical structure of AMR, and regularities within that structure like named entities and quantity values.
+%That suggests a relatively simple heuristic for producing good alignments: minimize the number of \textbf{DICT} sequence labels implied by a given alignment $A$. We would also like to constrain nodes that are not adjacent to one another to not align to the same token, except in certain cases where hallucinated AMR node structure suggests that a contiguous segment of 3 or more nodes is plausible.
 
-\subsection{Intuition}
+%\subsection{Boolean Linear Program Formulation}
 
-Our decomposition of the AMR node generation process into a set of actions provides an interesting way to align unaligned AMR graphs. We would like an alignment of AMR nodes to the source tokens such that we maximize the ``informativeness'' of the actions that we use to generate the AMR nodes from the source text.
+We formulate this objective as a Boolean LP problem.
+%the alignment problem and constraints given above as a Boolean LP.
 
-We can define the ``informativeness'' of a given action by the probability of generating the correct nodes given the correct sequence label. The only label with a probability of correct generation that is less than 1 (i.e. is not and immediate guaranteed win) is \textbf{DICT}, which looks up the token in a dictionary, and on our dev set less than 70\% are correctly generated from a \textbf{DICT}.
+Let $\bQ$ be a matrix in $\mathcal{B}^{|\bN| \times |\bS|}$ of boolean variables,
+  where $\bN$ are the 
+  nodes in an AMR graph, and $\bS$ are the tokens in the sentence.
+The meaning of $\bQ_{i,j} = \mathbbm{1}$ can be interpreted as node 
+  $n_i$ having being aligned to token $s_j$.
+Furthermore, let $\bV$ be a matrix $\sT^{|\bN| \times |\bS|}$, where
+  $\sT$ is the set of NER++ actions from \refsec{nerplusplus}.
+Each matrix element $\bV_{i,j}$ is asigned the most reliable action which would
+  generate node $n_i$ from token $s_j$.
+For simplicity, we assume that the only unreliable action is DICT, and all other
+  actions are equally reliable.
+%  gets the derivation type that would be implied by node $N_i$ aligning to token $S_j$. \todo{Needs graphic} 
+Our objective can then be formulated as follows:
+\begin{align}
+  \label{eqn:objective}
+  & \underset{\bQ}{\textrm{min}}
+     & & \sum_{i,j} \bQ_{i,j} \left[ 
+         \mathbbm{1}{(\bV_{i,j} = \textrm{\small{DICT}})}
+         - \alpha \sE_{i,j} \right] \\
+  \label{eqn:constraint1}
+  & \textrm{s.t.}
+     & & \sum_{j} \bQ_{i,j} = 1 ~~~~~ \forall i \\
+  \label{eqn:constraint2}
+  & & & \bQ_{k,j} + \bQ_{l,j} \leq 1 ~~~~~ \forall k,l,j; ~ n_k \nleftrightarrow n_l
+\end{align}
+where $\sE$ is the Jaro Winkler distance \todo{not similarity?} between the title of the node $i$ and the
+  token $j$, $\alpha$ is a hyperparameter (set to \todo{9000} in our experiments),
+  and the operator $\nleftrightarrow$ denotes that two nodes in the AMR graph are
+  both not adjacent and do not have the same title.
 
-That suggests a relatively simple heuristic for producing good alignments: minimize the number of \textbf{DICT} sequence labels implied by a given alignment $A$. We would also like to constrain nodes that are not adjacent to one another to not align to the same token, except in certain cases where hallucinated AMR node structure suggests that a contiguous segment of 3 or more nodes is plausible.
+% Intuition
+The objective value penalizes alignments which map to the unreliable DICT tag,
+  while rewarding alignments with high overlap between the title of the node and
+  the token.
+Note that most incorrect alignments fall into the DICT class by default, as no other
+  action could generate the correct AMR sub-graph.
+Therefore, if there exists an alignment that would consume the token using another
+  action, the optimization prefers that alignment.
+The Jaro Winkler distance term, in turn, serves as a tie-breaker between equally
+  reliable alignments.
+% Constraints
+The constraint \refeqn{constraint1} ensures that every token in the sentence has
+  a single incoming edge.
+The constraint \refeqn{constraint2} ensures that two non-adjacent nodes which do
+  not share a title do not refer to the same token.
 
-\subsection{Boolean Linear Program Formulation}
+%We must further constrain the alignment so that each node aligns to exactly one token:
+%
+%
+%It is also useful to prevent nodes that are not adjacent in the AMR graph, and do not have exactly the same title, from aligning to the same token. Let $\mathcal{J}$ be the set of all pairs $(k,l)$ such that $k \neq l$ and $N_k$ and $N_l$ are not adjacent in the graph, and do not have the same title. Then we can enforce this constraint with,
+%
+%
+%We also find edit distance to be a useful encouragement for nodes to align to their correct source token, so we would like to linearly augment our goal term with another value to reflect how closely our proposed alignment follows edit distance. Let $\mathcal{E}$ be a matrix in $\mathcal{R}^{|N|x|S|}$, where $E_{i,j}$ is the Jaro-Winkler edit distance between the title of node $N_i$, and the sentence token $S_j$. Then we can augment our objective function with a linear encouragement, modulated by $\alpha$, to align to the close edit-distance concepts overall. Our new augmented objective function is:
+%
+%\[\sum_{i,j} Q_{i,j}*(\mathbbm{1}{(V_{i,j} = DICT)} - \alpha \mathcal{E}_{i,j})\]
 
-We can formulate the alignment problem and constraints given above as a Boolean LP.
-
-Let $Q$ be a matrix in $\mathcal{B}^{|N| x |S|}$ ($Q$ is a matrix of boolean variables of size $|N|$ x $|S|$). The meaning of $Q_{i,j} = \mathbbm{1}$ can be interpreted as node $N_i$ having come from token $S_j$. Furthermore, let $V$ be a matrix $\mathcal{T}^{|N| x |S|}$ ($V$ is a matrix of derivation types, a set we call $\mathcal{T}$, of size $|N|$ x $|S|$). The matrix element $V_{i,j}$ gets the derivation type that would be implied by node $N_i$ aligning to token $S_j$. \todo{Needs graphic} Our goal can then be formulated roughly as follows:
-
-\[\sum_{i,j} Q_{i,j}*\mathbbm{1}{(V_{i,j} = DICT)}\]
-
-We would like to constrain the alignment so that each node must align to exactly one token:
-
-\[\forall i (\sum_{j} Q_{i,j} = 1)\]
-
-It is also useful to prevent nodes that are not adjacent in the AMR graph, and do not have exactly the same title, from aligning to the same token. Let $\mathcal{J}$ be the set of all pairs $(k,l)$ such that $k \neq l$ and $N_k$ and $N_l$ are not adjacent in the graph, and do not have the same title. Then we can enforce this constraint with,
-
-\[\forall (k,l) \in \mathcal{J} (\forall j (Q_{k,j} + Q_{l,j} \leq 1))\]
-
-We also find edit distance to be a useful encouragement for nodes to align to their correct source token, so we would like to linearly augment our goal term with another value to reflect how closely our proposed alignment follows edit distance. Let $\mathcal{E}$ be a matrix in $\mathcal{R}^{|N|x|S|}$, where $E_{i,j}$ is the Jaro-Winkler edit distance between the title of node $N_i$, and the sentence token $S_j$. Then we can augment our objective function with a linear encouragement, modulated by $\alpha$, to align to the close edit-distance concepts overall. Our new augmented objective function is:
-
-\[\sum_{i,j} Q_{i,j}*(\mathbbm{1}{(V_{i,j} = DICT)} - \alpha \mathcal{E}_{i,j})\]
-
-We have many choices for packages that can solve this Boolean LP efficiently. We used Gurobi \needcite.
-
-Given a matrix $Q$ that minimizes our objective, we can decode our solved alignment as follows: for each $i$, align $N_i$ to the $j$ s.t. $Q_{i,j} = 1$. By our constraints, exactly one such $j$ must exist.
+There are many packages which can solve this Boolean LP efficiently.
+We used Gurobi \needcite.
+Given a matrix $Q$ that minimizes our objective, we can decode our solved alignment 
+  as follows: for each $i$, align $n_i$ to the $j$ s.t. $\bQ_{i,j} = 1$. 
+By our constraints, exactly one such $j$ must exist.
