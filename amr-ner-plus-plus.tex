@@ -149,7 +149,7 @@ The edges (relationships) in AMR describe one of a number of semantic relationsh
 The most salient of these is semantic role labels, such as the ARG0 and destination arcs in \reffig{method}.
 However, often these arcs define a semantics more akin to syntactic dependencies (e.g., \textit{mod} standing in for adjective and adverbial modification), or take on domain-specific semantics (e.g., the month, day, and year arcs of a \textit{date-entity}).
 
-AMR is based on neo-Davidsonian semantics, \cite{Davidson:1967}, and propositional semantics, \cite{Parsons:1990}.
+AMR is based on neo-Davidsonian semantics, \cite{Davidson:1967,Parsons:1990}.
 To introduce AMR and its notation in more detail, we'll unpack the translation of the sentence ``he gleefully ran to his dog Rover''. 
 We show in \reffig{glee} the interpretation of this sentence as an AMR graph.
 
@@ -196,7 +196,7 @@ These subgraphs can logically be considered the expression of a single concept,
 %For the NER++ task, we would like to be able to generate these single concept subgraphs directly from spans of text.
 
 % Figure: Sailors 
-\Fig{sailor.png}{0.25}{sailor}{AMR representation of the word \w{sailor}, which is notable for breaking the word up into a self-contained multi-node unit signifying some etymological understanding.}
+\Fig{sailor.png}{0.25}{sailor}{AMR representation of the word \w{sailor}, which is notable for breaking the word up into a self-contained multi-node unit unpacking the derivational morphology of the word.}
 
 % Figure: Time expression 
 \Fig{date.png}{0.25}{date}{AMR representation of the span \w{January 1, 2008}, an example of how AMR can represent structured data by creating additional nodes like \n{date-entity} to signify the presence of special structure}
