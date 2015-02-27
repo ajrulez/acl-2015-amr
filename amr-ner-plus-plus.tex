@@ -317,8 +317,23 @@ We adopt the dual decomposition based MST algorithm from the parser,
 
 
 \section{NER++ Method}
+Our approach to improving NER++ comes from a simple idea: 
+  instead of trying to pick which of thousands of AMR sub-graphs to generate 
+  from a span of text directly, we partition the AMR sub-graph space in 
+  terms of the actions needed to derive a node from its aligned token. 
+At test time we do a sequence labeling of input tokens with these actions, 
+  and then deterministically derive the AMR sub-graphs from spans of tokens by 
+  applying the transformation decreed by their actions. 
+This dramatically reduces sparsity, and improves generalization (and consequently
+  recall) on the test set, without noticable affecting precision.
+To illustrate, 38\% of the words in the LDC2014E113 test set are 
+  unseen during training time.
 
-Our approach to improving NER++ is very simple: instead of trying to pick which of thousands of AMR sub-graphs to generate from a span of text directly, we partition the AMR sub-graph space in terms of the actions needed to derive a node from its aligned token. At test time we do a sequence labeling of input tokens with these actions, and then deterministically derive the AMR sub-graphs from spans of tokens by applying the transformation decreed by their actions. This dramatically reduces sparsity, and helps improve end-to-end performance, but is most beneficial for domain transfer. We explain in \refsec{actions} how exactly we manage this partition, and explain in \refsec{data} how we create training data from existing resources to train a action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
+We describe our partitioning of the action space in \refsec{actions}, describe our
+  training data in \refsec{data}, and our training of the action classifier in
+  \refsec{classifier}.
+%We explain in \refsec{actions} how we manage this partition, and ,
+%explain in \refsec{data} how we create training data from existing resources to train a action-type classifier. Then we setup the classifier itself in \refsec{classifier}.
 
 \Subsection{actions}{Derivation actions}
 
