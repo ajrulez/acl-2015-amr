@@ -2,7 +2,6 @@
 \Section{alignment}{Automatic Alignment of Training Data}
 AMR training data is in the form of bi-text, where we are given a set of
   (sentence,graph) pairs, with no explicit alignments between them.
-
 We want a projective mapping from each node to the token it represents. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
 
 %For example, imagine we are given the graph for "He gleefully ran to his dog Rover", as shown in \reffig{glee}. Although it's obvious to a human, the training data has no reference to the fact that the node ``run-01'' came from the token ``ran''. There is therefore a crucial task of generating these alignments prior to running training algorithms.
@@ -28,13 +27,14 @@ Our decomposition of the AMR node generation process into a set of actions
 We would like to produce the most \textit{reliable}
   sequence of actions for the NER++ model to train from, where reliable is taken
   in the sense defined in \refsec{informativeness}.
-That is, we would like to maximize the probability of generating a perfect set of
-  nodes, given the sequence of actions that could generate a perfect set of nodes.
-To give an example to explain the distinction, a sequence of all \textbf{DICT} actions could generate anything, but is very low reliability.
+%That is, we would like to maximize the probability of generating a perfect set of
+%  nodes, given the sequence of actions that could generate a perfect set of nodes.
+To give an example, a sequence of all \textbf{DICT} actions could generate any
+  AMR graph, but is very low reliability.
 A sequence of all \textbf{IDENTITY} actions could only generate one set of nodes, but does it with absolute certainty.
-In practice, this objective means we maximize the number of nodes which will be generated
-  from one of the reliable actions (e.g., IDENTITY), and minimize the nodes
-  generated from unreliable actions (e.g., DICT).
+%In practice, this objective means we maximize the number of nodes which will be generated
+%  from one of the reliable actions (e.g., IDENTITY), and minimize the nodes
+%  generated from unreliable actions (e.g., DICT).
 %We would like an alignment of AMR nodes to the source tokens such that we maximize the ``informativeness'' of the actions that we use to generate the AMR nodes from the source text.
 
 %We can define the ``informativeness'' of a given action by the probability of generating the correct nodes given the correct sequence label. The only label with a probability of correct generation that is less than 1 (i.e. is not and immediate guaranteed win) is \textbf{DICT}, which looks up the token in a dictionary, and on our dev set less than 70\% are correctly generated from a \textbf{DICT}.
@@ -45,7 +45,6 @@ In practice, this objective means we maximize the number of nodes which will be 
 
 We formulate this objective as a Boolean LP problem.
 %the alignment problem and constraints given above as a Boolean LP.
-
 Let $\bQ$ be a matrix in $\mathcal{B}^{|\bN| \times |\bS|}$ of Boolean variables,
   where $\bN$ are the 
   nodes in an AMR graph, and $\bS$ are the tokens in the sentence.
@@ -62,7 +61,6 @@ Let the function $\textrm{\small{REL}}(l)$ be the reliability of action $l$ (pro
   % actions are equally reliable. We justify this because in practice a token generally 
   % has only two ways to generate the node it should align to: \textbf{DICT}, and the correct action.
 %  gets the derivation type that would be implied by node $N_i$ aligning to token $S_j$. \todo{Needs graphic} 
-
 Our objective can then be formulated as follows:
 \begin{align}
   \label{eqn:objective}
