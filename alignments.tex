@@ -45,7 +45,7 @@ A sequence of all \textbf{IDENTITY} actions could only generate one set of nodes
 
 We formulate this objective as a Boolean LP problem.
 %the alignment problem and constraints given above as a Boolean LP.
-Let $\bQ$ be a matrix in $\mathcal{B}^{|\bN| \times |\bS|}$ of Boolean variables,
+Let $\bQ$ be a matrix in $\{0,1\}^{|\bN| \times |\bS|}$ of Boolean variables,
   where $\bN$ are the 
   nodes in an AMR graph, and $\bS$ are the tokens in the sentence.
 The meaning of $\bQ_{i,j} = \mathbbm{1}$ can be interpreted as node 
@@ -67,7 +67,7 @@ Our objective can then be formulated as follows:
   & \underset{\bQ}{\textrm{max}}
      & & \sum_{i,j} \bQ_{i,j} \left[ 
          % \mathbbm{1}{(\bV_{i,j} = \textrm{\small{DICT}})}
-         ln(\textrm{\small{REL}}(\bV_{i,j}))
+         \ln(\textrm{\small{REL}}(\bV_{i,j}))
          + \alpha \sE_{i,j} \right] \\
   \label{eqn:constraint1}
   & \textrm{s.t.}

@@ -1,0 +1,4 @@
+
+Our initial assumption (which we suspect would be shared by many researchers with a background in structured prediction) was that the main area deserving further attention in AMR parsing is predicting the edges in the unreliably-aligned, cyclic, non-projective graphs of AMR (i.e., SRL++).
+This intuition follows naturally from an analogy to syntactic dependency parsing.
+We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of an MST variant presented in \newcite{2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.

@@ -64,10 +64,10 @@
 
 Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing
   and machine translation.
-This paper shows that node generation, typically done using a simple
+Node generation, typically done using a simple
   dictionary lookup, is currently the crucial limiting factor in AMR parsing.
 % The state-of-the-art AMR parser cannot generate nodes for tokens unseen at training time, limiting its generalization.
-We propose a small set of actions to construct parts of the AMR parse from spans of tokens, which allows for more robust learning of this stage.
+We propose a small set of actions that derive AMR sub-graphs by transformations on spans of text, which allows for more robust learning of this stage.
 %the first AMR parser that can handle words at test time that were unseen during training.
 Our set of construction actions generalize better than the previous approach, 
   and can be learned with a simple classifier.
@@ -84,56 +84,63 @@ We show that improving the generation of low level subgraphs
   (e.g., \w{Rover} generating \n{name} $\xrightarrow{:op1}$ \n{``Rover''}) significantly improves
   end-to-end performance.
 }
-Abstract Meaning Representation (AMR) \cite{2013banarescu-amr} is a rich graph-based language for expressing semantics over a broad domain.
+
+Abstract Meaning Representation (AMR) \cite{2013banarescu-amr} is a rich, graph-based language for expressing semantics over a broad domain.
 % AMR is written as a directed, rooted graph merging propositional logic and neo-Davidsonian semantics (\todo{cite}).
-\reffig{glee} shows an example AMR for ``he gleefully ran to his dog Rover,'' and we give a brief tutorial on AMR in \refsec{crash}.
-AMR parsing is the task of mapping a natural language sentence into an AMR graph.
-AMR parsing 
+AMR 
+%parsing 
 %is exciting because a practical broad-domain AMR parser
   could enable a new breed of natural language applications ranging from semantically aware MT to rich broad-domain QA over text-based knowledge bases.
-At the time of this writing AMR is the target of a multi-institution multi-year 
-  data-labeling program led by Kevin Knight, which promises to produce a corpus 
-  that is large enough to make it possible to parse to AMR well despite its many 
-  challenges.
+\reffig{glee} shows an example AMR for ``he gleefully ran to his dog Rover,'' and we give a brief tutorial on AMR in \refsec{crash}.
+
+% AMR parsing is the task of mapping a natural language sentence into an AMR graph.
+
+%It's an exciting time for AMR parsing research, because at the time of this writing 
+%AMR is the target 
+  %of a multi-institution multi-year data-labeling program led by Kevin Knight, which 
+  %promises to produce a corpus that is large enough to make it possible to parse to AMR 
+  %well despite its many challenges.
 
 \FigStar{method.png}{0.20}{method}{
 A graphical explanation of our method. We represent the derivation process for \w{He gleefully ran to his dog Rover}. First the tokens in the sentence are labeled with derivation actions, then those actions are used to generate AMR sub-graphs, and then those sub-graphs are stitched together to form a coherent whole.}
 
-However, no matter how much data we are soon to have, AMR parsing remains a hard unsolved task, with only modest performance numbers reported so far.
-A good AMR parser needs to be able to handle a broad range of semantic interpretation tasks, and 
-AMR also possesses distinctive computational challenges from structural properties.
-For example, it provides no guarantees about projectivity or even acyclicity of its graphs.
+% AMR parsing remains a hard unsolved problem, with only modest performance numbers reported so far.
+% A successful AMR parser needs to be able to handle a broad range of semantic interpretation tasks.
+
+%While part of the appeal of AMR is the ability to get away to a certain extent with lexical memorization
+%as a substitute for deep parsing, this approach suffers on generalization in the absence of a huge dataset.
+% This paper proposes a method for de-lexicalizing ... \todo{words}
+% AMR also possesses distinctive computational challenges in its structural properties.
+% For example, it provides no guarantees about projectivity or even acyclicity of its graphs.
 
 We follow previous work \cite{2014flanigan-amr} in dividing AMR parsing into two steps. 
 The first step is \textit{concept identification}, which generates concept (or entity) nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
 The second step is \textit{relation identification}, which adds arcs to link these nodes into a fully connected AMR graph, which we'll call \textit{SRL++} (\refsec{srl}).
 
-Our initial assumption (which we suspect would be shared by many researchers with a background in structured prediction) was that the main area deserving further attention in AMR parsing is predicting the edges in the unreliably-aligned, cyclic, non-projective graphs of AMR (i.e., SRL++).
-This intuition follows naturally from an analogy to syntactic dependency parsing.
-We spent months testing novel structure-prediction algorithms and training regimes to capture aspects of the non-projective cyclic graphs, only to find that the careful application of an MST variant presented in \newcite{2014flanigan-amr} set an extremely strong baseline for the SRL++ task, and our gains were negligible to non-existent.
-
-SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. A first piece of evidence for this claim comes from a close analysis of the only published AMR parser to date, \newcite{2014flanigan-amr}, dubbed ``JAMR''.
+SRL++ is \textit{not} the hard part of AMR parsing. The hard part of AMR parsing is NER++. The evidence for this claim comes from a close reading of the only published AMR parser to date, \newcite{2014flanigan-amr}, dubbed ``JAMR''.
 When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F$_1$.
 However, when JAMR is given a gold NER++ output, and must only perform SRL++ over given sub-graphs it scores 0.80 F$_1$, nearly the inter-annotator agreement of 0.83 F$_1$.
 %, which is inter-annotator agreement on AMR \cite{2013banarescu-amr}  \footnote{Keeping in mind that annotators can sometimes disagree about NER++, this means that the IAA is not a perfect upper bound for parsing performance when given perfect NER++}.
-This means the SRL++ component is quite good, if given perfect NER++.
+This means the SRL++ component is quite good, if given perfect NER++. A bad NER++ system is costing \cite{2014flanigan-amr} more than 20 F$_1$.
 
-In retrospect, it makes sense that SRL++ within AMR is \textit{relatively} easy given a perfect set of nodes to link together.
+In retrospect, it makes sense that SRL++ within AMR is \textit{relatively} easy given a perfect NER++ output, because NER++ carries so much information.
 There's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and syntactic dependency features are very informative for removing any remaining ambiguity.
-If a system is considering how to link the node ``run-01'' in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an ARG0 arc.
+If a system is considering how to link the node ``run-01'' in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an \w{ARG0} arc.
 It must be a noun, which leaves either ``he'' or ``dog'', and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. 
 %Given a modest amount of data, a simple parser can learn these lexical and syntactic type-check rules.
 
-While SRL++ is hard, NER++ is extremely challenging, encompassing many SemEval tasks and a rich set of lemmas, nominalizations, and functional shifts.
+While SRL++ is hard, NER++ is extremely challenging, encompassing many SemEval tasks and a rich set of lemmatizations, nominalizations, and functional shifts.
 This task was handled by a simple baseline system in \cite{2014flanigan-amr}, which memorized a purely lexical mapping from spans of text to AMR nodes, augmented by an NER system and time expression regex at test time.
-This is problematic, because 38\% of the tokens in the test set are unobserved at training time, and the existing method has no way to handle generation for them.
+This is problematic, because 38\% of the tokens in the dev set are unobserved at training time, and the existing method has no way to handle generation for them.
 
 The primary contribution of this paper is a method to largely delexicalize NER++ to gracefully handle unseen tokens.
 Choosing from among a small set of `generative actions' our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
 For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite{palmer2005proposition-srl} on the source token, like from \w{ran} to \n{run-01} in \reffig{glee}.
 
-We show that this approach improves recall dramatically over previous approaches, and that end to end performance is improved from 0.59 to 0.62 \n{smatch} (the metric for measure AMR parsing performance, \cite{cai2013smatch-amr}) when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
-We suspect that the gains are disproportionately small mainly because our NER++ system is able to generate nodes that the SRL++ system never saw during training time, which makes the still lexicalized typecheck features of the SRL++ component useless.
+We show that this approach improves end-to-end recall dramatically over previous approaches, and that end to end performance is improved from 0.59 to 0.62 \n{smatch} (the metric for measure AMR parsing performance, \cite{cai2013smatch-amr}) when our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
+Our system is able to correctly handle 77\% of tokens in the dev set, where the naive baseline previously in place can only handle 63\%, a gain of 14\%.
+% ?????? keep or throw out this defensive sentence ??????
+We suspect that generating so many more correct nodes would result in a higher end-to-end boost if the SRL++ component were less reliant on lexicalized features, which we leave to future work.
 
 % Previous work has observed that AMR parsing can be partitioned into two tasks: a rich lexically grounded entity detection system, which we call NER++ (see \refsec{ner}), and a relationship detection system, which we call SRL++ (see \refsec{srl}).
 
@@ -298,7 +305,7 @@ For SRL++, JAMR uses a variation of the maximum spanning tree algorithm augmente
 
 
 \section{A Novel NER++ Method}\label{sec:nerplusplus}
-38\% of the words in the LDC2014E113 test set are 
+38\% of the words in the LDC2014E113 dev set are 
   unseen during training time, highlighting the brittleness of memorization-based approaches.
 We de-lexicalize by partitioning the AMR sub-graph search space in terms of the actions needed to 
   derive a node from its aligned token. 
@@ -434,7 +441,7 @@ VALUE & 122  & 0.1\\
 
 We analyze the empirical distribution of actions in our automatically aligned corpus in \reftab{distro}.
 The cumulative frequency of the non-\textbf{DICT} actions is striking: we can generate 74\% of the tokens with high reliability ($p \geq 0.95$) actions, which will not break on unseen words.
-That means we can recover 74\% of the words in the test set that are unseen during training, a whopping 28\% of the total 38\%, leaving only 9\% to brittle unobserved memorization.
+That means we can handle 74\% of the words in the dev set that are unobserved during training, leaving only 9\% of the total to brittle unobserved memorization, as opposed to the 38\% prior to our actions.
 In this light, it is unsurprising that our results demonstrate a large gain in recall on the test set.
 
 %We believe that \textbf{DICT} should count for much less than 27\%, and \textbf{LEMMA} should count for much more than 4\%, but issues with existing lemmatizers prevent this, see our error analysis in \refsec{errors}.
