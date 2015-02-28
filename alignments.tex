@@ -2,7 +2,7 @@
 \Section{alignment}{Automatic Alignment of Training Data}
 AMR training data is in the form of bi-text, where we are given a set of
   (sentence,graph) pairs, with no explicit alignments between them.
-We want a projective mapping from each node to the token it represents. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
+We want a mapping from each node to the token it represents. It is perfectly possible for multiple nodes to align to the same token. It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
 
 %For example, imagine we are given the graph for "He gleefully ran to his dog Rover", as shown in \reffig{glee}. Although it's obvious to a human, the training data has no reference to the fact that the node ``run-01'' came from the token ``ran''. There is therefore a crucial task of generating these alignments prior to running training algorithms.
 

@@ -298,17 +298,13 @@ For SRL++, JAMR uses a variation of the maximum spanning tree algorithm augmente
 
 
 \section{A Novel NER++ Method}\label{sec:nerplusplus}
-Our approach to improving NER++ comes from a simple idea: instead of trying to pick 
-  which of thousands of AMR sub-graphs to generate from a span of text directly, 
-  we partition the AMR sub-graph search space in terms of the actions needed to 
+38\% of the words in the LDC2014E113 test set are 
+  unseen during training time, highlighting the brittleness of memorization-based approaches.
+We de-lexicalize by partitioning the AMR sub-graph search space in terms of the actions needed to 
   derive a node from its aligned token. 
 At test time we do a sequence labeling of input tokens with these actions, and 
   then deterministically derive the AMR sub-graphs from spans of tokens by applying 
   the transformation decreed by their actions. 
-This dramatically reduces sparsity, and improves generalization (and consequently
-  recall) on the test set, without noticeablely affecting precision.
-To illustrate, 38\% of the words in the LDC2014E113 test set are 
-  unseen during training time.
 We explain in \refsec{actions} how exactly we manage this partition, and in \refsec{data} how we create training data from existing resources to setup and train an action-type classifier.
 
 \Subsection{actions}{Derivation actions}
@@ -354,8 +350,9 @@ We deterministically take the output of SUTime \cite{2012chang-temporal}
 an approach similar to \newcite{2014flanigan-amr}.
 %This is basically our catch-all.
 In particular, we memorize a simple mapping from spans of text
-  (like \w{sailor}) to their corresponding most frequently seen AMR sub-graphs 
-  in the training data (i.e., the graph in \reffig{sailor}).
+  (like \w{sailor}) to their corresponding most frequently aligned AMR sub-graphs 
+  in the training data (i.e., the graph in \reffig{sailor}). 
+See \refsec{alignment} for details on the alignment process.
 At test time we can do a lookup in this dictionary for any element that gets 
   labeled with a \textbf{DICT} action. 
 If an entry is not found in the mapping, we back off to the second most probable
@@ -369,11 +366,23 @@ If an entry is not found in the mapping, we back off to the second most probable
 %
 \Subsection{informativeness}{Action Reliability}
 
+\Fig{informativeness.png}{0.25}{hierarchy}{
+Reliability of each action.
+The top row are actions which are deterministic;
+  the second row occasionally produce errors.
+DICT is the least preferred action, with a relatively high error rate.
+}
+
+In this section we introduce a method for resolving ambiguity based on comparing the reliability with which actions generate the correct sub-graph, and discuss implications.
+
+% all else being equal, we
+  % prefer to generate actions from higher in the hierarchy, as they are more likely
+  % to produce the correct sub-graph.
+
 % Introduce informativeness
-Even given a perfect action classification for a token, it can still be possible to
-  make mistakes.
-Although some of our actions are entirely deterministic in their conversion
-  from the word to the AMR sub-graph (e.g., IDENTITY), others are prone to
+Even given a perfect action classification for a token, some action executions can introduce errors.
+Some of our actions are entirely deterministic in their conversion
+  from the word to the AMR sub-graph (e.g., IDENTITY), but others are prone to
   making mistakes in this conversion (e.g., VERB, DICT).
 %Given that some span of tokens is correctly labeled with an action, 
 We define the 
@@ -388,28 +397,21 @@ In contrast to \textbf{DICT}, correctly labeling a node as \textbf{IDENTITY}, \t
   once one of those actions have been selected, 
   and we are guaranteed to generate the correct node given the correct action.
 
-\Fig{informativeness.png}{0.25}{hierarchy}{
-Reliability of each action.
-The top row are actions which are deterministic;
-  the second row occasionally produce errors.
-DICT is the least preferred action, with a relatively high error rate.
-}
-
-We can therefore construct a hierarchy of reliability -- all else being equal, we
+We can therefore construct a hierarchy of reliability (\reffig{hierarchy}) -- all else being equal, we
   prefer to generate actions from higher in the hierarchy, as they are more likely
   to produce the correct sub-graph.
-We show this hierarchy in \reffig{hierarchy}.
 This hierarchy is useful in resolving ambiguity throughout our system. 
 During data generation for training (\refsec{data}), when two actions could both generate the aligned AMR node, we prefer the more reliable one.
 In our aligner, we bias alignments towards generating more reliable action sequences (see \refsec{alignment}).
 
 %This allows us to induce an action informativeness hierarchy, with more informative actions taking precedence over less informative actions for several important tasks. We demonstrate this hierarchy in \reffig{hierarchy}.
 
+The primary benefit of the de-lexicalized NER++ approach is that we can reduce the usage of low reliability actions, like \textbf{DICT}. A fully-lexicalized NER++ system is equivalent to using \textbf{DICT} for everything.
 
 %
 % ACTION DISTRIBUTION
 %
-\Subsection{actions}{Distribution of Actions}
+% \Subsection{actions}{Distribution of Actions}
 
 % Distribution of Actions
 \begin{table}[h]
@@ -430,31 +432,10 @@ VALUE & 122  & 0.1\\
 \caption{\label{tab:distro} Distribution of action types in the proxy section of the newswire section of the LDC2014T12 dataset, generated from automatically aligned data. }
 \end{table}
 
-% Intro
-We analyze the empirical distribution of actions in our automatically 
-  aligned corpus in \reftab{distro}.
-The most common class of action is the NONE action.
-This is not unexpected, as many of the tokens in the source sentence are either
-  considered semantically meaningless by the AMR representation (e.g.,
-  \w{a}, \w{the}), or serve as lexical grounding for an AMR arc (e.g.,
-  prepositions).
-
-% Dict
-The second largest class is the DICT action.
-Recall that prior work uses dictionary lookups for every lexical item in the
-  sentence, which is equivalent to a distribution of 100\% on this class.
-A number of the elements here are truly complex constructions; but, this also
-  serves as the implicit action for when other categories fail to generate the
-  correct action during training.
-Therefore, it is likely that the frequency of this action could be pushed down
-  further by tuning the other actions more carefully.
-
-% Others
-The cumulative frequency of the identity, name, and value actions is particularly 
-  notable as the AMR sub-graph corresponding to these actions are
-  always generated deterministically, and therefore correctly by our algorithm.
-These are easy gains in the case where a word is unseen in the
-  training corpus.
+We analyze the empirical distribution of actions in our automatically aligned corpus in \reftab{distro}.
+The cumulative frequency of the non-\textbf{DICT} actions is striking: we can generate 74\% of the tokens with high reliability ($p \geq 0.95$) actions, which will not break on unseen words.
+That means we can recover 74\% of the words in the test set that are unseen during training, a whopping 28\% of the total 38\%, leaving only 9\% to brittle unobserved memorization.
+In this light, it is unsurprising that our results demonstrate a large gain in recall on the test set.
 
 %We believe that \textbf{DICT} should count for much less than 27\%, and \textbf{LEMMA} should count for much more than 4\%, but issues with existing lemmatizers prevent this, see our error analysis in \refsec{errors}.
 
