@@ -132,12 +132,12 @@ We make the observation that SRL++ is not the hard part of AMR parsing;
 %The hard part of AMR parsing is NER++. 
 %The evidence for this claim comes from a close reading of the only published AMR parser to date, \newcite{2014flanigan-amr}, dubbed ``JAMR''.
 %When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F$_1$.
-For example, when JAMR is given a gold NER++ output, and must only perform SRL++ 
-  over given sub-graphs it scores 80 F$_1$ -- nearly the inter-annotator agreement of 83 F$_1$, and far higher than the end to end accuracy of 59 F$_1$.
+For example, when JAMR (\cite{2014flanigan-amr}) is given a gold NER++ output, and must only perform SRL++ 
+  over given subgraphs it scores 80 F$_1$ -- nearly the inter-annotator agreement of 83 F$_1$, and far higher than the end to end accuracy of 59 F$_1$.
 %, which is inter-annotator agreement on AMR \cite{2013banarescu-amr}  \footnote{Keeping in mind that annotators can sometimes disagree about NER++, this means that the IAA is not a perfect upper bound for parsing performance when given perfect NER++}.
 %This means the SRL++ component is quite good, if given perfect NER++. A bad NER++ system is costing \cite{2014flanigan-amr} more than 20 F$_1$.
 
-The primary contribution of this paper is a method to largely delexicalize NER++ to gracefully handle unseen tokens.
+The primary contribution of this paper is a method to largely delexicalize NER++, which leads to better performance and gracefully handles unseen tokens.
 Choosing from among a small set of \textit{generative actions} our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
 For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite{palmer2005proposition-srl} on the source token, like from \w{ran} to \n{run-01} in \reffig{glee}.
 
@@ -159,12 +159,12 @@ This classifier is trained from automatically generated alignments between the
   objective which favors alignment mistakes which are least harmful to the NER++
   component.
 Finally, the concept subgraphs are combined into a coherent AMR parse using the
-  MST-based algorithm of \newcite{2014flanigan-amr}.
+  MSCG-based algorithm of \newcite{2014flanigan-amr}.
 
 
 We show that our approach provides a large boost to recall over previous approaches, and that end to end performance is improved from 59 to 62 \n{smatch} (an F$_1$ measure of correct AMR arcs; see \cite{cai2013smatch-amr}) when incorporated into the SRL++ parser of \newcite{2014flanigan-amr}.
 %our generative actions are stitched together by the previous state of the art parser \cite{2014flanigan-amr}.
-Our system is able to correctly generates parses for 77\% of tokens in the dev set, where the baseline approach previously in place can only handle 63\%: a gain of 14\%.
+Our system is able to correctly generate subgraphs for 77\% of tokens in the dev set, where the baseline approach previously in place can only handle 63\%: a gain of 14\%.
 % ?????? keep or throw out this defensive sentence ??????
 %We suspect that generating so many more correct nodes would result in a higher end-to-end boost if the SRL++ component were less reliant on lexicalized features, which we leave to future work.
 
@@ -244,7 +244,7 @@ These subgraphs can logically be considered the expression of a single concept,
 \Fig{sailor.png}{0.25}{sailor}{AMR representation of the word \w{sailor}, which is notable for breaking the word up into a self-contained multi-node unit unpacking the derivational morphology of the word.}
 
 % Figure: Time expression 
-\Fig{date.png}{0.25}{date}{AMR representation of the span \w{January 1, 2008}, an example of how AMR can represent structured data by creating additional nodes like \n{date-entity} to signify the presence of special structure}
+\Fig{date.png}{0.25}{date}{AMR representation of the span \w{January 1, 2008}, an example of how AMR can represent structured data by creating additional nodes such as \n{date-entity} to signify the presence of special structure}
 
 % Structured data
 Many of these multi-node subgraphs capture structured data such as time expressions
@@ -275,7 +275,7 @@ Whereas often the AMR node aligned to a span of text is a straightforward functi
 %We note this as an area for further exploration.
 
 
-\section{Task decomposition}
+\section{Task Decomposition}
 
 
 % Two stages
@@ -311,7 +311,8 @@ Formally, NER++ is the task of generating a disjoint set of subgraphs representi
 % NOTE: not quite true, SRL++ uses dependency path features that rely on alignments
 % This is also the task where AMR alignment is useful
 % Whereas the structure of the AMR graphs themselves provide data for training the SRL++ model, the NER++ model requires an alignment between nodes of the AMR graph and the surface form of the sentence.
-For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs. The main contribution of this paper is our exploration of delexicalizing NER++ in \refsec{nerplusplus}.
+For NER++, JAMR uses a simple Viterbi sequence model to directly generate AMR-subgraphs from memorized mappings of text spans to subgraphs.
+This paper's main contribution explores delexicalizing NER++ instead, see \refsec{nerplusplus}.
 
 %Parsing to the AMR representation demands a rich NER system, word sense disambiguation, number normalization, time parsing, and many semantic nominalizations and part of speech translations, and within-sentence coreference. We refer to these ``low-level'' AMR tasks collectively as NER++. NER++ is the sub-task of generating the best AMR sub-graphs (``sub-graph'' is defined in \refsec{sub-chunks}) given the set of tokens $S$. This involves both partitioning the source text into spans that will be rendered as a single sub-graph in AMR (e.g. ``run'', ``People's Republic of China'', ``January 1, 2008''), and then mapping each of those spans into a corresponding AMR sub-graph of maximum likelihood.
 
@@ -322,7 +323,7 @@ Unlike the domain-specific arcs within a single sub-graph produced by NER++, the
   arcs in SRL++ tend to have generally applicable semantics.
 For example, the SRL arcs (e.g., \e{ARG0} and \e{destination} in \reffig{method}),
   or the syntactic dependency arcs (e.g., \e{mod} and \e{poss} in \reffig{method}).
-For SRL++, JAMR uses a variation of the maximum spanning tree algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. 
+For SRL++, JAMR uses a variation of the maximum spanning connected graph algorithm augmented by dual decomposition to impose linguistically motivated constraints on a maximum likelihood stitching. 
 %JAMR's SRL++ component is extremely effective, and we were unable to produce a better SRL++ system in our experiments with several other structured prediction approaches.
 %Therefore, we use the modified MST algorithm implemented in \newcite{2014flanigan-amr} to produce
 %  a labeled DAG corresponding to the relation edges.
@@ -332,7 +333,8 @@ For SRL++, JAMR uses a variation of the maximum spanning tree algorithm augmente
 
 \section{A Novel NER++ Method}\label{sec:nerplusplus}
 38\% of the words in the LDC2014E113 dev set are 
-  unseen during training time, highlighting the brittleness of memorization-based approaches.
+  unseen during training time. 
+With training sets this small, memorization-based approaches are extremely brittle.
 We de-lexicalize by partitioning the AMR sub-graph search space in terms of the actions needed to 
   derive a node from its aligned token. 
 At test time we do a sequence labeling of input tokens with these actions, and 
@@ -344,7 +346,7 @@ We explain in \refsec{actions} how exactly we manage this partition, and in \ref
 
 We partition the AMR sub-graph space into a set of 9 actions, each corresponding to an action that will be taken by the NER++ system if a token receives this classification.
 
-\paragraph{VERB} This action capture the verb-sense disambiguation feature of AMR. To execute on a token, we look for the most similar PropBank frame and make that the title of the corresponding node.
+\paragraph{VERB} This action captures the verb-sense disambiguation feature of AMR. To execute on a token, we look for the most similar PropBank frame and make that the title of the corresponding node.
 
 \paragraph{IDENTITY} This action handles the common case that the title of the node corresponding to a token is identical to the source token. To execute, we take the lowercased version of the token to be the title of the corresponding node.
 
@@ -355,7 +357,7 @@ This is a rare action, but is nonetheless distinct from any of the other classes
 %In AMR a node with title ``five'' and a node with title ``5'' are two distinct entities, with different semantic interpretation. 
 We execute this action by extracting an integer value with a regex based number normalizer, and using that as the title of the generated node.
 
-\paragraph{LEMMA} AMR often performs stemming and POS transformations on the source token in generating a node. 
+\paragraph{LEMMA} AMR often performs stemming and part-of-speech transformations on the source token in generating a node. 
 For example, we get \n{glee} from \w{gleefully}.
 We capture this by a \textbf{LEMMA} action, which is executed by using the lemma of the source token as the generated node title.
 Note that this does not capture all lemmatizations, as there are often discrepancies
@@ -365,11 +367,11 @@ Note that this does not capture all lemmatizations, as there are often discrepan
   the node should not align to any corresponding AMR fragment.
 %37\% of the time, we can just ignore the token.
 
-\paragraph{NAME} A common structured data type in AMR is the \n{name} construction. 
+\paragraph{NAME} AMR often references names with a special structured data type: the \n{name} construction. 
 For example, \w{Rover} in \reffig{glee}.
 We can capture this phenomenon on unseen names by attaching a created \n{name} node to the top of a span.
 
-\paragraph{PERSON} A related common structured data type in AMR is the \n{person} with \n{name} construction. 
+\paragraph{PERSON} This action handles expressing a people who weren't observed at training time. AMR uses the \n{person} with \n{name} construction to do this.
 For unknown people during broad-domain use, it's useful to have this classification category.
 This action applies \textbf{NAME}, and then attaches a created \n{person} type-indicator above the created \n{name} for the span.
 
@@ -379,11 +381,11 @@ We deterministically take the output of SUTime \cite{2012chang-temporal}
 %  , and we integrate them using this tag.
 %This action takes the output of the \textit{SUTime} system over the input span, and converts deterministically to a \n{date-entity} sub-graph representation.
 
-\paragraph{DICT} This class serves as a backoff for the other classes, implementing
+\paragraph{DICT} This class serves as a back-off for the other classes, implementing
 an approach similar to \newcite{2014flanigan-amr}.
 %This is basically our catch-all.
 In particular, we memorize a simple mapping from spans of text
-  (like \w{sailor}) to their corresponding most frequently aligned AMR sub-graphs 
+  (such as \w{sailor}) to their corresponding most frequently aligned AMR sub-graphs 
   in the training data (i.e., the graph in \reffig{sailor}). 
 See \refsec{alignment} for details on the alignment process.
 At test time we can do a lookup in this dictionary for any element that gets 
@@ -413,7 +415,7 @@ In this section we introduce a method for resolving ambiguity based on comparing
   % to produce the correct sub-graph.
 
 % Introduce informativeness
-Even given a perfect action classification for a token, some action executions can introduce errors.
+Even given a perfect action classification for a token, certain action executions can introduce errors.
 Some of our actions are entirely deterministic in their conversion
   from the word to the AMR sub-graph (e.g., IDENTITY), but others are prone to
   making mistakes in this conversion (e.g., VERB, DICT).
@@ -516,18 +518,17 @@ Token pronoun and part of a coref chain     \\
 \caption{\label{tab:features} The features for the NER++ maxent classifier. }
 \end{table}
 
-Given a set of AMR training data, in the form of (graph,sentence) pairs,
+Given a set of AMR training data, in the form of \w{(graph, sentence)} pairs,
   we first induce alignments from the graph nodes to the sentence 
   (see \refsec{alignment}).
-Formally, alignment gives us that for each node in the AMR graph $n_i$ we have a token $s_k$ in the
-  sentence that we believe generated the node $n_i$.
+Formally, for every node $n_i$ in the AMR graph, alignment gives us some token $s_j$ (at the $j$th index in the sentence) that we believe generated the node $n_i$.
 %With this alignment, which is an annotation on the graph noting for each node $N_i$ 
 %  a token $S_j$ that is most likely to have ``generated'' $N_i$, we can induce 
 %  alignments.
 
-Then for each action type, we can ask whether that action type is able to take 
-  token $s_k$ and correctly generate $n_i$. 
-For concreteness, imagine the token $s_k$ is \w{running}, and the node $n_i$ has 
+Then, for each action type, we can ask whether or not that action type is able to take 
+  token $s_j$ and correctly generate $n_i$. 
+For concreteness, imagine the token $s_j$ is \w{running}, and the node $n_i$ has 
   the title \n{run-01}.
 %In our example,
 The two action types we find that are 
@@ -535,7 +536,7 @@ The two action types we find that are
 We choose the most reliable action type of those available (see \reffig{hierarchy})
   to generate the observed node -- in this case, VERB.
   
-This provides a supervised training set for our action classifier, with some noise introduced by the automatically generated alignments.
+Inducing the most reliable action (according to the alignments) for every token in the training corpus provides a supervised training set for our action classifier, with some noise introduced by the automatically generated alignments.
 We then train a simple maxent classifier to make action decisions at each node. 
 At test time,
   the classifier takes as input a pair $\langle i, S \rangle$, where $i$ is the 
