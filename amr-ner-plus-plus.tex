@@ -95,14 +95,14 @@ We show that improving the generation of low level subgraphs
 }
 
 Abstract Meaning Representation (AMR) \cite{2013banarescu-amr} is a rich, graph-based language for expressing semantics over a broad domain.
-AMR parsing is the task of mapping a natural language sentence into an AMR graph.
 % AMR is written as a directed, rooted graph merging propositional logic and neo-Davidsonian semantics (\todo{cite}).
-The project is backed by a large data-labeling effort, and the formalism  hold
+The formalism is backed by a large data-labeling effort, and it holds
 %parsing 
 %is exciting because a practical broad-domain AMR parser
   promise for enabling a new breed of natural language applications ranging from semantically aware MT to rich broad-domain QA over text-based knowledge bases.
 \reffig{glee} shows an example AMR for ``he gleefully ran to his dog Rover,'' and we give a brief tutorial on AMR in \refsec{crash}.
 
+This paper focuses on AMR parsing, the task of mapping a natural language sentence into an AMR graph.
 
 %It's an exciting time for AMR parsing research, because at the time of this writing 
 %AMR is the target 
@@ -112,18 +112,18 @@ The project is backed by a large data-labeling effort, and the formalism  hold
 
 \FigStar{method.png}{0.20}{method}{
 A graphical explanation of our method. We represent the derivation process for \w{He gleefully ran to his dog Rover}. First the tokens in the sentence are labeled with derivation actions, then those actions are used to generate AMR sub-graphs, and then those sub-graphs are stitched together to form a coherent whole.}
-
+%
 % AMR parsing remains a hard unsolved problem, with only modest performance numbers reported so far.
 % A successful AMR parser needs to be able to handle a broad range of semantic interpretation tasks.
-
+%
 %While part of the appeal of AMR is the ability to get away to a certain extent with lexical memorization
 %as a substitute for deep parsing, this approach suffers on generalization in the absence of a huge dataset.
 % This paper proposes a method for de-lexicalizing ... \todo{words}
 % AMR also possesses distinctive computational challenges in its structural properties.
 % For example, it provides no guarantees about projectivity or even acyclicity of its graphs.
-
+%
 We follow previous work \cite{2014flanigan-amr} in dividing AMR parsing into two steps. 
-The first step is \textit{concept identification}, which generates concept (or entity) nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
+The first step is \textit{concept identification}, which generates AMR nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
 The second step is \textit{relation identification}, which adds arcs to link these nodes into a fully connected AMR graph, which we'll call \textit{SRL++} (\refsec{srl}).
 
 We make the observation that SRL++ is not the hard part of AMR parsing;
@@ -137,14 +137,17 @@ For example, when JAMR (\cite{2014flanigan-amr}) is given a gold NER++ output, a
 %, which is inter-annotator agreement on AMR \cite{2013banarescu-amr}  \footnote{Keeping in mind that annotators can sometimes disagree about NER++, this means that the IAA is not a perfect upper bound for parsing performance when given perfect NER++}.
 %This means the SRL++ component is quite good, if given perfect NER++. A bad NER++ system is costing \cite{2014flanigan-amr} more than 20 F$_1$.
 
-The primary contribution of this paper is a method to largely delexicalize NER++, which leads to better performance and gracefully handles unseen tokens.
-Choosing from among a small set of \textit{generative actions} our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
-For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite{palmer2005proposition-srl} on the source token, like from \w{ran} to \n{run-01} in \reffig{glee}.
+The primary contribution of this paper is a novel approach to the NER++ task. We notice that the subgraphs aligned to lexical items can often be generated from a small set of \textit{generative actions} which generalize across tokens. For example, most verbs generate an AMR node corresponding to the verb sense of the appropriate PropBank frame -- e.g., \w{run} generates \n{run-01} in \reffig{teaser}. This allows us to frame the NER++ task as the task of classifying one of a small number of \textit{actions} for each token, rather than choosing a specific AMR subgraph for every token in the sentence.
+
+%The primary contribution of this paper is a method to largely delexicalize NER++, which leads to better performance and gracefully handles unseen tokens.
+%Choosing from among a small set of \textit{generative actions} our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
+%For example, we have an action \textit{VERB} that will perform a verb-sense-disambiguation to the appropriate PropBank frame \cite{palmer2005proposition-srl} on the source token, like from \w{ran} to \n{run-01} in \reffig{glee}.
 
 In retrospect, it makes sense that SRL++ within AMR is \textit{relatively} easy given a perfect NER++ output, because NER++ carries so much information.
 There's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and syntactic dependency features are very informative for removing any remaining ambiguity.
 If a system is considering how to link the node ``run-01'' in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an \w{ARG0} arc.
 It must be a noun, which leaves either ``he'' or ``dog'', and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. 
+
 %%Given a modest amount of data, a simple parser can learn these lexical and syntactic type-check rules.
 %
 %While SRL++ is hard, NER++ is extremely challenging, encompassing many SemEval tasks and a rich set of lemmatizations, nominalizations, and functional shifts.
@@ -371,9 +374,7 @@ Note that this does not capture all lemmatizations, as there are often discrepan
 For example, \w{Rover} in \reffig{glee}.
 We can capture this phenomenon on unseen names by attaching a created \n{name} node to the top of a span.
 
-\paragraph{PERSON} This action handles expressing a people who weren't observed at training time. AMR uses the \n{person} with \n{name} construction to do this.
-For unknown people during broad-domain use, it's useful to have this classification category.
-This action applies \textbf{NAME}, and then attaches a created \n{person} type-indicator above the created \n{name} for the span.
+\paragraph{PERSON} A variant of the NAME action, this action produces a subgraph identical to the NAME action, but adds a node \n{person} as a parent. This is, in effect, a \n{name} node with an implicit entity type of person. Due to discrepancies between the output of our named entity tagger and the richer AMR named entity ontology, we only apply this tag to the person named entity tag.
 
 \paragraph{DATE} The most frequent of the structured data type in the data, after \n{name}, is the \n{date-entity} (for an example see \reffig{date}).
 We deterministically take the output of SUTime \cite{2012chang-temporal}
