@@ -41,7 +41,14 @@
 
 
 \title{Robust Subgraph Generation Improves Abstract Meaning Representation Parsing}
-\author{
+
+\author{First Author \\
+  Affiliation / Address line \\
+  {\tt email@domain} \\\And
+  Second Author \\
+  Affiliation / Address line \\
+  {\tt email@domain} \\}
+%\author{
 %  Keenon Werling \\
 %  Stanford University\\
 %  {\tt keenon@stanford.edu} \\\And
@@ -51,7 +58,7 @@
 %  Chris Manning \\
 %  Stanford University\\
 %  {\tt manning@cs.stanford.edu}
-}
+%}
 
 \date{}
 
@@ -62,17 +69,19 @@
 % The existing AMR corpus is heavily biased to the international newswire domain, making domain transfer of AMR parsing an important challenge. 
 % The Abstract Meaning Representation (AMR) is a semantic formalism for which a large and growing set of annotated examples is available.
 
-Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing
-  and machine translation.
-Node generation, typically done using a simple
-  dictionary lookup, is currently the crucial limiting factor in AMR parsing.
+Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing and machine translation. Node generation, typically done using a simple dictionary lookup, is currently an important limiting factor in AMR parsing. We propose a small set of actions that derive AMR sub-graphs by transformations on spans of text, which allows for more robust learning of this stage. Our set of construction actions generalize better than the previous approach, and can be learned with a simple classifier. We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end F$_1$ from 59 to 62 on the LDC2013E117 and LDC2014T12 datasets.
+
+%Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing
+  %and machine translation.
+%Node generation, typically done using a simple
+  %dictionary lookup, is currently the crucial limiting factor in AMR parsing.
 % The state-of-the-art AMR parser cannot generate nodes for tokens unseen at training time, limiting its generalization.
-We propose a small set of actions that derive AMR sub-graphs by transformations on spans of text, which allows for more robust learning of this stage.
+%We propose a small set of actions that derive AMR sub-graphs by transformations on spans of text, which allows for more robust learning of this stage.
 %the first AMR parser that can handle words at test time that were unseen during training.
-Our set of construction actions generalize better than the previous approach, 
-  and can be learned with a simple classifier.
+%Our set of construction actions generalize better than the previous approach, 
+  %and can be learned with a simple classifier.
 % These actions also provide an insight for an alignment system that yields a ``maximally informative'' set of action labels, which we show yields good results.
-We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end F$_1$ from 0.59 to 0.62 on the LDC2013E117 and LDC2014T12 datasets.
+%We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end F$_1$ from 0.59 to 0.62 on the LDC2013E117 and LDC2014T12 datasets.
 
 \end{abstract}
 
