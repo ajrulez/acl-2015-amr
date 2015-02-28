@@ -138,7 +138,7 @@ For example, when JAMR \cite{2014flanigan-amr} is given a gold NER++ output, and
 %This means the SRL++ component is quite good, if given perfect NER++. A bad NER++ system is costing \cite{2014flanigan-amr} more than 20 F$_1$.
 
 SRL++ within AMR is \textit{relatively} easy given a perfect NER++ output, because so much pressure is put on the NER++ to carry meaningful information.
-For eample, there's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and syntactic dependency features are very informative for removing any remaining ambiguity.
+For example, there's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and syntactic dependency features are very informative for removing any remaining ambiguity.
 If a system is considering how to link the node \n{run-01} in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an \w{ARG0} arc.
 It must be a noun, which leaves either \w{he} or \w{dog}, and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. 
 
@@ -162,7 +162,7 @@ This classifier is trained from automatically generated alignments between the
   objective which favors alignment mistakes which are least harmful to the NER++
   component.
 Finally, the concept subgraphs are combined into a coherent AMR parse using the
-  MSCG-based algorithm of \newcite{2014flanigan-amr}.
+  maximum spanning connected subgraph algorithm of \newcite{2014flanigan-amr}.
 
 
 We show that our approach provides a large boost to recall over previous approaches, and that end to end performance is improved from 59 to 62 \n{smatch} (an F$_1$ measure of correct AMR arcs; see \newcite{cai2013smatch-amr}) when incorporated into the SRL++ parser of \newcite{2014flanigan-amr}.
@@ -479,8 +479,9 @@ VALUE & 122  & 0.1\\
 \end{table}
 
 We analyze the empirical distribution of actions in our automatically aligned corpus in \reftab{distro}.
-The cumulative frequency of the non-\textbf{DICT} actions is striking: we can generate 74\% of the tokens with high reliability ($p \geq 0.95$) actions, which will not break on unseen words.
-That means we can handle 74\% of the words in the dev set that are unobserved during training, leaving only 9\% of the total to brittle unobserved memorization, as opposed to the 38\% prior to our actions.
+The cumulative frequency of the non-\textbf{DICT} actions is striking: we can generate 74\% of the tokens with high reliability ($p \geq 0.90$) actions.
+% which will not break on unseen words.
+%That means we can handle 74\% of the words in the dev set that are unobserved during training, leaving only 9\% of the total to brittle unobserved memorization, as opposed to the 38\% prior to our actions.
 In this light, it is unsurprising that our results demonstrate a large gain in recall on the test set.
 
 %We believe that \textbf{DICT} should count for much less than 27\%, and \textbf{LEMMA} should count for much more than 4\%, but issues with existing lemmatizers prevent this, see our error analysis in \refsec{errors}.
@@ -537,8 +538,8 @@ Formally, for every node $n_i$ in the AMR graph, alignment gives us some token $
 %  a token $S_j$ that is most likely to have ``generated'' $N_i$, we can induce 
 %  alignments.
 
-Then, for each action type, we can ask whether or not that action type is able to take 
-  token $s_j$ and correctly generate $n_i$. 
+Then, for each action type, we can ask whether or not that action type is able to 
+  take token $s_j$ and correctly generate $n_i$. 
 For concreteness, imagine the token $s_j$ is \w{running}, and the node $n_i$ has 
   the title \n{run-01}.
 %In our example,
@@ -546,6 +547,12 @@ The two action types we find that are
   able to correctly generate this node are DICT and VERB. 
 We choose the most reliable action type of those available (see \reffig{hierarchy})
   to generate the observed node -- in this case, VERB.
+
+In cases where an AMR subgraph is generated from multiple tokens, we assign the
+  action label to each token which generates the subgraph.
+Each of these tokens are added to the training set; at test time, we collapse
+  sequences of adjacent identical action labels, and apply the action once to the
+  resulting token span.
   
 Inducing the most reliable action (according to the alignments) for every token in the training corpus provides a supervised training set for our action classifier, with some noise introduced by the automatically generated alignments.
 We then train a simple maxent classifier to make action decisions at each node. 
@@ -555,6 +562,7 @@ At test time,
   representing the source sentence.
 It then uses the features in \reftab{features} to predict the actions to take at
   that node.
+
 
 %At test time, given a sequence of input tokens, we do a simple classification of each token separately, to get a sequence labeling of our input tokens. Then for each token, we apply the behavior associated with the token label, and the resulting set of sub-graphs is passed on to SRL++ for linking.
 
@@ -623,14 +631,16 @@ and alignment accuracy on a small hand-labeled corpus are also reported.
 \Subsection{result-amr}{End-to-end AMR Parsing}
 We evaluate our NER++ component in the context of end-to-end AMR parsing
 on two corpora: the newswire section of LDC2014T12 and the split given in \cite{2014flanigan-amr} of LDC2013E117, both consisting primarily of newswire.
-We compare two systems: the JAMR parser \cite{2014flanigan-amr}
-\footnote{Available at \url{https://github.com/jflanigan/jamr}.},
+We compare two systems: the JAMR parser \cite{2014flanigan-amr},
+  \footnote{Available at \url{https://github.com/jflanigan/jamr}.}
   and the JAMR SRL++ component with our NER++ approach.
 
 AMR parsing accuracy is measured with a metric called \w{smatch} \cite{cai2013smatch-amr}, which stands 
   for ``s(emantic) match.'' 
 The metric is the F$_1$ of a best-match between triples implied by the target graph, 
-  and triples in the parsed graph. 
+  and triples in the parsed graph -- that is, the set of (parent, edge, child) triples
+  in the graph.
+
 
 Our results are given in \reftab{results}.
 We report much higher recall numbers on both datasets, with only small ($\leq 1$ point) 
