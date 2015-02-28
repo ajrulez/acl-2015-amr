@@ -101,7 +101,6 @@ The formalism is backed by a large data-labeling effort, and it holds
 %is exciting because a practical broad-domain AMR parser
   promise for enabling a new breed of natural language applications ranging from semantically aware MT to rich broad-domain QA over text-based knowledge bases.
 \reffig{glee} shows an example AMR for ``he gleefully ran to his dog Rover,'' and we give a brief tutorial on AMR in \refsec{crash}.
-
 This paper focuses on AMR parsing, the task of mapping a natural language sentence into an AMR graph.
 
 %It's an exciting time for AMR parsing research, because at the time of this writing 
@@ -126,7 +125,7 @@ We follow previous work \cite{2014flanigan-amr} in dividing AMR parsing into two
 The first step is \textit{concept identification}, which generates AMR nodes from text, and which we'll refer to as \textit{NER++} (\refsec{ner}). 
 The second step is \textit{relation identification}, which adds arcs to link these nodes into a fully connected AMR graph, which we'll call \textit{SRL++} (\refsec{srl}).
 
-We make the observation that SRL++ is not the hard part of AMR parsing;
+We observe that SRL++ is not the hard part of AMR parsing;
   rather, much of the difficulty in AMR is generating high accuracy concept
   sub-graphs from the NER++ component.
 %The hard part of AMR parsing is NER++. 
@@ -140,7 +139,7 @@ For example, when JAMR \cite{2014flanigan-amr} is given a gold NER++ output, and
 SRL++ within AMR is \textit{relatively} easy given a perfect NER++ output, because so much pressure is put on the NER++ to carry meaningful information.
 For example, there's a strong type-check feature for the existence and type of any arc just by looking at its end-points, and syntactic dependency features are very informative for removing any remaining ambiguity.
 If a system is considering how to link the node \n{run-01} in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an \w{ARG0} arc.
-It must be a noun, which leaves either \w{he} or \w{dog}, and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. 
+It must be a noun, which leaves either \w{he} or \w{dog}, and this is easily decided in favor of \w{he} by looking for an nsubj arc in the dependency parse.
 
 The primary contribution of this paper is a novel approach to the NER++ task, illustrated in \reffig{method}. We notice that the subgraphs aligned to lexical items can often be generated from a small set of \textit{generative actions} which generalize across tokens. For example, most verbs generate an AMR node corresponding to the verb sense of the appropriate PropBank frame -- e.g., \w{run} generates \n{run-01} in \reffig{glee}. This allows us to frame the NER++ task as the task of classifying one of a small number of \textit{actions} for each token, rather than choosing a specific AMR subgraph for every token in the sentence.
 
@@ -253,7 +252,7 @@ These subgraphs can logically be considered the expression of a single concept,
 \Fig{sailor.png}{0.25}{sailor}{AMR representation of the word \w{sailor}, which is notable for breaking the word up into a self-contained multi-node unit unpacking the derivational morphology of the word.}
 
 % Figure: Time expression 
-\Fig{date.png}{0.25}{date}{AMR representation of the span \w{January 1, 2008}, an example of how AMR can represent structured data by creating additional nodes such as \n{date-entity} to signify the presence of special structure}
+\Fig{date.png}{0.25}{date}{AMR representation of the span \w{January 1, 2008}, an example of how AMR can represent structured data by creating additional nodes such as \n{date-entity} to signify the presence of special structure.}
 
 % Structured data
 Many of these multi-node subgraphs capture structured data such as time expressions,
@@ -357,6 +356,10 @@ We partition the AMR sub-graph space into a set of 9 actions, each corresponding
 
 \paragraph{IDENTITY} This action handles the common case that the title of the node corresponding to a token is identical to the source token. To execute the action, we take the lowercased version of the token to be the title of the corresponding node.
 
+\paragraph{NONE} This action corresponds to ignoring this token, in the case that
+  the node should not align to any corresponding AMR fragment.
+%37\% of the time, we can just ignore the token.
+
 \paragraph{VERB} This action captures the verb-sense disambiguation feature of AMR. To execute on a token, we find the most similar verb in PropBank based on Jaro Winkler distance, and adopt its most frequent sense.
 This serves as a reasonable baseline for word sense disambiguation, although of
   course accuracy would be expected to improve if a sophisticated system were
@@ -375,10 +378,6 @@ For example, we get \n{glee} from \w{gleefully}.
 We capture this by a \textbf{LEMMA} action, which is executed by using the lemma of the source token as the generated node title.
 Note that this does not capture all lemmatizations, as there are often discrepancies
   between the lemma generated by the lemmatizer and the correct AMR lemma.
-
-\paragraph{NONE} This action corresponds to ignoring this token, in the case that
-  the node should not align to any corresponding AMR fragment.
-%37\% of the time, we can just ignore the token.
 
 \paragraph{NAME} AMR often references names with a special structured data type: the \n{name} construction. 
 For example, \w{Rover} in \reffig{glee}.
@@ -691,7 +690,7 @@ Note that this is a different metric than the precision/recall of prior work, an
   future work; our accuracy should be considered only an informal metric.
 }
 In particular, we require that every AMR node aligns to some token in the sentence,
-  and do not allow the system to not align unsure nodes.
+  and force the system to always align nodes, even when unsure.
 
 %Previous aligners have pursued a slightly different definition of alignment,
 %  and so are not strictly comparable, though we achieve good precision given that we force every node
@@ -714,11 +713,12 @@ We address a key challenge in AMR parsing:
   the task of generating subgraphs from lexical items in the sentence.
 We show that a 
   simple classifier over \textit{actions} which generate
-  these graphs improves end-to-end recall for AMR parsing with only a small
+  these subgraphs improves end-to-end recall for AMR parsing with only a small
   drop in precision, leading to an overall gain in F$_1$.
 A clear direction of future work is improving the coverage of the defined actions.
 For example, a richer lemmatizer could shift the burden of lemmatizing unknown
   words into the AMR lemma semantics and away from the dictionary lookup component.
+We hope our decomposition provides a useful framework to guide future work in NER++ and AMR in general.
   
 %Future work on improving the accuracy of the graph generation from
 %  actions -- particularly the lemmatizer -- and on further reducing the number of
