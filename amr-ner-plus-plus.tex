@@ -132,7 +132,7 @@ We make the observation that SRL++ is not the hard part of AMR parsing;
 %The hard part of AMR parsing is NER++. 
 %The evidence for this claim comes from a close reading of the only published AMR parser to date, \newcite{2014flanigan-amr}, dubbed ``JAMR''.
 %When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F$_1$.
-For example, when JAMR (\cite{2014flanigan-amr}) is given a gold NER++ output, and must only perform SRL++ 
+For example, when JAMR \cite{2014flanigan-amr} is given a gold NER++ output, and must only perform SRL++ 
   over given subgraphs it scores 80 F$_1$ -- nearly the inter-annotator agreement of 83 F$_1$, and far higher than the end to end accuracy of 59 F$_1$.
 %, which is inter-annotator agreement on AMR \cite{2013banarescu-amr}  \footnote{Keeping in mind that annotators can sometimes disagree about NER++, this means that the IAA is not a perfect upper bound for parsing performance when given perfect NER++}.
 %This means the SRL++ component is quite good, if given perfect NER++. A bad NER++ system is costing \cite{2014flanigan-amr} more than 20 F$_1$.
