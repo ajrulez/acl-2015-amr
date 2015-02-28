@@ -142,7 +142,7 @@ For example, there's a strong type-check feature for the existence and type of a
 If a system is considering how to link the node \n{run-01} in \reffig{glee}, the verb-sense frame for ``run-01'' leaves very little entropy in terms of what we could assign as an \w{ARG0} arc.
 It must be a noun, which leaves either \w{he} or \w{dog}, and this is easily decided in favor of ``he'' by looking for an nsubj arc in the dependency parse. 
 
-The primary contribution of this paper is a novel approach to the NER++ task, illustrated in \reffig{method}. We notice that the subgraphs aligned to lexical items can often be generated from a small set of \textit{generative actions} which generalize across tokens. For example, most verbs generate an AMR node corresponding to the verb sense of the appropriate PropBank frame -- e.g., \w{run} generates \n{run-01} in \reffig{teaser}. This allows us to frame the NER++ task as the task of classifying one of a small number of \textit{actions} for each token, rather than choosing a specific AMR subgraph for every token in the sentence.
+The primary contribution of this paper is a novel approach to the NER++ task, illustrated in \reffig{method}. We notice that the subgraphs aligned to lexical items can often be generated from a small set of \textit{generative actions} which generalize across tokens. For example, most verbs generate an AMR node corresponding to the verb sense of the appropriate PropBank frame -- e.g., \w{run} generates \n{run-01} in \reffig{glee}. This allows us to frame the NER++ task as the task of classifying one of a small number of \textit{actions} for each token, rather than choosing a specific AMR subgraph for every token in the sentence.
 
 %The primary contribution of this paper is a method to largely delexicalize NER++, which leads to better performance and gracefully handles unseen tokens.
 %Choosing from among a small set of \textit{generative actions} our system can derive an AMR sub-graph from a span of tokens (see \reffig{method}).
@@ -700,9 +700,7 @@ In particular, we require that every AMR node aligns to some token in the senten
 
 On the automatic alignments over the LDC2014T12 corpus,
   our action classifier achieved a test accuracy of \textbf{0.841}.
-  
-The majority of the errors cluster in ambiguities between \textbf{NONE} and \textbf{DICT}, which are understandable since those are the two largest classes.
-There is surprisingly little confusion between \textbf{NONE} and the other actions, given that \textbf{NONE} is the largest action class. We suspect this is because tokens in \textbf{NONE} have strong part of speech features, where for example prepositions are almost exclusively \textbf{NONE}.
+The classifier's most common class of mistakes are incorrect \textbf{DICT} classifications. It is reassuring that some of these errors can be recovered by the naive dictionary lookup.
 
 The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67}.
 This is particularly impressive given that our model moves many of the difficult 
