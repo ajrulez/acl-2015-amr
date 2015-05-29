@@ -52,7 +52,8 @@ A sequence of all \textbf{IDENTITY} actions could only generate one set of nodes
 
 We formulate this objective as a Boolean LP problem.
 %the alignment problem and constraints given above as a Boolean LP.
-Let $\bQ$ be a matrix in $\{0,1\}^{|\bN| \times |\bS|}$ of Boolean variables,
+%EDIT: Boolean -> Boolean constrained
+Let $\bQ$ be a matrix in $\{0,1\}^{|\bN| \times |\bS|}$ of Boolean constrained variables,
   where $\bN$ are the 
   nodes in an AMR graph, and $\bS$ are the tokens in the sentence.
 The meaning of $\bQ_{i,j} = \mathbbm{1}$ can be interpreted as node 
@@ -87,6 +88,13 @@ where $\sE$ is the Jaro Winkler similarity between the title of the node $i$ and
   and the operator $\nleftrightarrow$ denotes that two nodes in the AMR graph are
   both not adjacent and do not have the same title.
 
+%EDIT: move constraints up in front of Intuition, added "combined with the binary constraint on \bQ$, and
+% changed second constraint explanation from double negative to positive formulation
+% Constraints
+The constraint \refeqn{constraint1}, combined with the binary constraint on $\bQ$, ensures that every node in the graph is
+  aligned to exactly one token in the source sentence.
+The constraint \refeqn{constraint2} ensures that only adjacent nodes or nodes that share a title can refer to the same token.
+
 % Intuition
 The objective value penalizes alignments which map to the unreliable DICT tag,
   while rewarding alignments with high overlap between the title of the node and
@@ -97,11 +105,6 @@ Therefore, if there exists an alignment that would consume the token using anoth
   action, the optimization prefers that alignment.
 The Jaro Winkler similarity term, in turn, serves as a tie-breaker between equally
   (un)reliable alignments.
-% Constraints
-The constraint \refeqn{constraint1} ensures that every node in the graph is
-  aligned to exactly one token in the source sentence.
-The constraint \refeqn{constraint2} ensures that two non-adjacent nodes which do
-  not share a title do not refer to the same token.
 
 %We must further constrain the alignment so that each node aligns to exactly one token:
 %

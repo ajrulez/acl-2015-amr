@@ -42,12 +42,15 @@
 
 \title{Robust Subgraph Generation Improves Abstract Meaning Representation Parsing}
 
-\author{First Author \\
-  Affiliation / Address line \\
-  {\tt email@domain} \\\And
-  Second Author \\
-  Affiliation / Address line \\
-  {\tt email@domain} \\}
+\author{Keenon Werling \\
+  Stanford University \\
+  {\tt keenon@stanford.edu} \\\And
+  Gabor Angeli \\
+  Stanford University \\
+  {\tt angeli@stanford.edu} \\\And
+  Christopher Manning \\
+  Stanford University \\
+  {\tt manning@stanford.edu} \\}
 %\author{
 %  Keenon Werling \\
 %  Stanford University\\
@@ -340,6 +343,7 @@ For SRL++, JAMR uses a variation of the maximum spanning connected graph algorit
 
 
 \section{A Novel NER++ Method}\label{sec:nerplusplus}
+The training sets currently available for AMR are not large.
 38\% of the words in the LDC2014E113 dev set are 
   unseen during training time. 
 With training sets this small, memorization-based approaches are extremely brittle.
@@ -348,6 +352,8 @@ We de-lexicalize by partitioning the AMR sub-graph search space in terms of the 
 At test time we do a sequence labeling of input tokens with these actions, and 
   then deterministically derive the AMR sub-graphs from spans of tokens by applying 
   the transformation decreed by their actions. 
+%EDIT: Caveat about only applying to English.
+This approach derives most of its power from the similarity of English words and their AMR counterparts, and so does not generalize to non-English AMR parsing.
 We explain in \refsec{actions} how exactly we manage this partition, and in \refsec{data} how we create training data from existing resources to setup and train an action-type classifier.
 
 \Subsection{actions}{Derivation actions}
@@ -418,7 +424,8 @@ The top row are actions which are deterministic;
 DICT is the least preferred action, with a relatively high error rate.
 }
 
-In this section we introduce a method for resolving ambiguity based on comparing the reliability with which actions generate the correct sub-graph, and discuss implications.
+% EDIT: added "alignment" to "alignment ambiguity" to clarify that the Action Reliability introduction
+In this section we introduce a method for resolving alignment ambiguity based on comparing the reliability with which actions generate the correct sub-graph, and discuss implications.
 
 % all else being equal, we
   % prefer to generate actions from higher in the hierarchy, as they are more likely
@@ -554,7 +561,8 @@ Each of these tokens are added to the training set; at test time, we collapse
   resulting token span.
   
 Inducing the most reliable action (according to the alignments) for every token in the training corpus provides a supervised training set for our action classifier, with some noise introduced by the automatically generated alignments.
-We then train a simple maxent classifier to make action decisions at each node. 
+% EDIT: Analysis
+We then train a simple maxent classifier\footnote{A sequence model was tried and showed no improvement over a simple maxent classifier} to make action decisions at each node.
 At test time,
   the classifier takes as input a pair $\langle i, S \rangle$, where $i$ is the 
   index of the token in the input sentence, and $S$ is a sequence tokens 
@@ -584,6 +592,17 @@ It then uses the features in \reftab{features} to predict the actions to take at
 
 \Section{related}{Related Work}
 
+%EDIT: Added paragraph explaining jones2012semanics
+Prior work in AMR includes \newcite{jones2012semantics}, and \newcite{2014flanigan-amr}.
+\newcite{jones2012semantics} was focused on the application of AMR to Machine Translation, 
+  and worked with a much more limited dataset.
+\newcite{2014flanigan-amr} forms the basis of the approach of this paper, and is discussed elsewhere.
+
+%EDIT: Added paragraph about other AMR results since submission
+Since this paper was submitted for publication, more work has been published on AMR parsing.
+\newcite{wangtransition} uses a transition based algorithm to transform dependency trees into AMR parses.
+\todo{Find out the other published AMR paper in ACL this year}
+
 Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
 the NER++ component of AMR encapsulates a number of lexical NLP tasks.
 These include named entity recognition \cite{2007nadeau-ner,stanford-ner},
@@ -593,7 +612,7 @@ For example, a full understanding of AMR requires normalizing temporal
   expressions \cite{2010verhagen-tempeval,2010strotgen-temporal,2012chang-temporal}.
  
 In turn, the SRL++ facet of AMR takes many insights from semantic role labeling
-  \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl} to capture the
+  \cite{2002gildea-srl,2004punyakanok-srl,srikumar2013-srl,das2014frame} to capture the
   relations between verbs and their arguments.
 In addition, many of the arcs in AMR have nearly syntactic interpretations
   (e.g., \e{mod} for adjective/adverb modification, \e{op} for compound noun
@@ -618,9 +637,6 @@ Interlingua
   are an important inspiration for decoupling the semantics of the AMR language
   from the surface form of the text being parsed; although, AMR has a self-admitted
   English bias.
-
-
-
 
 \section{Results}
 We present improvements in end-to-end AMR parsing on two datasets by using our NER++ component.
@@ -678,19 +694,24 @@ We evaluate our aligner on a small set of 100 hand-labeled alignments,
   and evaluate our NER++ classifier on automatically generated alignments over the whole corpus,
   
 On a hand-annotated dataset of 100 AMR parses from the LDC2014T12 corpus,\footnote{
-    Our dataset would be publicly released upon acceptance
+    Our dataset is publicly available at \todo{location}
   }
   our aligner achieves
   an accuracy of \textbf{83.2}.
 This is a measurement of the percentage of AMR nodes that are
   aligned to the correct token in their source sentence.
-Note that this is a different metric than the precision/recall of prior work, and
-  is based on both a different corpus and subtly different annotation scheme.\footnote{ 
+%EDIT: Clarifying that this isn't another AMR corpus
+% "prior work" -> "prior work on alignments", "corpus" -> "alignment dataset", "annotation scheme" -> "alignment annotation scheme"
+Note that this is a different metric than the precision/recall of prior work on alignments, and
+  is based on both a different alignment dataset and subtly different alignment annotation scheme.\footnote{ 
   A standard semantics and annotation guideline for AMR alignment is left for 
   future work; our accuracy should be considered only an informal metric.
 }
 In particular, we require that every AMR node aligns to some token in the sentence,
   and force the system to always align nodes, even when unsure.
+%EDIT: Error analysis
+We find the our informativeness-based alignment objective slightly improves end-to-end performance
+  when compared to the rule-based approach of \cite{2014flanigan-amr}, moving up from P=64, R=59, F1=61 to P=65, R=59, F1=62.
 
 %Previous aligners have pursued a slightly different definition of alignment,
 %  and so are not strictly comparable, though we achieve good precision given that we force every node
@@ -730,7 +751,10 @@ We hope our decomposition provides a useful framework to guide future work in NE
 
 % \section{Appendix}
 
-% \section*{Acknowledgments}
+%EDIT: Added an acknowledgements section
+\section*{Acknowledgments}
+
+We would like to thank the anonymous reviewers for their ... \todo{appropriate wording}
 
 % The acknowledgments should go immediately before the references.  Do
 % not number the acknowledgments section. Do not include this section
