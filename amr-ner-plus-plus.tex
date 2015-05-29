@@ -431,6 +431,7 @@ It is worth observing at this point that our actions derive much of their power 
 \Subsection{informativeness}{Action Reliability}
 
 \Fig{informativeness.png}{0.25}{hierarchy}{
+\todo{Maybe take out ``extremely''}
 Reliability of each action.
 The top row are actions which are deterministic;
   the second row occasionally produce errors.
@@ -438,7 +439,9 @@ DICT is the least preferred action, with a relatively high error rate.
 }
 
 % EDIT: added "alignment" to "alignment ambiguity" to clarify that the Action Reliability introduction
-In this section we introduce a method for resolving alignment ambiguity based on comparing the reliability with which actions generate the correct sub-graph, and discuss implications.
+In many cases, mutiple actions could yield the same sub-graph when applied to a node.
+In this section we introduce a method for resolving this ambiguity based on comparing 
+the reliability with which actions generate the correct sub-graph, and discuss implications.
 
 % all else being equal, we
   % prefer to generate actions from higher in the hierarchy, as they are more likely
@@ -451,7 +454,8 @@ Some of our actions are entirely deterministic in their conversion
   making mistakes in this conversion (e.g., VERB, DICT).
 %Given that some span of tokens is correctly labeled with an action, 
 We define the 
-  notion of \textit{action reliability} as the probability of deriving the correct node from a span of tokens.
+  notion of \textit{action reliability} as the probability of deriving the correct node from a span of tokens,
+  conditioned on having chosen the correct action.
 
 To provide a concrete example, our dictionary lookup classifier predicts the correct
   AMR sub-graph 67\% of the time on the dev set.
@@ -466,12 +470,17 @@ We can therefore construct a hierarchy of reliability (\reffig{hierarchy}) -- al
   prefer to generate actions from higher in the hierarchy, as they are more likely
   to produce the correct sub-graph.
 This hierarchy is useful in resolving ambiguity throughout our system. 
-During data generation for training (\refsec{data}), when two actions could both generate the aligned AMR node, we prefer the more reliable one.
-In our aligner, we bias alignments towards generating more reliable action sequences (see \refsec{alignment}).
+During the creation of training data for our classifier (\refsec{data}) from our aligner, 
+  when two actions could both generate the aligned AMR node we prefer the more reliable one.
+In turn, in our aligner we bias alignments towards those which generating 
+  more reliable action sequences as training data (see \refsec{alignment}).
 
 %This allows us to induce an action informativeness hierarchy, with more informative actions taking precedence over less informative actions for several important tasks. We demonstrate this hierarchy in \reffig{hierarchy}.
 
-The primary benefit of the de-lexicalized NER++ approach is that we can reduce the usage of low reliability actions, like \textbf{DICT}. A fully-lexicalized NER++ system is equivalent to using \textbf{DICT} for everything.
+The primary benefit of this action-based NER++ approach is that we can reduce the 
+usage of low reliability actions, like \textbf{DICT}. 
+The approach taken in \newcite{2014flanigan-amr} can be thought of as
+equivalent to classifying every token as the \textbf{DICT} action.
 
 %
 % ACTION DISTRIBUTION
@@ -575,7 +584,7 @@ Each of these tokens are added to the training set; at test time, we collapse
   
 Inducing the most reliable action (according to the alignments) for every token in the training corpus provides a supervised training set for our action classifier, with some noise introduced by the automatically generated alignments.
 % EDIT: Analysis
-We then train a simple maxent classifier\footnote{A sequence model was tried and showed no improvement over a simple maxent classifier} to make action decisions at each node.
+We then train a simple maxent classifier\footnote{A sequence model was tried and showed no improvement over a simple maxent classifier.} to make action decisions at each node.
 At test time,
   the classifier takes as input a pair $\langle i, S \rangle$, where $i$ is the 
   index of the token in the input sentence, and $S$ is a sequence tokens 
@@ -608,13 +617,17 @@ It then uses the features in \reftab{features} to predict the actions to take at
 %EDIT: Added paragraph explaining jones2012semanics
 Prior work in AMR includes \newcite{jones2012semantics}, and \newcite{2014flanigan-amr}.
 \newcite{jones2012semantics} was focused on the application of AMR to Machine Translation, 
-  and worked with a much more limited dataset.
-\newcite{2014flanigan-amr} forms the basis of the approach of this paper, and is discussed elsewhere.
-
+  and worked with a much more limited dataset. \todo{doesn't this predate AMR? Explain their data}
+\newcite{2014flanigan-amr} forms the basis of the approach of this paper.
+Their system introduces the two-stage approach we use:
+  they implement a rule-based alignment to learn a mapping from tokens to sub-graphs, and
+  train a variant of a maximum spanning tree parser adapted to graphs and 
+  with additional constraints for their relation identifications (SRL++) component.
 %EDIT: Added paragraph about other AMR results since submission
-Since this paper was submitted for publication, more work has been published on AMR parsing.
+%Since this paper was submitted for publication, more work has been published on AMR parsing.
 \newcite{wangtransition} uses a transition based algorithm to transform dependency trees into AMR parses.
-\todo{Find out the other published AMR paper in ACL this year}
+\todo{say more. Do we beat their accuracy? Are we compatible with them?}
+%\todo{Find out the other published AMR paper in ACL this year}
 
 Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
 the NER++ component of AMR encapsulates a number of lexical NLP tasks.
@@ -652,15 +665,14 @@ Interlingua
   English bias.
 
 \section{Results}
-We present improvements in end-to-end AMR parsing on two datasets by using our NER++ component.
+We present improvements in end-to-end AMR parsing on two datasets  using our NER++ component.
 Action type classifier accuracy on an automatically aligned corpus
 and alignment accuracy on a small hand-labeled corpus are also reported.
 
 \Subsection{result-amr}{End-to-end AMR Parsing}
 We evaluate our NER++ component in the context of end-to-end AMR parsing
-on two corpora: the newswire section of LDC2014T12 and the split given in \cite{2014flanigan-amr} of LDC2013E117, both consisting primarily of newswire.
-We compare two systems: the JAMR parser \cite{2014flanigan-amr},
-  \footnote{Available at \url{https://github.com/jflanigan/jamr}.}
+on two corpora: the newswire section of LDC2014T12 and the split given in \newcite{2014flanigan-amr} of LDC2013E117, both consisting primarily of newswire.
+We compare two systems: the JAMR parser \cite{2014flanigan-amr},\footnote{Available at \url{https://github.com/jflanigan/jamr}.}
   and the JAMR SRL++ component with our NER++ approach.
 
 AMR parsing accuracy is measured with a metric called \w{smatch} \cite{cai2013smatch-amr}, which stands 
@@ -675,7 +687,7 @@ We report much higher recall numbers on both datasets, with only small ($\leq 1$
   loss in precision.
 This is natural considering our approach.
 A better NER++ system allows for more correct AMR sub-graphs to be generated --
-  improving recall -- but does not in itself improve the accuracy of the
+  improving recall -- but does not in itself necessarily improve the accuracy of the
   SRL++ system it is integrated in.
 
 %Our end-to-end results are reported by plugging the output of our NER++ into the SRL++ component of JAMR \cite{2014flanigan-amr},\footnote
@@ -707,7 +719,7 @@ We evaluate our aligner on a small set of 100 hand-labeled alignments,
   and evaluate our NER++ classifier on automatically generated alignments over the whole corpus,
   
 On a hand-annotated dataset of 100 AMR parses from the LDC2014T12 corpus,\footnote{
-    Our dataset is publicly available at \todo{location}
+    Our dataset is publicly available at \todo{location \url{http://nlp.stanford.edu/projects/amr}?}
   }
   our aligner achieves
   an accuracy of \textbf{83.2}.
@@ -721,10 +733,13 @@ Note that this is a different metric than the precision/recall of prior work on 
   future work; our accuracy should be considered only an informal metric.
 }
 In particular, we require that every AMR node aligns to some token in the sentence,
-  and force the system to always align nodes, even when unsure.
+  which forces the system to always align nodes, even when unsure.
 %EDIT: Error analysis
 We find the our informativeness-based alignment objective slightly improves end-to-end performance
-  when compared to the rule-based approach of \cite{2014flanigan-amr}, moving up from P=64, R=59, F1=61 to P=65, R=59, F1=62.
+  when compared to the rule-based approach of \cite{2014flanigan-amr}, 
+  improving F$_1$ by roughly 1 point (64/59/61 P/R/F$_1$ to 65/59/62 P/R/F$_1$).
+  \todo{this looks like a fraction of a point. Do we have the actual value?}
+%  moving up from P=64, R=59, F1=61 to P=65, R=59, F1=62.
 
 %Previous aligners have pursued a slightly different definition of alignment,
 %  and so are not strictly comparable, though we achieve good precision given that we force every node
@@ -733,7 +748,9 @@ We find the our informativeness-based alignment objective slightly improves end-
 
 On the automatic alignments over the LDC2014T12 corpus,
   our action classifier achieved a test accuracy of \textbf{0.841}.
-The classifier's most common class of mistakes are incorrect \textbf{DICT} classifications. It is reassuring that some of these errors can be recovered by the naive dictionary lookup.
+The classifier's most common class of mistakes are incorrect \textbf{DICT} classifications. 
+It is reassuring that some of these errors can be recovered from by the 
+  \naive\ dictionary lookup finding the correct mapping.
 
 The \textbf{DICT} action lookup table achieved an accuracy of \textbf{0.67}.
 This is particularly impressive given that our model moves many of the difficult 
@@ -767,11 +784,14 @@ We hope our decomposition provides a useful framework to guide future work in NE
 %EDIT: Added an acknowledgements section
 \section*{Acknowledgments}
 
-We would like to thank the anonymous reviewers for their ... \todo{appropriate wording}
-
-% The acknowledgments should go immediately before the references.  Do
-% not number the acknowledgments section. Do not include this section
-% when submitting your paper for review.
+We thank the anonymous reviewers for their thoughtful feedback.
+Stanford University gratefully acknowledges the support of the Defense
+Advanced Research Projects Agency (DARPA) Deep Exploration and Filtering
+of Text (DEFT) Program under Air Force Research Laboratory (AFRL)
+contract no. FA8750-13-2-0040. Any opinions, findings, and conclusion or
+recommendations expressed in this material are those of the authors and
+do not necessarily reflect the view of the DARPA, AFRL, or the US
+government.
 
 % include your own bib file like this:
 \bibliographystyle{acl}

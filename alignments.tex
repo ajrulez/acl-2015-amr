@@ -1,8 +1,10 @@
 
 \Section{alignment}{Automatic Alignment of Training Data}
 AMR training data is in the form of bi-text, where we are given a set of
-  (sentence,graph) pairs, with no explicit alignments between them.
-We want a mapping from each node to the token it represents. It is perfectly possible for multiple nodes to align to the same token. 
+  (sentence, graph) pairs, with no explicit alignments between them.
+We would like to induce a mapping from each node in the AMR graph to the token it represents. 
+It is perfectly possible for multiple nodes to align to the same token -- this is the case
+  with \textit{sailors}, for instance. 
 
 It is not possible, within our framework, to represent a single node being sourced from multiple tokens.
 Note that a subgraph can consist of many individual nodes; in cases where a subgraph
@@ -18,7 +20,7 @@ It is empirically very rare for a subgraph to have more nodes than the token spa
 %To define exactly what is meant by an `alignment', let there be a pair $G = <N,A>$ where $N$ is a set of nodes and $A$ is an $|N|$ by $|N|$ matrix of binary variables, representing the presence or absence of directed arcs between nodes. For example, $A_{i,j} = T$ means that an arc exists between $N_i$ and $N_j$, and $A_{i,j} = F$ means that no arc exists between $N_i$ and $N_j$. Let there be a set of tokens $S$, such that $S_i$ is the $i$th token in the source sentence. We would like an array $B$, where $|B| = |N|$, and for all $i$, $B_i$ is in the range $(1,|S|)$. For $B_i = n$, it means that token $S_n$ generated $N_i$.
 
 There have been two previous attempts at producing automatic AMR alignments. 
-The first was published as a necessary component of JAMR, 
+The first was published as a component of JAMR, 
   and used a rule-based approach to perform alignments.
 This was shown to work well on the sample of 100 hand-labeled sentences used to 
   develop the system.
@@ -28,8 +30,9 @@ They rendered AMR graphs as text, and then used traditional machine translation
   alignment techniques to generate an alignment.
 %  from machine translation to align tokens in the source text and nodes in the AMR graphs. This approach works reasonably well, but fails to take advanactione of the inherently graphical structure of AMR, and regularities within that structure like named entities and quantity values.
 
-Our decomposition of the AMR node generation process into a set of actions 
-  provides a novel objective for the aligner to optimize, in addition to the
+We propose a novel alignment method, since
+  our decomposition of the AMR node generation process into a set of actions 
+  provides an additional objective for the aligner to optimize, in addition to the
   accuracy of the alignment itself.
 We would like to produce the most \textit{reliable}
   sequence of actions for the NER++ model to train from, where reliable is taken
