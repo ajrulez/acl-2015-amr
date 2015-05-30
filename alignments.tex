@@ -103,7 +103,7 @@ The objective value penalizes alignments which map to the unreliable DICT tag,
   while rewarding alignments with high overlap between the title of the node and
   the token.
 Note that most incorrect alignments fall into the DICT class by default, as no other
-  action could generate the correct AMR sub-graph.
+  action could generate the correct AMR subgraph.
 Therefore, if there exists an alignment that would consume the token using another
   action, the optimization prefers that alignment.
 The Jaro Winkler similarity term, in turn, serves as a tie-breaker between equally
