@@ -431,7 +431,7 @@ It is worth observing at this point that our actions derive much of their power 
 \Subsection{informativeness}{Action Reliability}
 
 \Fig{informativeness.png}{0.25}{hierarchy}{
-\todo{Maybe take out ``extremely''}
+% \todo{Maybe take out ``extremely''}
 Reliability of each action.
 The top row are actions which are deterministic;
   the second row occasionally produce errors.
@@ -615,9 +615,10 @@ It then uses the features in \reftab{features} to predict the actions to take at
 \Section{related}{Related Work}
 
 %EDIT: Added paragraph explaining jones2012semanics
+\todo{Double check that this paragraph reads well}
 Prior work in AMR includes \newcite{jones2012semantics}, and \newcite{2014flanigan-amr}.
 \newcite{jones2012semantics}, motivated by applications in Machine Translation, proposed a graphical semantic meaning representation that predates AMR, but is intimately related.
-They proposed a hyper-edge replacement grammar (HRG) approach to parsing into and out of this graphical semantic form.
+They propose a hyper-edge replacement grammar (HRG) approach to parsing into and out of this graphical semantic form.
 \newcite{2014flanigan-amr} forms the basis of the approach of this paper.
 Their system introduces the two-stage approach we use:
   they implement a rule-based alignment to learn a mapping from tokens to sub-graphs, and
@@ -627,7 +628,7 @@ Their system introduces the two-stage approach we use:
 %Since this paper was submitted for publication, more work has been published on AMR parsing.
 \newcite{wangtransition} uses a transition based algorithm to transform dependency trees into AMR parses.
 They achieve 64/62/63 P/R/F$_1$, a 1 point improvement over the f-score of the JAMR-based\cite{2014flanigan-amr} system we demonstrate, with lower precision and higher recall.
-Their transformation action set could be easily combined with the one we propose, which we leave to future work.
+Their transformation action set could be easily augmented by the robust subgraph generation we propose here. We leave this to future work.
 %\todo{Find out the other published AMR paper in ACL this year}
 
 Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
