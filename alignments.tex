@@ -78,7 +78,7 @@ Our objective can then be formulated as follows:
   & \underset{\bQ}{\textrm{max}}
      & & \sum_{i,j} \bQ_{i,j} \left[ 
          % \mathbbm{1}{(\bV_{i,j} = \textrm{\small{DICT}})}
-         \ln(\textrm{\small{REL}}(\bV_{i,j}))
+         \log(\textrm{\small{REL}}(\bV_{i,j}))
          + \alpha \sE_{i,j} \right] \\
   \label{eqn:constraint1}
   & \textrm{s.t.}
@@ -86,7 +86,7 @@ Our objective can then be formulated as follows:
   \label{eqn:constraint2}
   & & & \bQ_{k,j} + \bQ_{l,j} \leq 1 ~~~~~ \forall k,l,j; ~ n_k \nleftrightarrow n_l
 \end{align}
-where $\sE$ is the Jaro Winkler similarity between the title of the node $i$ and the
+where $\sE$ is the Jaro-Winkler similarity between the title of the node $i$ and the
   token $j$, $\alpha$ is a hyperparameter (set to 0.8 in our experiments),
   and the operator $\nleftrightarrow$ denotes that two nodes in the AMR graph are
   both not adjacent and do not have the same title.
@@ -106,7 +106,7 @@ Note that most incorrect alignments fall into the DICT class by default, as no o
   action could generate the correct AMR subgraph.
 Therefore, if there exists an alignment that would consume the token using another
   action, the optimization prefers that alignment.
-The Jaro Winkler similarity term, in turn, serves as a tie-breaker between equally
+The Jaro-Winkler similarity term, in turn, serves as a tie-breaker between equally
   (un)reliable alignments.
 
 %We must further constrain the alignment so that each node aligns to exactly one token:

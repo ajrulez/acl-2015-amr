@@ -48,7 +48,7 @@
   Gabor Angeli \\
   Stanford University \\
   {\tt angeli@stanford.edu} \\\And
-  Christopher Manning \\
+  Christopher D. Manning \\
   Stanford University \\
   {\tt manning@stanford.edu} \\}
 %\author{
@@ -72,7 +72,7 @@
 % The existing AMR corpus is heavily biased to the international newswire domain, making domain transfer of AMR parsing an important challenge. 
 % The Abstract Meaning Representation (AMR) is a semantic formalism for which a large and growing set of annotated examples is available.
 
-The Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing and machine translation. Node generation, typically done using a simple dictionary lookup, is currently an important limiting factor in AMR parsing. We propose a small set of actions that derive AMR subgraphs by transformations on spans of text, which allows for more robust learning of this stage. Our set of construction actions generalize better than the previous approach, and can be learned with a simple classifier. We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end performance by 3 F$_1$ on both the LDC2013E117 and LDC2014T12 datasets.
+The Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like event extraction and machine translation. Node generation, typically done using a simple dictionary lookup, is currently an important limiting factor in AMR parsing. We propose a small set of actions that derive AMR subgraphs by transformations on spans of text, which allows for more robust learning of this stage. Our set of construction actions generalize better than the previous approach, and can be learned with a simple classifier. We improve on the previous state-of-the-art result for AMR parsing, boosting end-to-end performance by 3 F$_1$ on both the LDC2013E117 and LDC2014T12 datasets.
 
 %Abstract Meaning Representation (AMR) is a representation for open-domain rich semantics, with potential use in fields like semantic parsing
   %and machine translation.
@@ -134,8 +134,8 @@ We observe that SRL++ is not the hard part of AMR parsing;
 %The hard part of AMR parsing is NER++. 
 %The evidence for this claim comes from a close reading of the only published AMR parser to date, \newcite{2014flanigan-amr}, dubbed ``JAMR''.
 %When JAMR parses using its own NER++ and SRL++ components, it gets an end-to-end score of 0.58 F$_1$.
-For example, when JAMR \cite{2014flanigan-amr} is given a gold NER++ output, and must only perform SRL++ 
-  over given subgraphs it scores 80 F$_1$ -- nearly the inter-annotator agreement of 83 F$_1$, and far higher than the end to end accuracy of 59 F$_1$.
+For example, when the existing AMR parser JAMR \cite{2014flanigan-amr} is given a gold NER++ output, and must only perform SRL++ 
+  over given subgraphs it scores 80 F$_1$ -- nearly the inter-annotator agreement of 83 F$_1$, and far higher than its end to end accuracy of 59 F$_1$.
 %, which is inter-annotator agreement on AMR \cite{2013banarescu-amr}  \footnote{Keeping in mind that annotators can sometimes disagree about NER++, this means that the IAA is not a perfect upper bound for parsing performance when given perfect NER++}.
 %This means the SRL++ component is quite good, if given perfect NER++. A bad NER++ system is costing \cite{2014flanigan-amr} more than 20 F$_1$.
 
@@ -375,7 +375,7 @@ We partition the AMR subgraph space into a set of 9 actions, each corresponding 
   the node should not align to any corresponding AMR fragment.
 %37\% of the time, we can just ignore the token.
 
-\paragraph{VERB} This action captures the verb-sense disambiguation feature of AMR. To execute on a token, we find the most similar verb in PropBank based on Jaro Winkler distance, and adopt its most frequent sense.
+\paragraph{VERB} This action captures the verb-sense disambiguation feature of AMR. To execute on a token, we find the most similar verb in PropBank based on Jaro-Winkler distance, and adopt its most frequent sense.
 This serves as a reasonable baseline for word sense disambiguation, although of
   course accuracy would be expected to improve if a sophisticated system were
   incorporated.
@@ -507,7 +507,7 @@ VALUE & 122  & 0.1\\
 \end{table}
 
 We analyze the empirical distribution of actions in our automatically aligned corpus in \reftab{distro}.
-The cumulative frequency of the non-\textbf{DICT} actions is striking: we can generate 74\% of the tokens with high reliability ($p \geq 0.90$) actions.
+The cumulative frequency of the non-\textbf{DICT} actions is striking: we can generate 74\% of the tokens with high reliability ($p \geq 0.9$) actions.
 % which will not break on unseen words.
 %That means we can handle 74\% of the words in the dev set that are unobserved during training, leaving only 9\% of the total to brittle unobserved memorization, as opposed to the 38\% prior to our actions.
 In this light, it is unsurprising that our results demonstrate a large gain in recall on the test set.
@@ -544,7 +544,7 @@ Dependency parent token / POS                \\
 Incoming dependency arc                      \\
 Bag of outgoing dependency arcs              \\
 Number of outgoing dependency arcs           \\
-Max JaroWinkler to any lemma in PropBank      \\
+Max Jaro-Winkler to any lemma in PropBank      \\
 Output tag of the \textbf{VERB} action if applied \\
 Output tag of the \textbf{DICT} action if applied \\
 NER; Left+right NER / bigram                 \\
@@ -739,7 +739,7 @@ A standard semantics and annotation guideline for AMR alignment is left for
   future work; our accuracy should be considered only an informal metric.
 
 %EDIT: Error analysis
-We find the our informativeness-based alignment objective slightly improves end-to-end performance
+We find our informativeness-based alignment objective slightly improves end-to-end performance
   when compared to the rule-based approach of \cite{2014flanigan-amr}, 
   improving F$_1$ by roughly 1 point (64/59/61 P/R/F$_1$ to 65/59/62 P/R/F$_1$).
 %  \todo{this looks like a fraction of a point. Do we have the actual value?}
