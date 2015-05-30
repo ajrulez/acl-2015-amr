@@ -43,6 +43,8 @@
 \newcommand\h[1]{\textbf{#1}}
 \newcommand\hh[1]{\textbf{\textcolor[rgb]{0.5,0,0}{#1}}}
 
+\input ../std-macros.tex
+
 % title page information
 \title[Robust Subgraphs for AMR]{Robust Subgraph Generation for Abstract Meaning Representation
 Parsing}
@@ -94,13 +96,13 @@ $\rightarrow$ &
 
 \begin{frame}[noframenumbering]{Decomposing AMR}
 \begin{center}
-\includegraphics[scale=0.25]{glee_wsd.png}
+\includegraphics[scale=0.25]{glee_srl.png}
 \end{center}
 \end{frame}
 
 \begin{frame}[noframenumbering]{Decomposing AMR}
 \begin{center}
-\includegraphics[scale=0.25]{glee_srl.png}
+\includegraphics[scale=0.25]{glee_wsd.png}
 \end{center}
 \end{frame}
 
@@ -194,10 +196,141 @@ Predicted NER++ & 52 & 66 & 58 \\
 % List Actions
 %%%%%%%%%%%%%%%%%%%
 \begin{frame}{Contribution: Factor NER++ into \textit{Actions}}
+\hh{9 actions:}
+\begin{center}
+\begin{tabular}{ll}
+\hh{Identity}  & Generate node with token's name. \\
+\hh{Lemma}     & Generate node with token's lemma. \\
+\hh{Verb}      & Generate node from a token's verb sense. \\
+\\
+\pause
+\hh{Name}      & Generate an NER node (e.g., \w{dog Fido}). \\
+\hh{Person}    & A special case of \textbf{Name} for people. \\
+\\
+\pause
+\hh{Date}      & Convert Timex to AMR date node. \\
+\hh{Value}     & Parse a textual number. \\
+\\
+\pause
+\hh{None}      & Generate nothing. \\
+\\
+\pause
+\hh{Dict}      & Lookup this word in a mapping. \\
+\end{tabular}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%% 
+% Dict
+%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Dict Action}
+\begin{itemize}
+
+\item A ``catch-all'' for nodes that aren't common actions.
+
+\begin{center}
+\begin{tabular}{lcl}
+\w{``Sailor''} &
+$\rightarrow$ &
+\raisebox{-.5\height}{\includegraphics[scale=0.20]{sailor.png}}
+\end{tabular}
+\end{center}
+\pause
+
+\item Only 26\% of tokens.
+
+\item How do we learn this mapping?
+\pause
+\begin{itemize}
+  \item Now that you mention it, how do we learn any of the actions?
+  \pause
+  \item Induce an \textit{alignment} from nodes to tokens.
+  \pause
+  \item (Dict action just takes the most common alignment).
+  \item (Actions train from the induced alignments).
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%% 
+% Alignments
+%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Alignments}
+\begin{itemize}
+\item For each node in the AMR, pick a single token it aligns to.
+\item Prior work: rule-based alignment or IBM model.
+\pause
+\vspace{2em}
+\item We have one more factor to consider...
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%% 
+% Action Reliability
+%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Aside: Action Reliability}
+\hh{How likely are we to get the right node if we got the right action?} \\
+\pause
+\vspace{2em}
+\hh{Not all actions are equally reliable:}
+\begin{center}
+\includegraphics[scale=0.20]{informativeness.png}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%% 
+% Alignments
+%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Alignments}
+\begin{itemize}
+\item For each node in the AMR, pick a single token it aligns to.
+\item Prior work: rule-based alignment or IBM model.
+\vspace{2em}
+\item We also want alignments that generate reliable actions.
+\pause
+\vspace{2em}
+\item Formulate as a Boolean LP optimizing for reliable actions.
+\item Yields $\sim$ 1 F$_1$ improvement on end-to-end parsing.
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%% 
+% Results
+%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Results}
+\begin{itemize}
+  \item Incorporate our NER++ into JAMR SRL++:
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{l|l|llr}
+\textbf{Dataset} &  \textbf{System} & \textbf{P} & \textbf{R} & \textbf{F$_1$} \\
+\hline
+\multirow{2}{*}{2014T12} & JAMR & \textbf{67.1} & 53.2 & 59.3 \\
+  & \textbf{Our System} & 66.6 & \textbf{58.3} & \textbf{62.2} \\
+\hline
+\multirow{2}{*}{2013E117} & JAMR & \textbf{66.9} & 52.9 & 59.1 \\
+  & \textbf{Our System} & 65.9 & \textbf{59.0} & \textbf{62.3} \\
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+  \item 3 F$_1$ improvement.
+  \item Minimum 5 point improvement in recall.
+\end{itemize}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%% 
 % THANKS
 %%%%%%%%%%%%%%%%%%%
+\begin{frame}{Thanks!}
+\begin{center}
+\hh{Questions?} \\
+\vspace{1em}
+\includegraphics[scale=0.15]{concept.png}
+\end{center}
+\end{frame}
 
 
 \end{document}
