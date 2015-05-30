@@ -626,7 +626,8 @@ Their system introduces the two-stage approach we use:
 %EDIT: Added paragraph about other AMR results since submission
 %Since this paper was submitted for publication, more work has been published on AMR parsing.
 \newcite{wangtransition} uses a transition based algorithm to transform dependency trees into AMR parses.
-\todo{say more. Do we beat their accuracy? Are we compatible with them?}
+They achieve 64/62/63 P/R/F$_1$, a 1 point improvement over the f-score of the JAMR-based\cite{2014flanigan-amr} system we demonstrate, with lower precision and higher recall.
+Their transformation action set could be easily combined with the one we propose, which we leave to future work.
 %\todo{Find out the other published AMR paper in ACL this year}
 
 Beyond the connection of our work with \newcite{2014flanigan-amr}, we note that 
@@ -738,7 +739,7 @@ In particular, we require that every AMR node aligns to some token in the senten
 We find the our informativeness-based alignment objective slightly improves end-to-end performance
   when compared to the rule-based approach of \cite{2014flanigan-amr}, 
   improving F$_1$ by roughly 1 point (64/59/61 P/R/F$_1$ to 65/59/62 P/R/F$_1$).
-  \todo{this looks like a fraction of a point. Do we have the actual value?}
+%  \todo{this looks like a fraction of a point. Do we have the actual value?}
 %  moving up from P=64, R=59, F1=61 to P=65, R=59, F1=62.
 
 %Previous aligners have pursued a slightly different definition of alignment,
